@@ -68,6 +68,14 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		const swText = await swRes.text();
 		expect(swText).toContain("/api/");
 		expect(swText).not.toContain("firestore");
+
+		const apkRes = await SELF.fetch(
+			"https://madhav-enterprises.madhavshivom.workers.dev/MadhavShivomERP.apk",
+			{ method: "HEAD" },
+		);
+		expect(apkRes.status).toBe(200);
+		expect(apkRes.headers.get("Content-Type")).toBe("application/vnd.android.package-archive");
+		expect(apkRes.headers.get("Content-Disposition")).toContain("MadhavShivomERP.apk");
 	});
 
 	it("enforces authentication and role permissions on API routes", async () => {
