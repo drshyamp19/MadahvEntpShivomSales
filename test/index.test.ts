@@ -35,7 +35,14 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		const madhavHtml = await madhavHtmlRes.text();
 		expect(madhavHtml).toContain("<title>MADHAV ENTERPRISES - Cloud ERP Portal</title>");
 		expect(madhavHtml).toContain("/madhav-logo.png");
+		expect(madhavHtml).toContain('id="installAppModal"');
+		expect(madhavHtml).toContain("/MadhavShivomERP.apk");
 		expect(madhavHtml).not.toContain("firebase-app-compat");
+
+		const swApkBypass = await SELF.fetch(
+			"https://madhav-enterprises.madhavshivom.workers.dev/sw.js",
+		);
+		expect(await swApkBypass.text()).toContain(".apk");
 
 		const shivomViewRes = await SELF.fetch(
 			"https://madhav-enterprises.madhavshivom.workers.dev/?view=invoice&id=ORD_106_P004&co=SHIVOM",

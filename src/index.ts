@@ -108,8 +108,12 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(req.url);
 
-  // Never cache dynamic API, WebSocket, or live media endpoints
-  if (url.pathname.startsWith('/api/')) {
+  // Never cache dynamic API, WebSocket, live media, or large APK setup downloads
+  if (
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/downloads/') ||
+    url.pathname.endsWith('.apk')
+  ) {
     return;
   }
 
@@ -188,6 +192,35 @@ export default {
 						"Cache-Control": "no-cache, no-store, must-revalidate",
 					},
 				});
+			}
+
+			// 2.5 Android APK Setup File Download (shareable via WhatsApp & Install App button)
+			if (
+				(pathname === "/MadhavShivomERP.apk" || pathname === "/downloads/MadhavShivomERP.apk") &&
+				(request.method === "GET" || request.method === "HEAD")
+			) {
+				const apkReq = new Request(
+					new URL("/downloads/MadhavShivomERP.apk", url.origin).toString(),
+					{
+						method: request.method,
+						headers: request.headers,
+					},
+				);
+				const apkRes = await env.ASSETS.fetch(apkReq);
+				if (apkRes.ok) {
+					const headers = new Headers(apkRes.headers);
+					headers.set("Content-Type", "application/vnd.android.package-archive");
+					headers.set("Content-Disposition", 'attachment; filename="MadhavShivomERP.apk"');
+					headers.set("Cache-Control", "public, max-age=300");
+					return new Response(request.method === "HEAD" ? null : apkRes.body, {
+						status: 200,
+						headers,
+					});
+				}
+				return Response.redirect(
+					"https://github.com/drshyamp19/MadahvEntpShivomSales/releases/download/latest-apk/MadhavShivomERP.apk",
+					302,
+				);
 			}
 
 			// 3. Health check

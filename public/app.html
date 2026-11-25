@@ -7272,6 +7272,119 @@
 			</div>
 		</div>
 
+		<!-- ==================== INSTALL & SHARE APP MODAL ==================== -->
+		<div class="modal-backdrop" id="installAppModal">
+			<div class="modal" style="max-width: 440px; text-align: center">
+				<div style="font-size: 2.3rem; margin-bottom: 6px">📲</div>
+				<h3 id="installModalTitle" style="margin-bottom: 4px; color: var(--primary)">
+					Install Madhav &amp; Shivom ERP App
+				</h3>
+				<p style="font-size: 0.82rem; color: var(--muted); margin-bottom: 16px">
+					Download the Android Setup APK to install on mobile or share directly via WhatsApp.
+				</p>
+
+				<div style="display: flex; flex-direction: column; gap: 10px; text-align: left">
+					<a
+						id="apkDownloadLinkBtn"
+						href="/MadhavShivomERP.apk"
+						download="MadhavShivomERP.apk"
+						class="btn btn-primary"
+						style="
+							width: 100%;
+							justify-content: center;
+							padding: 12px 16px;
+							font-size: 0.92rem;
+							font-weight: 700;
+							text-decoration: none;
+						"
+						onclick="showToast('📥 Downloading MadhavShivomERP.apk setup file...')"
+					>
+						⬇️ Download Android App Setup (.APK)
+					</a>
+
+					<button
+						type="button"
+						class="btn btn-whatsapp"
+						onclick="shareApkOnWhatsApp()"
+						style="
+							width: 100%;
+							justify-content: center;
+							padding: 11px 16px;
+							font-size: 0.88rem;
+							font-weight: 700;
+						"
+					>
+						💬 Share Setup Link on WhatsApp
+					</button>
+
+					<button
+						type="button"
+						class="btn btn-sm"
+						onclick="copyApkDownloadLink()"
+						style="
+							width: 100%;
+							justify-content: center;
+							padding: 10px 14px;
+							font-size: 0.84rem;
+							font-weight: 600;
+							background: #f1f5f9;
+							color: #0f172a;
+							border: 1px solid #cbd5e1;
+						"
+					>
+						📋 Copy Direct APK Setup Link
+					</button>
+
+					<button
+						type="button"
+						id="pwaQuickInstallActionBtn"
+						class="btn btn-sm"
+						onclick="runNativePwaInstall()"
+						style="
+							width: 100%;
+							justify-content: center;
+							padding: 10px 14px;
+							font-size: 0.84rem;
+							font-weight: 600;
+							background: #e0f2fe;
+							color: #0369a1;
+							border: 1px solid #bae6fd;
+						"
+					>
+						⚡ Install Browser App (Add to Home Screen)
+					</button>
+				</div>
+
+				<div
+					id="installHelperNote"
+					style="
+						margin-top: 14px;
+						padding: 10px 12px;
+						background: #f8fafc;
+						border: 1px solid #e2e8f0;
+						border-radius: 8px;
+						font-size: 0.76rem;
+						color: #475569;
+						text-align: left;
+						line-height: 1.5;
+					"
+				>
+					<strong>How to install on Android:</strong> Download <code>MadhavShivomERP.apk</code>, tap
+					Open, and allow &ldquo;Install from this source&rdquo; if prompted. On iPhone/iPad Safari,
+					tap <strong>Share (⬆️) &rarr; Add to Home Screen</strong>.
+				</div>
+
+				<button
+					type="button"
+					class="btn btn-sm"
+					style="width: 100%; justify-content: center; margin-top: 12px; background: #e2e8f0"
+					onclick="closeModal('installAppModal')"
+				>
+					Close
+				</button>
+			</div>
+		</div>
+
 		<!-- ==================== DEALER LEDGER DRAWER MODAL ==================== -->
 		<div class="modal-backdrop" id="dealerLedgerModal">
 			<div class="modal modal-lg">
@@ -22003,11 +22116,14 @@ Thank you! Your payment has been received successfully.`;
 				const topWrap = document.getElementById("pwaInstallBtnWrap");
 				const gwBanner = document.getElementById("pwaInstallBannerGateway");
 				const inApp = isRunningStandaloneOrApk();
-				const isLoggedIn = !!isAdminLoggedIn || !!currentStaff;
-				// Show top header button ONLY on Gateway / Login screen when not logged in; hide once logged in
-				const shouldShowTop = !inApp && !isLoggedIn;
-				if (topWrap) topWrap.style.display = shouldShowTop ? "inline-flex" : "none";
+				if (topWrap) topWrap.style.display = inApp ? "none" : "inline-flex";
 				if (gwBanner) gwBanner.style.display = inApp ? "none" : "block";
+				const pwaBtn = document.getElementById("pwaQuickInstallActionBtn");
+				if (pwaBtn) {
+					pwaBtn.textContent = deferredInstallPrompt
+						? "⚡ 1-Tap Install Browser App Now"
+						: "⚡ Install Browser App (Add to Home Screen)";
+				}
 			}
 
 			window.addEventListener("beforeinstallprompt", (e) => {
@@ -22019,14 +22135,41 @@ Thank you! Your payment has been received successfully.`;
 			window.addEventListener("appinstalled", () => {
 				deferredInstallPrompt = null;
 				updateInstallButtonsVisibility();
-				showToast("✅ Madhav ERP App installed successfully!");
+				closeModal("installAppModal");
+				showToast("✅ ERP App installed successfully!");
 			});
 
-			async function triggerPwaInstall() {
+			function getApkSetupUrl() {
+				return `${window.location.origin}/MadhavShivomERP.apk`;
+			}
+
+			function getActiveBrandDisplayName() {
+				const coKey =
+					(typeof currentCompany !== "undefined" && currentCompany) ||
+					getBrandConfig().activeBrand ||
+					"MADHAV";
+				return coKey === "SHIVOM" ? "SHIVOM SALES & SERVICES" : "MADHAV ENTERPRISES";
+			}
+
+			function triggerPwaInstall() {
+				const titleEl = document.getElementById("installModalTitle");
+				if (titleEl) {
+					titleEl.textContent = `Install ${getActiveBrandDisplayName()} App`;
+				}
+				const dlBtn = document.getElementById("apkDownloadLinkBtn");
+				if (dlBtn) {
+					dlBtn.href = "/MadhavShivomERP.apk";
+				}
+				updateInstallButtonsVisibility();
+				openModal("installAppModal");
+			}
+
+			async function runNativePwaInstall() {
 				if (deferredInstallPrompt) {
 					deferredInstallPrompt.prompt();
 					const choice = await deferredInstallPrompt.userChoice;
 					if (choice && choice.outcome === "accepted") {
+						closeModal("installAppModal");
 						updateInstallButtonsVisibility();
 					}
 					deferredInstallPrompt = null;
@@ -22035,12 +22178,37 @@ Thank you! Your payment has been received successfully.`;
 				const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
 				if (isIos) {
 					alert(
-						"📲 To install Madhav ERP App on iPhone/iPad:\n1. Tap the Share button (⬆️) in Safari\n2. Scroll down and tap 'Add to Home Screen'",
+						"📲 To install on iPhone/iPad:\n1. Tap the Share button (⬆️) in Safari\n2. Scroll down and tap 'Add to Home Screen'",
 					);
 				} else {
 					alert(
-						"📲 To install Madhav ERP App on Mobile / Android:\n1. Tap the browser menu (⋮) at top-right\n2. Tap 'Install app' or 'Add to Home screen'\n(Or download the MadhavShivomERP APK directly from GitHub repository releases).",
+						"📲 Option 1: Tap 'Download Android App Setup (.APK)' above to install MadhavShivomERP.apk.\nOption 2: In Chrome menu (⋮) at top-right, tap 'Install app' or 'Add to Home screen'.",
 					);
+				}
+			}
+
+			function shareApkOnWhatsApp() {
+				const brandName = getActiveBrandDisplayName();
+				const apkUrl = getApkSetupUrl();
+				const portalUrl = window.location.origin;
+				const msg =
+					`📲 *${brandName} — Mobile ERP App Setup*\n\n` +
+					`Download & install Android App (.APK):\n${apkUrl}\n\n` +
+					`Or open directly in browser:\n${portalUrl}`;
+				window.open(
+					`https://wa.me/?text=${encodeURIComponent(msg)}`,
+					"_blank",
+					"noopener,noreferrer",
+				);
+			}
+
+			async function copyApkDownloadLink() {
+				const apkUrl = getApkSetupUrl();
+				try {
+					await navigator.clipboard.writeText(apkUrl);
+					showToast(`✅ Copied APK setup link: ${apkUrl}`);
+				} catch {
+					prompt("Copy this APK setup link to share on WhatsApp:", apkUrl);
 				}
 			}
 
