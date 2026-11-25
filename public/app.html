@@ -1896,13 +1896,13 @@
 								margin-bottom: 6px;
 							"
 						>
-							👤 Username or Admin Email
+							👤 Admin Mobile / Email or Team Username
 						</label>
 						<input
 							type="text"
 							id="unifiedLoginIdentifier"
 							class="form-control"
-							placeholder="Enter username or admin email"
+							placeholder="9309543825, madhaventerprises.care@gmail.com, or staff mobile"
 							required
 							autocomplete="username"
 							style="
@@ -7231,9 +7231,19 @@
 				<div style="font-size: 2.4rem; margin-bottom: 8px">🔐</div>
 				<h3 style="margin-bottom: 4px; color: var(--primary)">Owner Login</h3>
 				<p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 16px">
-					Enter your PIN to access billing, inventory &amp; admin controls.
+					Sign in with 9309543825 or madhaventerprises.care@gmail.com and PIN.
 				</p>
 				<form onsubmit="verifyOwnerLogin(event)">
+					<div class="form-group" style="margin-bottom: 12px">
+						<input
+							type="text"
+							id="ownerIdInput"
+							class="form-control"
+							placeholder="9309543825 or madhaventerprises.care@gmail.com"
+							style="font-size: 0.92rem; padding: 10px 12px"
+							required
+						/>
+					</div>
 					<div class="form-group" style="margin-bottom: 18px">
 						<input
 							type="password"
@@ -7243,7 +7253,6 @@
 							placeholder="••••"
 							style="font-size: 1.4rem; letter-spacing: 6px; padding: 12px"
 							required
-							autofocus
 						/>
 					</div>
 					<div style="display: flex; gap: 8px">
@@ -9649,20 +9658,29 @@
 			}
 
 			function openLoginModal() {
+				const idEl = document.getElementById("ownerIdInput");
+				if (idEl) idEl.value = "";
 				document.getElementById("ownerPinInput").value = "";
 				openModal("ownerLoginModal");
-				setTimeout(() => document.getElementById("ownerPinInput").focus(), 150);
+				setTimeout(() => (idEl || document.getElementById("ownerPinInput")).focus(), 150);
 			}
 
 			async function verifyOwnerLogin(e) {
 				e.preventDefault();
+				const idEl = document.getElementById("ownerIdInput");
+				const enteredId = idEl ? idEl.value.trim() : "";
 				const entered = document.getElementById("ownerPinInput").value.trim();
 				try {
 					const res = await fetch("/api/auth/login", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						credentials: "same-origin",
-						body: JSON.stringify({ password: entered, mode: "owner", rememberMe: true }),
+						body: JSON.stringify({
+							identifier: enteredId,
+							password: entered,
+							mode: "owner",
+							rememberMe: true,
+						}),
 					});
 					const data = await res.json().catch(() => ({}));
 					if (!res.ok || !data.ok) {

@@ -69,11 +69,27 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		);
 		expect(unauthRes.status).toBe(401);
 
-		const badLogin = await loginAs("admin", "wrong-pin", "unified");
+		const badLogin = await loginAs("9309543825", "wrong-pin", "unified");
 		expect(badLogin.res.status).toBe(401);
 		expect(badLogin.data.ok).toBe(false);
 
-		const ownerLogin = await loginAs("admin", "9850", "unified");
+		// Legacy non-designated admin identifiers must be rejected
+		for (const disallowedId of ["admin", "owner", "shyam", "7499477581", "dr.shyamp19@gmail.com"]) {
+			const rejectedUnified = await loginAs(disallowedId, "9850", "unified");
+			expect(rejectedUnified.res.status).toBe(401);
+			expect(rejectedUnified.data.ok).toBe(false);
+
+			const rejectedOwner = await loginAs(disallowedId, "9850", "owner");
+			expect(rejectedOwner.res.status).toBe(401);
+			expect(rejectedOwner.data.ok).toBe(false);
+		}
+
+		const ownerEmailLogin = await loginAs("madhaventerprises.care@gmail.com", "9850", "unified");
+		expect(ownerEmailLogin.res.status).toBe(200);
+		expect(ownerEmailLogin.data.ok).toBe(true);
+		expect(ownerEmailLogin.data.user?.isAdmin).toBe(true);
+
+		const ownerLogin = await loginAs("9309543825", "9850", "unified");
 		expect(ownerLogin.res.status).toBe(200);
 		expect(ownerLogin.data.ok).toBe(true);
 		expect(ownerLogin.data.user?.isAdmin).toBe(true);
@@ -142,7 +158,7 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 	});
 
 	it("auto-seeds MADHAV and SHIVOM into separate SQLite Durable Objects without leaking secrets", async () => {
-		const { data: auth } = await loginAs("admin", "9850", "unified");
+		const { data: auth } = await loginAs("9309543825", "9850", "unified");
 		const token = auth.token!;
 
 		const madhavRes = await SELF.fetch(
@@ -191,7 +207,7 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 	});
 
 	it("stores proof photos in DO SQLite, serves public ?view= docs, and broadcasts real-time WebSocket updates", async () => {
-		const { data: auth } = await loginAs("admin", "9850", "unified");
+		const { data: auth } = await loginAs("9309543825", "9850", "unified");
 		const token = auth.token!;
 
 		// 1. Public ?view= endpoints (unauthenticated)

@@ -310,68 +310,71 @@ export class ErpLedgerDO extends DurableObject<Env> {
 		const rawId = String(identifier || "").trim();
 		const cleanPass = String(password || "").trim();
 		const idLower = rawId.toLowerCase();
+		const normalizedDigits = rawId.replace(/\D/g, "");
+		const isAllowedAdminIdentifier =
+			rawId === "9309543825" ||
+			normalizedDigits === "9309543825" ||
+			normalizedDigits === "919309543825" ||
+			idLower === "madhaventerprises.care@gmail.com";
 
 		const staffRaw = this.readCollection<StaffMember>("salespersons");
 		const allStaff = mergeStaffDirectory(staffRaw);
 		const dynamicOwner = allStaff.find((m) => m.id === "SP00" || m.role === "Owner") || null;
 
+		const buildOwnerResult = (): { ok: true; user: SessionUser } => ({
+			ok: true,
+			user: {
+				id: dynamicOwner?.id || "SP00",
+				name: dynamicOwner?.name || "SHYAM PIMPLKAR",
+				role: "Owner",
+				mobile: dynamicOwner?.mobile || "9309543825",
+				area: dynamicOwner?.area || "Nagpur & Vidarbha H.O.",
+				allowCash: true,
+				isAdmin: true,
+			},
+		});
+
 		if (mode === "owner") {
-			if (!cleanPass) return { ok: false, error: "Please enter Owner PIN." };
+			if (!rawId || !cleanPass) {
+				return {
+					ok: false,
+					error: "Please enter Admin Mobile (9309543825) or Email and PIN.",
+				};
+			}
+			if (!isAllowedAdminIdentifier) {
+				return {
+					ok: false,
+					error: "Admin login is restricted to 9309543825 or madhaventerprises.care@gmail.com.",
+				};
+			}
 			const ok = await verifyMasterPin(cleanPass, dynamicOwner);
 			if (!ok) return { ok: false, error: "Invalid PIN. Access denied." };
-			return {
-				ok: true,
-				user: {
-					id: dynamicOwner?.id || "SP00",
-					name: dynamicOwner?.name || "SHYAM PIMPLKAR",
-					role: "Owner",
-					mobile: dynamicOwner?.mobile || "9309543825",
-					area: dynamicOwner?.area || "Nagpur & Vidarbha H.O.",
-					allowCash: true,
-					isAdmin: true,
-				},
-			};
+			return buildOwnerResult();
 		}
 
 		if (!rawId || !cleanPass) {
 			return { ok: false, error: "Please enter both Username/Mobile and Password." };
 		}
 
-		const isEmailOrAdmin =
-			mode === "unified" &&
-			(idLower.includes("@") ||
-				idLower === "admin" ||
-				idLower === "owner" ||
-				rawId === "7499477581" ||
-				rawId === "9309543825");
-
-		if (isEmailOrAdmin) {
-			const isOwnerEmailValid =
-				!idLower.includes("@") ||
-				idLower === "madhaventerprises.care@gmail.com" ||
-				idLower === "dr.shyamp19@gmail.com";
-			if (isOwnerEmailValid && (await verifyMasterPin(cleanPass, dynamicOwner))) {
+		if (isAllowedAdminIdentifier) {
+			const ok = await verifyMasterPin(cleanPass, dynamicOwner);
+			if (!ok) {
 				return {
-					ok: true,
-					user: {
-						id: dynamicOwner?.id || "SP00",
-						name: dynamicOwner?.name || "SHYAM PIMPLKAR",
-						role: "Owner",
-						mobile: dynamicOwner?.mobile || "9309543825",
-						area: dynamicOwner?.area || "Nagpur & Vidarbha H.O.",
-						allowCash: true,
-						isAdmin: true,
-					},
+					ok: false,
+					error: "Incorrect password or PIN for Owner Admin.",
 				};
 			}
+			return buildOwnerResult();
 		}
 
-		const member = allStaff.find(
+		const nonAdminStaff = allStaff.filter(
+			(u) => u.id !== "SP00" && u.role !== "Owner" && u.role !== "Co-Owner",
+		);
+		const member = nonAdminStaff.find(
 			(u) =>
 				u.mobile === rawId ||
 				(mode === "unified" &&
 					((u.name && u.name.toLowerCase().includes(idLower)) ||
-						(idLower === "shyam" && u.name && u.name.toUpperCase().includes("SHYAM")) ||
 						(idLower === "prashik" && u.name && u.name.toUpperCase().includes("PRASHIK")) ||
 						(idLower === "gopal" && u.name && u.name.toUpperCase().includes("GOPAL")) ||
 						(idLower === "vikram" && u.name && u.name.toUpperCase().includes("VIKRAM")))),
@@ -395,7 +398,6 @@ export class ErpLedgerDO extends DurableObject<Env> {
 			};
 		}
 
-		const isAdmin = member.role === "Owner" || member.role === "Co-Owner";
 		return {
 			ok: true,
 			user: {
@@ -405,7 +407,7 @@ export class ErpLedgerDO extends DurableObject<Env> {
 				mobile: member.mobile,
 				area: member.area || "Field Route",
 				allowCash: typeof member.allowCash !== "undefined" ? Boolean(member.allowCash) : true,
-				isAdmin,
+				isAdmin: false,
 			},
 		};
 	}
