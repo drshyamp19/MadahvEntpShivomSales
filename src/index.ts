@@ -417,7 +417,21 @@ export default {
 					);
 				}
 
+				if (col === "chatMessages") {
+					item.senderId = session.id;
+					item.senderName = session.name;
+					item.senderRole = session.role;
+					if (!item.timestamp) item.timestamp = Date.now();
+					if (!item.createdAt) item.createdAt = new Date().toISOString();
+				}
+
 				const result = await getLedgerStub(co).upsertRecord(co, col, item, session.name);
+				if (col === "chatMessages" && item.channel === "ALL") {
+					const otherCo: CompanyKey = co === "MADHAV" ? "SHIVOM" : "MADHAV";
+					await getLedgerStub(otherCo)
+						.upsertRecord(otherCo, col, item, session.name)
+						.catch(() => {});
+				}
 				return jsonNoStore({ ok: true, ...result });
 			}
 
@@ -443,6 +457,12 @@ export default {
 
 				const co = normalizeCompanyKey(url.searchParams.get("co"), defaultBrandKey);
 				const result = await getLedgerStub(co).deleteRecord(co, col, id, session.name);
+				if (col === "chatMessages") {
+					const otherCo: CompanyKey = co === "MADHAV" ? "SHIVOM" : "MADHAV";
+					await getLedgerStub(otherCo)
+						.deleteRecord(otherCo, col, id, session.name)
+						.catch(() => {});
+				}
 				return jsonNoStore({ ok: true, ...result });
 			}
 

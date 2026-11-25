@@ -183,6 +183,9 @@ export class ErpLedgerDO extends DurableObject<Env> {
 		if (collection === "orders") {
 			out.sort((a, b) => Number(b.orderNo || 0) - Number(a.orderNo || 0));
 		}
+		if (collection === "chatMessages") {
+			out.sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0));
+		}
 		return out;
 	}
 
@@ -295,6 +298,7 @@ export class ErpLedgerDO extends DurableObject<Env> {
 			purchaseBills: this.readCollection("purchaseBills"),
 			salesReturns: this.readCollection("salesReturns"),
 			expenses: this.readCollection("expenses"),
+			chatMessages: this.readCollection("chatMessages"),
 			settings: this.getMeta<CompanySettings>("settings", {}),
 			system: this.getMeta<SystemMeta>("system", {}),
 		};

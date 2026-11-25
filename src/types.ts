@@ -11,6 +11,7 @@ export const COLLECTION_NAMES = [
 	"purchaseBills",
 	"salesReturns",
 	"expenses",
+	"chatMessages",
 ] as const;
 
 export type CollectionName = (typeof COLLECTION_NAMES)[number];
@@ -91,6 +92,20 @@ export interface ErpSeedData {
 	salespersons: StaffMember[];
 }
 
+export interface ChatMessageRecord extends ErpRecord {
+	id: string;
+	channel: "MADHAV" | "SHIVOM" | "ALL";
+	senderId: string;
+	senderName: string;
+	senderRole: string;
+	text: string;
+	orderRef?: string;
+	orderId?: string;
+	partyName?: string;
+	createdAt: string;
+	timestamp: number;
+}
+
 export interface ErpStateSnapshot {
 	company: CompanyKey;
 	rev: number;
@@ -104,6 +119,7 @@ export interface ErpStateSnapshot {
 	purchaseBills: ErpRecord[];
 	salesReturns: ErpRecord[];
 	expenses: ErpRecord[];
+	chatMessages: ErpRecord[];
 	settings: CompanySettings;
 	system: SystemMeta;
 }

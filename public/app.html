@@ -1819,6 +1819,233 @@
 			.salesperson-orders-view.hide-sp-col .order-sp-col {
 				display: none !important;
 			}
+
+			/* WhatsApp-Style In-App Team Chat */
+			.floating-chat-btn {
+				position: fixed;
+				bottom: 24px;
+				right: 24px;
+				width: 58px;
+				height: 58px;
+				border-radius: 50%;
+				background: linear-gradient(135deg, #25D366, #128C7E);
+				color: #ffffff;
+				box-shadow: 0 4px 18px rgba(18, 140, 126, 0.45);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				z-index: 9999;
+				transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+			}
+			.floating-chat-btn:hover {
+				transform: scale(1.1);
+				box-shadow: 0 6px 22px rgba(18, 140, 126, 0.65);
+			}
+			.floating-chat-badge {
+				position: absolute;
+				top: -4px;
+				right: -4px;
+				background: #e53e3e;
+				color: #fff;
+				border-radius: 12px;
+				padding: 2px 7px;
+				font-size: 0.72rem;
+				font-weight: 800;
+				border: 2px solid #fff;
+				box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+			}
+
+			/* Chat Modal & Shell */
+			.chat-modal-shell {
+				width: 100%;
+				max-width: 680px;
+				height: 84vh;
+				max-height: 740px;
+				display: flex;
+				flex-direction: column;
+				background: #efeae2;
+				border-radius: 16px;
+				overflow: hidden;
+				box-shadow: 0 12px 48px rgba(0,0,0,0.35);
+				position: relative;
+			}
+			.chat-header {
+				background: #075e54;
+				color: #fff;
+				padding: 12px 16px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 12px;
+				flex-shrink: 0;
+			}
+			.chat-header-left {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+			}
+			.chat-header-avatar {
+				width: 42px;
+				height: 42px;
+				border-radius: 50%;
+				background: #128c7e;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 1.3rem;
+				border: 2px solid rgba(255,255,255,0.4);
+			}
+			.chat-channel-tabs {
+				display: flex;
+				background: #128c7e;
+				padding: 4px;
+				gap: 4px;
+				flex-shrink: 0;
+			}
+			.chat-channel-tab {
+				flex: 1;
+				background: transparent;
+				border: none;
+				color: rgba(255,255,255,0.8);
+				padding: 8px 12px;
+				font-size: 0.82rem;
+				font-weight: 600;
+				border-radius: 8px;
+				cursor: pointer;
+				text-align: center;
+				transition: background 0.15s, color 0.15s;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 6px;
+			}
+			.chat-channel-tab.active {
+				background: #075e54;
+				color: #fff;
+				box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+			}
+			.chat-body-scroll {
+				flex: 1;
+				overflow-y: auto;
+				padding: 16px 14px;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				background-color: #efeae2;
+				background-image: radial-gradient(#d3cabb 1px, transparent 1px);
+				background-size: 16px 16px;
+			}
+			.chat-bubble-row {
+				display: flex;
+				width: 100%;
+			}
+			.chat-bubble-row.me {
+				justify-content: flex-end;
+			}
+			.chat-bubble-row.other {
+				justify-content: flex-start;
+			}
+			.chat-bubble {
+				max-width: 82%;
+				padding: 8px 12px;
+				border-radius: 10px;
+				font-size: 0.88rem;
+				line-height: 1.4;
+				position: relative;
+				word-break: break-word;
+				box-shadow: 0 1px 2px rgba(0,0,0,0.13);
+			}
+			.chat-bubble.me {
+				background: #dcf8c6;
+				color: #111b21;
+				border-top-right-radius: 2px;
+			}
+			.chat-bubble.other {
+				background: #ffffff;
+				color: #111b21;
+				border-top-left-radius: 2px;
+			}
+			.chat-sender-name {
+				font-size: 0.72rem;
+				font-weight: 700;
+				margin-bottom: 2px;
+				color: #075e54;
+				display: flex;
+				align-items: center;
+				gap: 5px;
+			}
+			.chat-order-tag {
+				display: inline-flex;
+				align-items: center;
+				gap: 5px;
+				background: #e7f3ff;
+				border: 1px solid #b6d4fe;
+				color: #084298;
+				padding: 3px 8px;
+				border-radius: 6px;
+				font-size: 0.76rem;
+				font-weight: 600;
+				margin-bottom: 5px;
+				cursor: pointer;
+				transition: background 0.15s;
+			}
+			.chat-order-tag:hover {
+				background: #cfe2ff;
+			}
+			.chat-meta {
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 6px;
+				font-size: 0.68rem;
+				color: #667781;
+				margin-top: 4px;
+			}
+			.chat-input-bar {
+				background: #f0f2f5;
+				padding: 10px 14px;
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				border-top: 1px solid #d1d7db;
+				flex-shrink: 0;
+			}
+			.chat-input-row {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+			.chat-text-input {
+				flex: 1;
+				background: #fff;
+				border: 1px solid #e2e8f0;
+				border-radius: 20px;
+				padding: 10px 16px;
+				font-size: 0.9rem;
+				outline: none;
+			}
+			.chat-text-input:focus {
+				border-color: #25D366;
+			}
+			.chat-send-btn {
+				background: #25D366;
+				border: none;
+				border-radius: 50%;
+				width: 44px;
+				height: 44px;
+				color: #fff;
+				font-size: 1.15rem;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				box-shadow: 0 2px 6px rgba(37,211,102,0.4);
+				transition: transform 0.15s;
+			}
+			.chat-send-btn:hover {
+				transform: scale(1.06);
+			}
 		</style>
 	</head>
 	<body>
@@ -2273,6 +2500,14 @@
 						onclick="switchTab('staff-cash', this)"
 					>
 						🤝 Cash Handover &amp; Bank
+					</button>
+					<button
+						class="nav-tab admin-or-staff-item"
+						style="display: none"
+						data-tab="team-chat"
+						onclick="openTeamChat()"
+					>
+						💬 Team Chat <span id="navChatBadge" style="display:none;background:#e53e3e;color:#fff;border-radius:10px;padding:1px 6px;font-size:0.75rem;margin-left:4px;font-weight:700;">0</span>
 					</button>
 				</div>
 
@@ -8797,6 +9032,7 @@
 				purchaseBills: [],
 				salesReturns: [],
 				expenses: [],
+				chatMessages: [],
 				salespersons: [],
 				settings: {},
 				rev: 0,
@@ -9480,6 +9716,7 @@
 							purchaseBills: [],
 							salesReturns: [],
 							expenses: [],
+							chatMessages: [],
 							salespersons: [],
 							settings: {},
 							rev: 0,
@@ -9496,6 +9733,7 @@
 						purchaseBills: [],
 						salesReturns: [],
 						expenses: [],
+						chatMessages: [],
 						salespersons: [],
 						settings: {},
 						rev: 0,
@@ -9510,6 +9748,7 @@
 				if (!state.purchaseBills) state.purchaseBills = [];
 				if (!state.salesReturns) state.salesReturns = [];
 				if (!state.expenses) state.expenses = [];
+				if (!state.chatMessages) state.chatMessages = [];
 				if (!state.salespersons) state.salespersons = [];
 				if (!state.settings) state.settings = {};
 				purgeTrialCashRecords();
@@ -9899,6 +10138,9 @@
 					el.style.display = isLoggedIn ? "inline-flex" : "none";
 				});
 
+				const floatChatBtn = document.getElementById("floatingTeamChatBtn");
+				if (floatChatBtn) floatChatBtn.style.display = isLoggedIn ? "flex" : "none";
+
 				const adminNavRow = document.getElementById("adminNavRow");
 				if (adminNavRow) adminNavRow.style.display = isAdmin ? "flex" : "none";
 
@@ -10029,6 +10271,7 @@
 						purchaseBills: snap.purchaseBills || [],
 						salesReturns: snap.salesReturns || [],
 						expenses: snap.expenses || [],
+						chatMessages: snap.chatMessages || [],
 						settings: snap.settings || {},
 						system: snap.system || {},
 					};
@@ -10040,7 +10283,8 @@
 			}
 
 			function applySyncEvent(ev) {
-				if (!ev || ev.company !== activeCompany || isResetInProgress) return;
+				if (!ev || isResetInProgress) return;
+				if (ev.collection !== "chatMessages" && ev.company !== activeCompany) return;
 				if (ev.rev) state.rev = ev.rev;
 
 				if (ev.type === "upsert" && ev.collection && ev.item) {
@@ -10052,13 +10296,41 @@
 					if (ev.collection === "orders") {
 						arr.sort((a, b) => Number(b.orderNo || 0) - Number(a.orderNo || 0));
 					}
+					if (ev.collection === "chatMessages") {
+						arr.sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0));
+						const curUser = typeof getChatCurrentUser === "function" ? getChatCurrentUser() : null;
+						const isIncomingFromOther = !curUser || (ev.item.senderId !== curUser.id && (!ev.item.senderName || ev.item.senderName.toUpperCase() !== curUser.name.toUpperCase()));
+						if (isIncomingFromOther) {
+							if (typeof playChatNotificationSound === "function") playChatNotificationSound();
+							if (typeof showBrowserNotification === "function") {
+								showBrowserNotification(`💬 ${ev.item.senderName || "Team"}`, ev.item.text || "New message received");
+							}
+							if (typeof isChatModalOpen !== "undefined" && !isChatModalOpen) {
+								if (typeof chatUnreadCount !== "undefined") chatUnreadCount++;
+								if (typeof updateChatBadgeUI === "function") updateChatBadgeUI();
+								showToast(`💬 ${ev.item.senderName}: ${(ev.item.text || "").slice(0, 45)}`);
+							}
+						}
+						if (typeof isChatModalOpen !== "undefined" && isChatModalOpen) {
+							if (typeof renderChatMessages === "function") renderChatMessages();
+							if (typeof scrollChatToBottom === "function") scrollChatToBottom();
+						}
+					}
 					persistLocal();
-					refreshAll();
+					if (ev.collection !== "chatMessages") {
+						refreshAll();
+					}
 				} else if (ev.type === "delete" && ev.collection && ev.id) {
 					if (Array.isArray(state[ev.collection])) {
 						state[ev.collection] = state[ev.collection].filter((x) => x && x.id !== ev.id);
 						persistLocal();
-						refreshAll();
+						if (ev.collection === "chatMessages") {
+							if (typeof isChatModalOpen !== "undefined" && isChatModalOpen && typeof renderChatMessages === "function") {
+								renderChatMessages();
+							}
+						} else {
+							refreshAll();
+						}
 					}
 				} else if (ev.type === "settings" && ev.settings) {
 					state.settings = { ...(state.settings || {}), ...ev.settings };
@@ -23696,6 +23968,397 @@ Thank you! Your payment has been received successfully.`;
 				const waUrl = `https://wa.me/91${ownerPhone}?text=${encodeURIComponent(lines)}`;
 				window.open(waUrl, "_blank");
 			}
+
+			// ==================== WHATSAPP-STYLE IN-APP TEAM CHAT ENGINE ====================
+			let currentChatChannel = "MADHAV";
+			let chatUnreadCount = 0;
+			let chatNotificationSoundEnabled = true;
+			let isChatModalOpen = false;
+			let chatAudioCtx = null;
+
+			function toggleChatSound() {
+				chatNotificationSoundEnabled = !chatNotificationSoundEnabled;
+				const btn = document.getElementById("chatSoundToggleBtn");
+				if (btn) {
+					btn.textContent = chatNotificationSoundEnabled ? "🔔 Sound: ON" : "🔕 Sound: OFF";
+				}
+				showToast(chatNotificationSoundEnabled ? "🔔 Chat sound alert turned ON" : "🔕 Chat sound alert MUTED");
+			}
+
+			function playChatNotificationSound() {
+				if (!chatNotificationSoundEnabled) return;
+				try {
+					if (!chatAudioCtx) {
+						const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+						if (AudioContextClass) chatAudioCtx = new AudioContextClass();
+					}
+					if (chatAudioCtx && chatAudioCtx.state === "suspended") {
+						chatAudioCtx.resume();
+					}
+					if (!chatAudioCtx) return;
+					const osc = chatAudioCtx.createOscillator();
+					const gain = chatAudioCtx.createGain();
+					osc.type = "sine";
+					const now = chatAudioCtx.currentTime;
+					osc.frequency.setValueAtTime(587.33, now); // D5
+					osc.frequency.setValueAtTime(880, now + 0.08); // A5
+					gain.gain.setValueAtTime(0.2, now);
+					gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+					osc.connect(gain);
+					gain.connect(chatAudioCtx.destination);
+					osc.start(now);
+					osc.stop(now + 0.35);
+				} catch (err) {
+					// AudioContext autoplay restrictions handled silently
+				}
+			}
+
+			function requestChatNotificationPermission() {
+				if ("Notification" in window) {
+					Notification.requestPermission().then((permission) => {
+						if (permission === "granted") {
+							showToast("📲 Mobile & Browser Push Alerts enabled for Team Chat!");
+						} else {
+							showToast("⚠️ Push permission: " + permission);
+						}
+					});
+				} else {
+					showToast("⚠️ Push Notifications not supported in this browser.");
+				}
+			}
+
+			function showBrowserNotification(title, body) {
+				if ("Notification" in window && Notification.permission === "granted") {
+					try {
+						new Notification(title, {
+							body: body,
+							icon: activeCompany === "SHIVOM" ? "/shivom-logo-cropped.png" : "/madhav-logo.png",
+						});
+					} catch (e) {}
+				}
+			}
+
+			function getChatCurrentUser() {
+				if (typeof currentStaff !== "undefined" && currentStaff) {
+					return {
+						id: String(currentStaff.id || "SP01"),
+						name: String(currentStaff.name || "Team Member"),
+						role: String(currentStaff.role || "Salesperson"),
+						isAdmin: Boolean(currentStaff.isAdmin || isAdminLoggedIn),
+					};
+				}
+				if (typeof isAdminLoggedIn !== "undefined" && isAdminLoggedIn) {
+					return {
+						id: "SP00",
+						name: "SHYAM PIMPLKAR",
+						role: "Owner",
+						isAdmin: true,
+					};
+				}
+				return {
+					id: "guest",
+					name: "Staff",
+					role: "Salesperson",
+					isAdmin: false,
+				};
+			}
+
+			function openTeamChat(channel) {
+				isChatModalOpen = true;
+				if (channel) {
+					currentChatChannel = channel;
+				} else if (!currentChatChannel) {
+					currentChatChannel = (typeof activeCompany !== "undefined" && activeCompany) || "MADHAV";
+				}
+
+				if ("Notification" in window && Notification.permission === "default") {
+					Notification.requestPermission().catch(() => {});
+				}
+
+				renderChatChannelTabs();
+				populateChatOrderPicker();
+				renderChatMessages();
+
+				const modal = document.getElementById("teamChatModal");
+				if (modal) {
+					modal.style.display = "flex";
+				}
+
+				chatUnreadCount = 0;
+				updateChatBadgeUI();
+
+				setTimeout(() => {
+					scrollChatToBottom();
+					const inp = document.getElementById("chatTextInput");
+					if (inp) inp.focus();
+				}, 100);
+			}
+
+			function closeTeamChat() {
+				isChatModalOpen = false;
+				const modal = document.getElementById("teamChatModal");
+				if (modal) {
+					modal.style.display = "none";
+				}
+			}
+
+			function switchChatChannel(ch) {
+				currentChatChannel = ch;
+				renderChatChannelTabs();
+				renderChatMessages();
+				setTimeout(scrollChatToBottom, 60);
+			}
+
+			function renderChatChannelTabs() {
+				const tabs = ["MADHAV", "SHIVOM", "ALL"];
+				tabs.forEach((t) => {
+					const el = document.getElementById(`chatTabBtn_${t}`);
+					if (el) {
+						if (currentChatChannel === t) el.classList.add("active");
+						else el.classList.remove("active");
+					}
+				});
+				const titleEl = document.getElementById("chatHeaderChannelTitle");
+				if (titleEl) {
+					if (currentChatChannel === "MADHAV") titleEl.textContent = "🏢 Madhav Enterprises Team";
+					else if (currentChatChannel === "SHIVOM") titleEl.textContent = "🏢 Shivom Sales Team";
+					else titleEl.textContent = "🌐 All Companies Common Team";
+				}
+			}
+
+			function scrollChatToBottom() {
+				const body = document.getElementById("chatBodyScroll");
+				if (body) {
+					body.scrollTop = body.scrollHeight;
+				}
+			}
+
+			function populateChatOrderPicker() {
+				const sel = document.getElementById("chatOrderTagSelect");
+				if (!sel) return;
+				sel.innerHTML = '<option value="">📎 Tag Order for Discussion (Optional)</option>';
+				const orders = Array.isArray(state.orders) ? state.orders.slice(0, 50) : [];
+				orders.forEach((o) => {
+					if (!o) return;
+					const opt = document.createElement("option");
+					opt.value = JSON.stringify({
+						orderNo: o.orderNo || o.id,
+						partyName: o.partyName || "",
+						id: o.id,
+					});
+					const amtStr = o.totalAmt ? ` (₹${fmtINR(o.totalAmt)})` : "";
+					opt.textContent = `#${o.orderNo || o.id} - ${o.partyName || "Party"}${amtStr}`;
+					sel.appendChild(opt);
+				});
+			}
+
+			function renderChatMessages() {
+				const container = document.getElementById("chatBodyScroll");
+				if (!container) return;
+				const allMsgs = Array.isArray(state.chatMessages) ? state.chatMessages : [];
+
+				const filtered = allMsgs.filter((m) => {
+					if (!m) return false;
+					if (currentChatChannel === "ALL") return true;
+					return m.channel === currentChatChannel || m.channel === "ALL";
+				});
+
+				if (filtered.length === 0) {
+					const channelName = currentChatChannel === "MADHAV" ? "Madhav Enterprises" : (currentChatChannel === "SHIVOM" ? "Shivom Sales" : "All Companies");
+					container.innerHTML = `
+						<div style="text-align: center; color: #64748b; margin: 40px auto; font-size: 0.88rem; background: rgba(255,255,255,0.88); padding: 22px 28px; border-radius: 12px; max-width: 340px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+							<div style="font-size: 2.2rem; margin-bottom: 6px;">💬</div>
+							<div style="font-weight: 700; color: #1e293b; margin-bottom: 4px; font-size: 0.95rem;">${channelName} Team Chat</div>
+							<div style="font-size: 0.8rem; line-height: 1.4;">No messages yet. Start team discussions, dispatch updates, or tag orders here.</div>
+						</div>
+					`;
+					return;
+				}
+
+				const curUser = getChatCurrentUser();
+				let html = "";
+				let lastDateStr = "";
+
+				filtered.forEach((m) => {
+					const isMe = m.senderId === curUser.id || (m.senderName && curUser.name && m.senderName.toUpperCase() === curUser.name.toUpperCase());
+					const msgDate = new Date(m.timestamp || m.createdAt || Date.now());
+					const dateStr = msgDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+					const timeStr = msgDate.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+
+					if (dateStr !== lastDateStr) {
+						lastDateStr = dateStr;
+						html += `
+							<div style="display: flex; justify-content: center; margin: 10px 0;">
+								<span style="background: rgba(255,255,255,0.85); color: #54656f; font-size: 0.7rem; font-weight: 700; padding: 3px 12px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.08); text-transform: uppercase;">
+									${dateStr}
+								</span>
+							</div>
+						`;
+					}
+
+					const senderRoleLabel = m.senderRole ? `<span style="font-size:0.65rem; background:#edf2f7; color:#4a5568; padding:1px 5px; border-radius:4px; font-weight:600; margin-left:4px;">${escapeHtml(m.senderRole)}</span>` : "";
+					const channelBadge = m.channel === "ALL" && currentChatChannel !== "ALL" 
+						? `<span style="font-size:0.62rem; background:#fef3c7; color:#92400e; padding:1px 5px; border-radius:4px; font-weight:700; margin-left:4px;">All Team</span>` 
+						: "";
+
+					let orderTagHtml = "";
+					if (m.orderRef) {
+						orderTagHtml = `
+							<div class="chat-order-tag" onclick="handleChatOrderTagClick('${escapeHtml(m.orderRef)}')">
+								<span>📦 Order #${escapeHtml(m.orderRef)}</span>
+								${m.partyName ? `<span>• ${escapeHtml(m.partyName)}</span>` : ""}
+							</div>
+						`;
+					}
+
+					const canDelete = isMe || curUser.isAdmin;
+					const deleteBtn = canDelete ? `
+						<button onclick="deleteChatMessage('${escapeHtml(m.id)}')" title="Delete Message" style="background:none; border:none; color:#a0aec0; cursor:pointer; font-size:0.75rem; padding:0 2px; margin-left:6px;">
+							🗑️
+						</button>
+					` : "";
+
+					html += `
+						<div class="chat-bubble-row ${isMe ? "me" : "other"}">
+							<div class="chat-bubble ${isMe ? "me" : "other"}">
+								${!isMe ? `
+									<div class="chat-sender-name">
+										<span>${escapeHtml(m.senderName || "Team Member")}</span>
+										${senderRoleLabel}
+										${channelBadge}
+									</div>
+								` : `
+									${m.channel === "ALL" ? `<div style="font-size:0.65rem; color:#075e54; font-weight:700; margin-bottom:2px;">[Broadcast to All Companies]</div>` : ""}
+								`}
+								${orderTagHtml}
+								<div style="white-space: pre-wrap; font-size: 0.9rem;">${escapeHtml(m.text || "")}</div>
+								<div class="chat-meta">
+									<span>${timeStr}</span>
+									${isMe ? `<span style="color:#53bdeb; font-size:0.75rem;">✓✓</span>` : ""}
+									${deleteBtn}
+								</div>
+							</div>
+						</div>
+					`;
+				});
+
+				container.innerHTML = html;
+			}
+
+			async function sendChatMessage() {
+				const input = document.getElementById("chatTextInput");
+				if (!input) return;
+				const text = String(input.value || "").trim();
+				if (!text) return;
+
+				let orderRef = "";
+				let partyName = "";
+				let orderId = "";
+				const tagSelect = document.getElementById("chatOrderTagSelect");
+				if (tagSelect && tagSelect.value) {
+					try {
+						const parsed = JSON.parse(tagSelect.value);
+						orderRef = String(parsed.orderNo || "");
+						partyName = String(parsed.partyName || "");
+						orderId = String(parsed.id || "");
+					} catch (e) {}
+				}
+
+				const curUser = getChatCurrentUser();
+				const newId = `msg_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+				const msgItem = {
+					id: newId,
+					channel: currentChatChannel || (typeof activeCompany !== "undefined" ? activeCompany : "MADHAV"),
+					senderId: curUser.id,
+					senderName: curUser.name,
+					senderRole: curUser.role,
+					text: text,
+					orderRef: orderRef || undefined,
+					orderId: orderId || undefined,
+					partyName: partyName || undefined,
+					createdAt: new Date().toISOString(),
+					timestamp: Date.now(),
+				};
+
+				if (!Array.isArray(state.chatMessages)) state.chatMessages = [];
+				state.chatMessages.push(msgItem);
+				renderChatMessages();
+				scrollChatToBottom();
+				input.value = "";
+				if (tagSelect) tagSelect.value = "";
+
+				try {
+					const targetCo = currentChatChannel === "SHIVOM" ? "SHIVOM" : (currentChatChannel === "MADHAV" ? "MADHAV" : activeCompany);
+					const token = getAuthToken();
+					const res = await fetch(`/api/records/chatMessages?co=${targetCo}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `Bearer ${token}`,
+						},
+						body: JSON.stringify(msgItem),
+					});
+					const data = await res.json().catch(() => ({}));
+					if (!data.ok) {
+						showToast("⚠️ Could not send message: " + (data.error || "Network error"));
+					}
+				} catch (err) {
+					console.error("sendChatMessage error", err);
+					showToast("⚠️ Failed to send message. Please check connection.");
+				}
+			}
+
+			async function deleteChatMessage(msgId) {
+				if (!confirm("Are you sure you want to delete this message?")) return;
+				if (Array.isArray(state.chatMessages)) {
+					state.chatMessages = state.chatMessages.filter((m) => m && m.id !== msgId);
+					renderChatMessages();
+				}
+				try {
+					const token = getAuthToken();
+					const res = await fetch(`/api/records/chatMessages/${encodeURIComponent(msgId)}?co=${activeCompany}`, {
+						method: "DELETE",
+						headers: { Authorization: `Bearer ${token}` },
+					});
+					const data = await res.json().catch(() => ({}));
+					if (!data.ok) {
+						showToast("⚠️ Could not delete message: " + (data.error || "Error"));
+					}
+				} catch (e) {
+					console.error("deleteChatMessage error", e);
+				}
+			}
+
+			function handleChatOrderTagClick(orderRef) {
+				closeTeamChat();
+				const searchBox = document.getElementById("orderSearchInput");
+				if (searchBox) {
+					searchBox.value = orderRef;
+					if (typeof filterOrders === "function") filterOrders();
+				}
+				const ordersTab = document.querySelector('[data-tab="admin-orders"]');
+				if (ordersTab) switchTab("admin-orders", ordersTab);
+				showToast(`🔍 Showing Order #${orderRef}`);
+			}
+
+			function updateChatBadgeUI() {
+				const floatBadge = document.getElementById("floatingChatBadge");
+				const navBadge = document.getElementById("navChatBadge");
+				if (chatUnreadCount > 0) {
+					const display = chatUnreadCount > 99 ? "99+" : String(chatUnreadCount);
+					if (floatBadge) {
+						floatBadge.textContent = display;
+						floatBadge.style.display = "block";
+					}
+					if (navBadge) {
+						navBadge.textContent = display;
+						navBadge.style.display = "inline-block";
+					}
+				} else {
+					if (floatBadge) floatBadge.style.display = "none";
+					if (navBadge) navBadge.style.display = "none";
+				}
+			}
 		</script>
 
 		<!-- Modal: Madhav QR Code Fullscreen -->
@@ -24078,5 +24741,135 @@ Thank you! Your payment has been received successfully.`;
 				overflow: hidden;
 			"
 		></div>
+
+		<!-- ==================== WHATSAPP-STYLE IN-APP TEAM CHAT MODAL ==================== -->
+		<div
+			class="modal-backdrop"
+			id="teamChatModal"
+			style="display: none; z-index: 999999; align-items: center; justify-content: center; padding: 10px;"
+			onclick="closeTeamChat()"
+		>
+			<div class="chat-modal-shell" onclick="event.stopPropagation()">
+				<!-- Header -->
+				<div class="chat-header">
+					<div class="chat-header-left">
+						<div class="chat-header-avatar">💬</div>
+						<div>
+							<div style="font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+								<span id="chatHeaderChannelTitle">🏢 Madhav Enterprises Team</span>
+							</div>
+							<div style="font-size: 0.73rem; opacity: 0.9; display: flex; align-items: center; gap: 6px;">
+								<span style="display:inline-block; width:8px; height:8px; background:#25D366; border-radius:50%; box-shadow:0 0 6px #25D366;"></span>
+								<span id="chatActiveUserCount">Active Team &bull; Instant Delivery</span>
+							</div>
+						</div>
+					</div>
+					<div style="display: flex; align-items: center; gap: 8px;">
+						<button
+							type="button"
+							id="chatSoundToggleBtn"
+							onclick="toggleChatSound()"
+							title="Toggle Sound Alert"
+							style="background: rgba(255,255,255,0.18); border: none; color: #fff; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight:600;"
+						>
+							🔔 Sound: ON
+						</button>
+						<button
+							type="button"
+							onclick="requestChatNotificationPermission()"
+							title="Enable Push Notifications"
+							style="background: rgba(255,255,255,0.18); border: none; color: #fff; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight:600;"
+						>
+							📲 Push Alerts
+						</button>
+						<button
+							type="button"
+							onclick="closeTeamChat()"
+							style="background: rgba(255,255,255,0.18); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; justify-content: center;"
+						>
+							✕
+						</button>
+					</div>
+				</div>
+
+				<!-- Channel Tabs: Madhav Team / Shivom Team / All Team -->
+				<div class="chat-channel-tabs">
+					<button
+						type="button"
+						id="chatTabBtn_MADHAV"
+						class="chat-channel-tab active"
+						onclick="switchChatChannel('MADHAV')"
+					>
+						🏢 Madhav Team
+					</button>
+					<button
+						type="button"
+						id="chatTabBtn_SHIVOM"
+						class="chat-channel-tab"
+						onclick="switchChatChannel('SHIVOM')"
+					>
+						🏢 Shivom Team
+					</button>
+					<button
+						type="button"
+						id="chatTabBtn_ALL"
+						class="chat-channel-tab"
+						onclick="switchChatChannel('ALL')"
+					>
+						🌐 All Team
+					</button>
+				</div>
+
+				<!-- Chat Message Scrollable Body -->
+				<div class="chat-body-scroll" id="chatBodyScroll">
+					<!-- Dynamically rendered messages -->
+				</div>
+
+				<!-- Input Bar -->
+				<div class="chat-input-bar">
+					<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+						<div style="display: flex; align-items: center; gap: 6px; flex: 1;">
+							<select
+								id="chatOrderTagSelect"
+								style="font-size: 0.78rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; color: #334155; width: 100%; max-width: 320px;"
+							>
+								<option value="">📎 Tag Order for Discussion (Optional)</option>
+							</select>
+						</div>
+						<span style="font-size: 0.72rem; color: #64748b;">Press Enter or ➤ to send</span>
+					</div>
+					<div class="chat-input-row">
+						<input
+							type="text"
+							id="chatTextInput"
+							class="chat-text-input"
+							placeholder="Type a team message or order note..."
+							autocomplete="off"
+							onkeydown="if(event.key === 'Enter') { event.preventDefault(); sendChatMessage(); }"
+						/>
+						<button
+							type="button"
+							class="chat-send-btn"
+							onclick="sendChatMessage()"
+							title="Send Message"
+						>
+							➤
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Floating Team Chat Button -->
+		<div
+			id="floatingTeamChatBtn"
+			class="floating-chat-btn"
+			onclick="openTeamChat()"
+			title="Open Internal Team Chat"
+			style="display: none;"
+		>
+			<span style="font-size: 1.6rem; line-height: 1;">💬</span>
+			<span id="floatingChatBadge" class="floating-chat-badge" style="display: none;">0</span>
+		</div>
 	</body>
 </html>

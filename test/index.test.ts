@@ -354,5 +354,42 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 			true,
 		);
 		ws!.close();
+
+		// 4. In-App Team Chat message creation and snapshot verification
+		const chatMsgId = `msg_test_${Date.now()}`;
+		const postChatRes = await SELF.fetch(
+			"https://madhav-enterprises.madhavshivom.workers.dev/api/records/chatMessages?co=MADHAV",
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					id: chatMsgId,
+					channel: "MADHAV",
+					text: "Urgent order update for testing",
+					orderRef: "ORD-999",
+				}),
+			},
+		);
+		expect(postChatRes.status).toBe(200);
+		const chatPostJson = (await postChatRes.json()) as { ok: boolean; item: { text: string; senderName: string } };
+		expect(chatPostJson.ok).toBe(true);
+		expect(chatPostJson.item.text).toBe("Urgent order update for testing");
+		expect(chatPostJson.item.senderName).toBeTruthy();
+
+		// Check snapshot contains chatMessages
+		const stateRes = await SELF.fetch(
+			"https://madhav-enterprises.madhavshivom.workers.dev/api/state?co=MADHAV",
+			{
+				headers: { Authorization: `Bearer ${token}` },
+			},
+		);
+		expect(stateRes.status).toBe(200);
+		const stateJson = (await stateRes.json()) as { ok: boolean; chatMessages?: Array<{ id: string }> };
+		expect(stateJson.ok).toBe(true);
+		expect(Array.isArray(stateJson.chatMessages)).toBe(true);
+		expect(stateJson.chatMessages!.some((m) => m.id === chatMsgId)).toBe(true);
 	});
 });
