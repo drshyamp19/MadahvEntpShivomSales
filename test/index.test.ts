@@ -25,10 +25,15 @@ async function loginAs(
 
 describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 	it("serves brand-specific HTML meta and manifests for MADHAV and SHIVOM", async () => {
+		const madhavHealth = (await (
+			await SELF.fetch("https://madhav-enterprises.madhavshivom.workers.dev/api/health")
+		).json()) as { ok: boolean; brand: string };
+		expect(madhavHealth.brand).toBe("MADHAV");
+
 		const madhavHtmlRes = await SELF.fetch("https://madhav-enterprises.madhavshivom.workers.dev/");
 		expect(madhavHtmlRes.status).toBe(200);
 		const madhavHtml = await madhavHtmlRes.text();
-		expect(madhavHtml).toContain("MADHAV ENTERPRISES - Cloud ERP Portal");
+		expect(madhavHtml).toContain("<title>MADHAV ENTERPRISES - Cloud ERP Portal</title>");
 		expect(madhavHtml).toContain("/madhav-logo.png");
 		expect(madhavHtml).not.toContain("firebase-app-compat");
 
@@ -37,7 +42,7 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		);
 		expect(shivomViewRes.status).toBe(200);
 		const shivomHtml = await shivomViewRes.text();
-		expect(shivomHtml).toContain("SHIVOM SALES &amp; SERVICES - Cloud ERP Portal");
+		expect(shivomHtml).toContain("<title>SHIVOM SALES &amp; SERVICES - Cloud ERP Portal</title>");
 		expect(shivomHtml).toContain("/shivom-logo-cropped.png");
 
 		const shivomManifestRes = await SELF.fetch(

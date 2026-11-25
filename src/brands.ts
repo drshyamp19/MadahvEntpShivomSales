@@ -82,10 +82,11 @@ export function resolveBrandForRequest(request: Request, defaultBrandRaw?: strin
 	}
 
 	const host = url.hostname.toLowerCase();
-	if (host.includes("shivom")) {
+	const workerLabel = host.split(".")[0] || "";
+	if (workerLabel.includes("shivom")) {
 		return BRANDS.SHIVOM;
 	}
-	if (host.includes("madhav-enterprises")) {
+	if (workerLabel.includes("madhav-enterprises") || workerLabel.includes("madhav")) {
 		return BRANDS.MADHAV;
 	}
 
