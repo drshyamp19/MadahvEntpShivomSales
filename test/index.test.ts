@@ -92,8 +92,28 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		const ownerLogin = await loginAs("9309543825", "9850", "unified");
 		expect(ownerLogin.res.status).toBe(200);
 		expect(ownerLogin.data.ok).toBe(true);
+		expect(ownerLogin.data.user?.name).toBe("SHYAM PIMPLKAR");
 		expect(ownerLogin.data.user?.isAdmin).toBe(true);
 		expect(ownerLogin.data.token).toBeTruthy();
+
+		// Roshan Thakre (separate Owner account) authenticates with 9372376310 / Swami@1993
+		const roshanBadPin = await loginAs("9372376310", "9850", "unified");
+		expect(roshanBadPin.res.status).toBe(401);
+		const shyamWrongPass = await loginAs("9309543825", "Swami@1993", "unified");
+		expect(shyamWrongPass.res.status).toBe(401);
+
+		const roshanLogin = await loginAs("9372376310", "Swami@1993", "unified");
+		expect(roshanLogin.res.status).toBe(200);
+		expect(roshanLogin.data.ok).toBe(true);
+		expect(roshanLogin.data.user?.name).toBe("ROSHAN THAKRE");
+		expect(roshanLogin.data.user?.role).toBe("Owner");
+		expect(roshanLogin.data.user?.isAdmin).toBe(true);
+		expect(roshanLogin.data.user?.allowCash).toBe(true);
+
+		const roshanOwnerMode = await loginAs("roshan", "Swami@1993", "owner");
+		expect(roshanOwnerMode.res.status).toBe(200);
+		expect(roshanOwnerMode.data.user?.name).toBe("ROSHAN THAKRE");
+		expect(roshanOwnerMode.data.user?.isAdmin).toBe(true);
 
 		// Prashik Hajare (Manager) must only resolve via 7499477581 or "prashik", never 9588406934 or "hajare"
 		for (const badPrashikId of ["9588406934", "hajare", "prashik hajare"]) {

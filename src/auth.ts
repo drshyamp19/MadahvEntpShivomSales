@@ -55,6 +55,17 @@ export const BASE_STAFF_CREDENTIALS: StaffMember[] = [
 		simple: -684522678,
 		active: true,
 	},
+	{
+		id: "SP04",
+		name: "ROSHAN THAKRE",
+		mobile: "9372376310",
+		role: "Owner",
+		area: "Nagpur & Vidarbha H.O.",
+		allowCash: true,
+		sha: "5efc7d06266eabdc81504696c6458f9d2615279211da884298d2d0fbc93bf9cb",
+		simple: -1195221399,
+		active: true,
+	},
 ];
 
 export function simpleHash(s: string): number {
@@ -125,7 +136,7 @@ export async function verifyStaffPin(member: StaffMember, enteredPass: string): 
 	const clean = String(enteredPass || "").trim();
 	if (!member || !clean) return false;
 
-	if (member.role === "Owner" || member.role === "Co-Owner") {
+	if (member.id === "SP00") {
 		if (await verifyMasterPin(clean, member)) return true;
 	}
 
@@ -179,13 +190,10 @@ export function mergeStaffDirectory(dynamicStaff: StaffMember[]): StaffMember[] 
 		(s) =>
 			s &&
 			(s.id === "SP00" ||
-				s.role === "Owner" ||
+				String(s.mobile || "").trim() === "9309543825" ||
 				String(s.name || "")
 					.toUpperCase()
-					.includes("SHYAM") ||
-				String(s.name || "")
-					.toUpperCase()
-					.includes("ROSHAN")),
+					.includes("SHYAM")),
 	);
 
 	const baseOwner = BASE_STAFF_CREDENTIALS[0];
@@ -210,11 +218,8 @@ export function mergeStaffDirectory(dynamicStaff: StaffMember[]): StaffMember[] 
 	for (const s of dynamicStaff) {
 		if (!s || !s.mobile) continue;
 		const upName = String(s.name || "").toUpperCase();
-		const isOwnerOrMaster =
-			s.id === "SP00" ||
-			s.role === "Owner" ||
-			upName.includes("SHYAM") ||
-			upName.includes("ROSHAN");
+		const sMobile = String(s.mobile || "").trim();
+		const isOwnerOrMaster = s.id === "SP00" || sMobile === "9309543825" || upName.includes("SHYAM");
 		if (isOwnerOrMaster) {
 			const master = map.get("MASTER_OWNER")!;
 			map.set("MASTER_OWNER", {
@@ -230,18 +235,40 @@ export function mergeStaffDirectory(dynamicStaff: StaffMember[]): StaffMember[] 
 			continue;
 		}
 
-		const existingKey = upName.includes("PRASHIK") ? BASE_STAFF_CREDENTIALS[1].mobile : s.mobile;
+		const isPrashik = upName.includes("PRASHIK");
+		const isRoshan = s.id === "SP04" || sMobile === "9372376310" || upName.includes("ROSHAN");
+		const existingKey = isPrashik
+			? BASE_STAFF_CREDENTIALS[1].mobile
+			: isRoshan
+				? BASE_STAFF_CREDENTIALS[4].mobile
+				: sMobile;
 		const existing = map.get(existingKey);
 		const isVikram = upName.includes("VIKRAM") || upName.includes("VIKARAM");
 		if (existing) {
-			const mergedMobile = upName.includes("PRASHIK") ? BASE_STAFF_CREDENTIALS[1].mobile : s.mobile;
+			const mergedMobile = isPrashik
+				? BASE_STAFF_CREDENTIALS[1].mobile
+				: isRoshan
+					? BASE_STAFF_CREDENTIALS[4].mobile
+					: sMobile;
 			map.set(existingKey, {
 				...existing,
 				...s,
-				id: upName.includes("PRASHIK") ? BASE_STAFF_CREDENTIALS[1].id : s.id || existing.id,
-				name: upName.includes("PRASHIK") ? BASE_STAFF_CREDENTIALS[1].name : s.name || existing.name,
+				id: isPrashik
+					? BASE_STAFF_CREDENTIALS[1].id
+					: isRoshan
+						? BASE_STAFF_CREDENTIALS[4].id
+						: s.id || existing.id,
+				name: isPrashik
+					? BASE_STAFF_CREDENTIALS[1].name
+					: isRoshan
+						? BASE_STAFF_CREDENTIALS[4].name
+						: s.name || existing.name,
 				mobile: mergedMobile,
-				allowCash: typeof s.allowCash !== "undefined" ? Boolean(s.allowCash) : existing.allowCash,
+				role: isRoshan ? s.role || "Owner" : s.role || existing.role,
+				allowCash:
+					isRoshan || typeof s.allowCash !== "undefined"
+						? isRoshan || Boolean(s.allowCash)
+						: existing.allowCash,
 				sha: s.sha || existing.sha,
 				simple: s.simple || existing.simple,
 				pin: s.pin || existing.pin,

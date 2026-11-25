@@ -7231,7 +7231,7 @@
 				<div style="font-size: 2.4rem; margin-bottom: 8px">🔐</div>
 				<h3 style="margin-bottom: 4px; color: var(--primary)">Owner Login</h3>
 				<p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 16px">
-					Sign in with 9309543825 or madhaventerprises.care@gmail.com and PIN.
+					Sign in with Owner Mobile / Email and Password / PIN.
 				</p>
 				<form onsubmit="verifyOwnerLogin(event)">
 					<div class="form-group" style="margin-bottom: 12px">
@@ -7239,7 +7239,7 @@
 							type="text"
 							id="ownerIdInput"
 							class="form-control"
-							placeholder="9309543825 or madhaventerprises.care@gmail.com"
+							placeholder="Owner Mobile or Admin Email"
 							style="font-size: 0.92rem; padding: 10px 12px"
 							required
 						/>
@@ -7249,9 +7249,9 @@
 							type="password"
 							id="ownerPinInput"
 							class="form-control text-center font-bold"
-							maxlength="10"
-							placeholder="••••"
-							style="font-size: 1.4rem; letter-spacing: 6px; padding: 12px"
+							maxlength="32"
+							placeholder="Password / PIN"
+							style="font-size: 1.15rem; letter-spacing: 3px; padding: 12px"
 							required
 						/>
 					</div>
@@ -8612,7 +8612,9 @@
 				if (state && Array.isArray(state.salespersons)) {
 					state.salespersons.forEach((s) => {
 						if (!s) return;
-						const key = s.id === "SP00" || s.role === "Owner" ? "MASTER_OWNER" : s.mobile || s.id;
+						const isMasterShyam =
+							s.id === "SP00" || (s.name && s.name.toUpperCase().includes("SHYAM"));
+						const key = isMasterShyam ? "MASTER_OWNER" : s.mobile || s.id;
 						const isVikram =
 							(s.name || "").toUpperCase().includes("VIKRAM") ||
 							(s.name || "").toUpperCase().includes("VIKARAM");
@@ -8639,13 +8641,9 @@
 
 			function getOwnerMobileNumber() {
 				const all = getAllStaffMembers();
-				const owner = all.find(
-					(m) =>
-						m.role === "Owner" ||
-						m.id === "SP00" ||
-						(m.name &&
-							(m.name.toUpperCase().includes("SHYAM") || m.name.toUpperCase().includes("ROSHAN"))),
-				);
+				const owner =
+					all.find((m) => m.id === "SP00") ||
+					all.find((m) => m.role === "Owner" || (m.name && m.name.toUpperCase().includes("SHYAM")));
 				return owner && owner.mobile ? String(owner.mobile).replace(/\D/g, "") : "9309543825";
 			}
 

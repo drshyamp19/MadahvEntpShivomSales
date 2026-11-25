@@ -311,7 +311,7 @@ export class ErpLedgerDO extends DurableObject<Env> {
 		const cleanPass = String(password || "").trim();
 		const idLower = rawId.toLowerCase();
 		const normalizedDigits = rawId.replace(/\D/g, "");
-		const isAllowedAdminIdentifier =
+		const isAllowedShyamIdentifier =
 			rawId === "9309543825" ||
 			normalizedDigits === "9309543825" ||
 			normalizedDigits === "919309543825" ||
@@ -319,7 +319,22 @@ export class ErpLedgerDO extends DurableObject<Env> {
 
 		const staffRaw = this.readCollection<StaffMember>("salespersons");
 		const allStaff = mergeStaffDirectory(staffRaw);
-		const dynamicOwner = allStaff.find((m) => m.id === "SP00" || m.role === "Owner") || null;
+		const dynamicOwner = allStaff.find((m) => m.id === "SP00") || null;
+		const roshanOwner =
+			allStaff.find(
+				(m) =>
+					m.id === "SP04" ||
+					m.mobile === "9372376310" ||
+					String(m.name || "")
+						.toUpperCase()
+						.includes("ROSHAN"),
+			) || null;
+		const isRoshanIdentifier =
+			rawId === "9372376310" ||
+			normalizedDigits === "9372376310" ||
+			normalizedDigits === "919372376310" ||
+			((mode === "unified" || mode === "owner") &&
+				(idLower === "roshan" || idLower === "roshan thakre"));
 
 		const buildOwnerResult = (): { ok: true; user: SessionUser } => ({
 			ok: true,
@@ -334,29 +349,47 @@ export class ErpLedgerDO extends DurableObject<Env> {
 			},
 		});
 
+		const buildRoshanResult = (member: StaffMember): { ok: true; user: SessionUser } => ({
+			ok: true,
+			user: {
+				id: member.id || "SP04",
+				name: member.name || "ROSHAN THAKRE",
+				role: member.role || "Owner",
+				mobile: member.mobile || "9372376310",
+				area: member.area || "Nagpur & Vidarbha H.O.",
+				allowCash: true,
+				isAdmin: true,
+			},
+		});
+
 		if (mode === "owner") {
 			if (!rawId || !cleanPass) {
 				return {
 					ok: false,
-					error: "Please enter Admin Mobile (9309543825) or Email and PIN.",
+					error: "Please enter Owner Mobile or Email and Password / PIN.",
 				};
 			}
-			if (!isAllowedAdminIdentifier) {
-				return {
-					ok: false,
-					error: "Admin login is restricted to 9309543825 or madhaventerprises.care@gmail.com.",
-				};
+			if (isAllowedShyamIdentifier) {
+				const ok = await verifyMasterPin(cleanPass, dynamicOwner);
+				if (!ok) return { ok: false, error: "Invalid PIN. Access denied." };
+				return buildOwnerResult();
 			}
-			const ok = await verifyMasterPin(cleanPass, dynamicOwner);
-			if (!ok) return { ok: false, error: "Invalid PIN. Access denied." };
-			return buildOwnerResult();
+			if (isRoshanIdentifier && roshanOwner) {
+				const ok = await verifyStaffPin(roshanOwner, cleanPass);
+				if (!ok) return { ok: false, error: "Invalid Password. Access denied." };
+				return buildRoshanResult(roshanOwner);
+			}
+			return {
+				ok: false,
+				error: "Owner login is restricted to registered Owner mobile or email credentials.",
+			};
 		}
 
 		if (!rawId || !cleanPass) {
 			return { ok: false, error: "Please enter both Username/Mobile and Password." };
 		}
 
-		if (isAllowedAdminIdentifier) {
+		if (isAllowedShyamIdentifier) {
 			const ok = await verifyMasterPin(cleanPass, dynamicOwner);
 			if (!ok) {
 				return {
@@ -367,9 +400,28 @@ export class ErpLedgerDO extends DurableObject<Env> {
 			return buildOwnerResult();
 		}
 
-		const nonAdminStaff = allStaff.filter(
-			(u) => u.id !== "SP00" && u.role !== "Owner" && u.role !== "Co-Owner",
-		);
+		if (isRoshanIdentifier && roshanOwner) {
+			const ok = await verifyStaffPin(roshanOwner, cleanPass);
+			if (!ok) {
+				return {
+					ok: false,
+					error: `Incorrect password or PIN for ${roshanOwner.name}. Please try again.`,
+				};
+			}
+			return buildRoshanResult(roshanOwner);
+		}
+
+		const nonAdminStaff = allStaff.filter((u) => {
+			const upName = String(u.name || "").toUpperCase();
+			return (
+				u.id !== "SP00" &&
+				u.id !== "SP04" &&
+				u.role !== "Owner" &&
+				u.role !== "Co-Owner" &&
+				!upName.includes("SHYAM") &&
+				!upName.includes("ROSHAN")
+			);
+		});
 		const member = nonAdminStaff.find((u) => {
 			const upName = String(u.name || "").toUpperCase();
 			if (upName.includes("PRASHIK")) {
