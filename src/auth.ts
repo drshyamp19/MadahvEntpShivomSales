@@ -230,12 +230,17 @@ export function mergeStaffDirectory(dynamicStaff: StaffMember[]): StaffMember[] 
 			continue;
 		}
 
-		const existing = map.get(s.mobile);
+		const existingKey = upName.includes("PRASHIK") ? BASE_STAFF_CREDENTIALS[1].mobile : s.mobile;
+		const existing = map.get(existingKey);
 		const isVikram = upName.includes("VIKRAM") || upName.includes("VIKARAM");
 		if (existing) {
-			map.set(s.mobile, {
+			const mergedMobile = upName.includes("PRASHIK") ? BASE_STAFF_CREDENTIALS[1].mobile : s.mobile;
+			map.set(existingKey, {
 				...existing,
 				...s,
+				id: upName.includes("PRASHIK") ? BASE_STAFF_CREDENTIALS[1].id : s.id || existing.id,
+				name: upName.includes("PRASHIK") ? BASE_STAFF_CREDENTIALS[1].name : s.name || existing.name,
+				mobile: mergedMobile,
 				allowCash: typeof s.allowCash !== "undefined" ? Boolean(s.allowCash) : existing.allowCash,
 				sha: s.sha || existing.sha,
 				simple: s.simple || existing.simple,

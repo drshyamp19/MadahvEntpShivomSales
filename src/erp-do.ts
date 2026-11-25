@@ -370,15 +370,24 @@ export class ErpLedgerDO extends DurableObject<Env> {
 		const nonAdminStaff = allStaff.filter(
 			(u) => u.id !== "SP00" && u.role !== "Owner" && u.role !== "Co-Owner",
 		);
-		const member = nonAdminStaff.find(
-			(u) =>
-				u.mobile === rawId ||
-				(mode === "unified" &&
-					((u.name && u.name.toLowerCase().includes(idLower)) ||
-						(idLower === "prashik" && u.name && u.name.toUpperCase().includes("PRASHIK")) ||
-						(idLower === "gopal" && u.name && u.name.toUpperCase().includes("GOPAL")) ||
-						(idLower === "vikram" && u.name && u.name.toUpperCase().includes("VIKRAM")))),
-		);
+		const member = nonAdminStaff.find((u) => {
+			const upName = String(u.name || "").toUpperCase();
+			if (upName.includes("PRASHIK")) {
+				return (
+					u.mobile === rawId ||
+					normalizedDigits === "7499477581" ||
+					(mode === "unified" && idLower === "prashik")
+				);
+			}
+			if (u.mobile === rawId) return true;
+			if (mode !== "unified") return false;
+			return (
+				u.name.toLowerCase() === idLower ||
+				(idLower === "gopal" && upName.includes("GOPAL")) ||
+				((idLower === "vikram" || idLower === "vikaram") &&
+					(upName.includes("VIKRAM") || upName.includes("VIKARAM")))
+			);
+		});
 
 		if (!member) {
 			return {

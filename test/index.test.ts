@@ -95,6 +95,19 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		expect(ownerLogin.data.user?.isAdmin).toBe(true);
 		expect(ownerLogin.data.token).toBeTruthy();
 
+		// Prashik Hajare (Manager) must only resolve via 7499477581 or "prashik", never 9588406934 or "hajare"
+		for (const badPrashikId of ["9588406934", "hajare", "prashik hajare"]) {
+			const res = await loginAs(badPrashikId, "0000", "unified");
+			expect(res.res.status).toBe(401);
+			expect(res.data.error).toBe("Invalid Username or Password.");
+		}
+		const prashikMobileProbe = await loginAs("7499477581", "0000", "unified");
+		expect(prashikMobileProbe.res.status).toBe(401);
+		expect(prashikMobileProbe.data.error).toContain("PRASHIK HAJARE");
+		const prashikAliasProbe = await loginAs("prashik", "0000", "unified");
+		expect(prashikAliasProbe.res.status).toBe(401);
+		expect(prashikAliasProbe.data.error).toContain("PRASHIK HAJARE");
+
 		// Owner creates a restricted salesperson and verifies server-side cash restriction + admin-only routes
 		const addStaffRes = await SELF.fetch(
 			"https://madhav-enterprises.madhavshivom.workers.dev/api/records/salespersons?co=SHIVOM",
