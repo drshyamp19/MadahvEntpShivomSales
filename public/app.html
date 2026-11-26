@@ -3077,9 +3077,10 @@
 								</button>
 								<button
 									type="button"
-									class="btn btn-danger btn-sm"
+									id="clearDataAdminWrap"
+									class="btn btn-danger btn-sm admin-only-item"
 									onclick="openClearDataModal()"
-									style="font-weight: 700"
+									style="font-weight: 700; display: none"
 								>
 									🗑️ Clear All Data
 								</button>
@@ -5876,7 +5877,13 @@
 								<button type="button" class="btn btn-teal btn-sm" onclick="openExcelImportModal()">
 									📤 Upload Excel
 								</button>
-								<button type="button" class="btn btn-danger btn-sm" onclick="openClearDataModal()">
+								<button
+									type="button"
+									id="clearDataAdminWrapMasters"
+									class="btn btn-danger btn-sm admin-only-item"
+									onclick="openClearDataModal()"
+									style="display: none"
+								>
 									🗑️ Clear All Data
 								</button>
 							</div>
@@ -10606,7 +10613,9 @@
 				}
 
 				const clearBtnWrap = document.getElementById("clearDataAdminWrap");
-				if (clearBtnWrap) clearBtnWrap.style.display = isAdmin ? "block" : "none";
+				if (clearBtnWrap) clearBtnWrap.style.display = isAdmin ? "inline-flex" : "none";
+				const clearBtnWrapMasters = document.getElementById("clearDataAdminWrapMasters");
+				if (clearBtnWrapMasters) clearBtnWrapMasters.style.display = isAdmin ? "inline-flex" : "none";
 
 				if (typeof toggleColDepositAccount === "function") toggleColDepositAccount();
 				if (typeof updateInstallButtonsVisibility === "function") updateInstallButtonsVisibility();
