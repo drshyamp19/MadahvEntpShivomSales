@@ -2378,22 +2378,7 @@
 				</div>
 			</div>
 
-			<div id="pwaInstallBannerGateway" style="display: none; margin-top: 16px; text-align: center">
-				<button
-					type="button"
-					class="btn btn-white"
-					onclick="triggerPwaInstall()"
-					style="
-						padding: 10px 22px;
-						font-weight: 700;
-						font-size: 0.9rem;
-						border-radius: 999px;
-						box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-					"
-				>
-					📲 Install ERP App on Mobile
-				</button>
-			</div>
+
 		</div>
 
 		<!-- ==================== MAIN APP SHELL ==================== -->
@@ -2485,32 +2470,7 @@
 							🚪 Logout
 						</button>
 					</span>
-					<span id="pwaInstallBtnWrap">
-						<button
-							type="button"
-							class="btn btn-white btn-sm"
-							onclick="triggerPwaInstall()"
-							title="Install ERP App"
-						>
-							📲 Install App
-						</button>
-					</span>
-					<span id="staffLoginBtnWrap">
-						<button class="btn btn-teal btn-sm" onclick="openStaffLoginModal()">
-							📱 Sales Team Login
-						</button>
-					</span>
-					<span id="ownerLoginBtnWrap">
-						<button class="btn btn-amber btn-sm" onclick="openLoginModal()">🔐 Owner Login</button>
-					</span>
 					<span id="ownerLogoutBtnWrap" style="display: none">
-						<button
-							class="btn btn-white btn-sm"
-							onclick="handleExportClick(false)"
-							title="Export Multi-Tab Excel Workbook"
-						>
-							📥 Export Excel
-						</button>
 						<button class="btn btn-danger btn-sm" onclick="ownerLogout()">🚪 Logout</button>
 					</span>
 				</div>
@@ -2560,14 +2520,7 @@
 					>
 						🤝 Cash Handover &amp; Bank
 					</button>
-					<button
-						class="nav-tab admin-or-staff-item"
-						style="display: none"
-						data-tab="team-chat"
-						onclick="openTeamChat()"
-					>
-						💬 Team Chat <span id="navChatBadge" style="display:none;background:#e53e3e;color:#fff;border-radius:10px;padding:1px 6px;font-size:0.75rem;margin-left:4px;font-weight:700;">0</span>
-					</button>
+
 				</div>
 
 				<!-- Row 2: Owner Administration, Accounts & GST (Owner Only) -->
@@ -3019,38 +2972,6 @@
 								>
 									📑 Daily Summary PDF Report
 								</button>
-								<a
-									href="https://drive.google.com/drive/folders/1Rpl2zwQTUU5K4bKm5cfm2w07o6BIRabn"
-									target="_blank"
-									class="btn btn-sm"
-									style="
-										background: #059669;
-										color: #fff;
-										font-weight: 700;
-										display: inline-flex;
-										align-items: center;
-										gap: 4px;
-										text-decoration: none;
-									"
-								>
-									📁 Open Google Drive Cloud Folder
-								</a>
-								<button
-									type="button"
-									class="btn btn-primary btn-sm"
-									onclick="downloadExcelTemplate()"
-									style="font-weight: 700"
-								>
-									📄 Download Template
-								</button>
-								<button
-									type="button"
-									class="btn btn-teal btn-sm"
-									onclick="openExcelImportModal()"
-									style="font-weight: 700"
-								>
-									📤 Upload / Import Excel
-								</button>
 								<button
 									type="button"
 									class="btn btn-sm"
@@ -3074,15 +2995,6 @@
 									onclick="shareDailyClosingWhatsApp()"
 								>
 									📊 Send Daily EOD Summary
-								</button>
-								<button
-									type="button"
-									id="clearDataAdminWrap"
-									class="btn btn-danger btn-sm admin-only-item"
-									onclick="openClearDataModal()"
-									style="font-weight: 700; display: none"
-								>
-									🗑️ Clear All Data
 								</button>
 							</div>
 						</div>
@@ -4855,21 +4767,7 @@
 							>
 								👥 Sales Team Market Collections &amp; Handover Balance (Gopal, Vikram, Prashik)
 							</span>
-							<button
-								class="btn btn-sm btn-teal"
-								onclick="openNewChequeFromStaffModal()"
-								style="
-									font-weight: 700;
-									padding: 6px 14px;
-									font-size: 0.82rem;
-									display: inline-flex;
-									align-items: center;
-									gap: 5px;
-									box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-								"
-							>
-								📥 + Receive Cheque from Salesman
-							</button>
+
 						</div>
 						<div class="table-wrap">
 							<table>
@@ -6158,56 +6056,7 @@
 			</div>
 		</div>
 
-		<!-- ==================== SALES TEAM LOGIN MODAL ==================== -->
-		<div class="modal-backdrop" id="staffLoginModal">
-			<div class="modal" style="max-width: 390px; text-align: center">
-				<div style="font-size: 2.4rem; margin-bottom: 8px">📱</div>
-				<h3 style="margin-bottom: 4px; color: var(--primary)">Sales Team Login</h3>
-				<p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 16px">
-					Prashik Hajare (Manager), Gopal Ambagade &amp; Vikram Sing Thakur
-				</p>
-				<form onsubmit="handleStaffLogin(event)" style="text-align: left">
-					<div class="form-group" style="margin-bottom: 12px">
-						<label style="font-size: 0.75rem; font-weight: 700; color: var(--muted)"
-							>Mobile Number (Login ID)</label
-						>
-						<input
-							type="tel"
-							id="staffMobileInput"
-							class="form-control"
-							placeholder="10-digit mobile number"
-							required
-							autofocus
-						/>
-					</div>
-					<div class="form-group" style="margin-bottom: 18px">
-						<label style="font-size: 0.75rem; font-weight: 700; color: var(--muted)"
-							>Password</label
-						>
-						<input
-							type="password"
-							id="staffPassInput"
-							class="form-control"
-							placeholder="Enter password"
-							required
-						/>
-					</div>
-					<div style="display: flex; gap: 8px">
-						<button
-							type="button"
-							class="btn btn-sm"
-							style="flex: 1; justify-content: center; background: #e2e8f0"
-							onclick="closeModal('staffLoginModal')"
-						>
-							Cancel
-						</button>
-						<button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center">
-							Login
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
+		
 
 		<!-- ==================== QUICK ADD PARTY MODAL (FIELD SALES) ==================== -->
 		<div class="modal-backdrop" id="quickAddPartyModal">
@@ -7597,52 +7446,7 @@
 			</div>
 		</div>
 
-		<!-- ==================== OWNER LOGIN MODAL ==================== -->
-		<div class="modal-backdrop" id="ownerLoginModal">
-			<div class="modal" style="max-width: 380px; text-align: center">
-				<div style="font-size: 2.4rem; margin-bottom: 8px">🔐</div>
-				<h3 style="margin-bottom: 4px; color: var(--primary)">Owner Login</h3>
-				<p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 16px">
-					Sign in with Owner Mobile / Email and Password / PIN.
-				</p>
-				<form onsubmit="verifyOwnerLogin(event)">
-					<div class="form-group" style="margin-bottom: 12px">
-						<input
-							type="text"
-							id="ownerIdInput"
-							class="form-control"
-							placeholder="Owner Mobile or Admin Email"
-							style="font-size: 0.92rem; padding: 10px 12px"
-							required
-						/>
-					</div>
-					<div class="form-group" style="margin-bottom: 18px">
-						<input
-							type="password"
-							id="ownerPinInput"
-							class="form-control text-center font-bold"
-							maxlength="32"
-							placeholder="Password / PIN"
-							style="font-size: 1.15rem; letter-spacing: 3px; padding: 12px"
-							required
-						/>
-					</div>
-					<div style="display: flex; gap: 8px">
-						<button
-							type="button"
-							class="btn btn-sm"
-							style="flex: 1; justify-content: center; background: #e2e8f0"
-							onclick="closeModal('ownerLoginModal')"
-						>
-							Cancel
-						</button>
-						<button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center">
-							Login
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
+		
 
 		<!-- ==================== INSTALL & SHARE APP MODAL ==================== -->
 		<div class="modal-backdrop" id="installAppModal">
@@ -8415,24 +8219,7 @@
 					>
 						📸 Click to Capture
 					</button>
-					<button
-						type="button"
-						class="btn btn-sm"
-						onclick="fallbackToDeviceCamera()"
-						style="
-							background: #f8fafc;
-							border: 1px dashed #94a3b8;
-							color: #475569;
-							font-weight: 600;
-							padding: 9px 14px;
-							border-radius: 8px;
-							display: inline-flex;
-							align-items: center;
-							gap: 6px;
-						"
-					>
-						📱 Phone Camera App
-					</button>
+
 				</div>
 			</div>
 		</div>
