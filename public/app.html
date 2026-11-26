@@ -8290,8 +8290,8 @@
 							color: #f87171;
 							font-size: 0.85rem;
 							font-weight: 600;
-							padding: 20px;
-							background: rgba(0, 0, 0, 0.88);
+							padding: 16px;
+							background: rgba(15, 23, 42, 0.94);
 							display: none;
 							text-align: center;
 							width: 100%;
@@ -8300,18 +8300,37 @@
 							flex-direction: column;
 							justify-content: center;
 							align-items: center;
+							overflow-y: auto;
 						"
 					>
-						<div style="font-size: 1.6rem; margin-bottom: 6px">📷❌</div>
-						<div id="cameraErrorText">Unable to access live camera.</div>
-						<button
-							type="button"
-							class="btn btn-sm btn-primary"
-							style="margin-top: 12px; font-weight: 700"
-							onclick="fallbackToDeviceCamera()"
-						>
-							📱 Use Device Camera / File Picker
-						</button>
+						<div style="font-size: 1.8rem; margin-bottom: 4px">📷❌</div>
+						<div id="cameraErrorText" style="margin-bottom: 10px; max-width: 90%; line-height: 1.4">Camera permission denied. Please allow camera access in browser, or use device camera below.</div>
+						
+						<div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px">
+							<button
+								type="button"
+								class="btn btn-sm"
+								style="font-weight: 700; background: #2563eb; color: #fff; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer"
+								onclick="initLiveCameraStream()"
+							>
+								🔄 Retry Camera
+							</button>
+							<button
+								type="button"
+								class="btn btn-sm"
+								style="font-weight: 700; background: #16a34a; color: #fff; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer"
+								onclick="fallbackToDeviceCamera()"
+							>
+								📱 Use Phone Camera App (Direct)
+							</button>
+						</div>
+
+						<div style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 10px 12px; font-size: 0.75rem; color: #cbd5e1; text-align: left; max-width: 94%; line-height: 1.45">
+							<strong style="color: #fde047; display: block; margin-bottom: 4px">💡 If already allowed in Chrome:</strong>
+							1. <strong>Android Settings</strong> ➔ Apps ➔ Chrome ➔ Permissions ➔ Camera ➔ Allow.<br/>
+							2. <strong>Android Quick Settings</strong> ➔ Swipe down top notification bar and ensure <strong>"Camera access"</strong> toggle is ON (not blocked).<br/>
+							3. Or tap <strong>"Use Phone Camera App"</strong> above to take photo directly!
+						</div>
 					</div>
 				</div>
 
@@ -8364,6 +8383,27 @@
 						"
 					>
 						📸 Click to Capture
+					</button>
+					<button
+						type="button"
+						class="btn btn-sm"
+						id="cameraPhoneAppBtn"
+						onclick="fallbackToDeviceCamera()"
+						style="
+							background: #f8fafc;
+							border: 1.5px dashed #64748b;
+							color: #1e293b;
+							font-weight: 700;
+							padding: 9px 14px;
+							border-radius: 8px;
+							display: inline-flex;
+							align-items: center;
+							gap: 6px;
+							cursor: pointer;
+						"
+						title="Open Phone's default Camera App"
+					>
+						📱 Phone Camera App
 					</button>
 
 				</div>
@@ -24422,15 +24462,42 @@ Thank you! Your payment has been received successfully.`;
 				}
 
 				try {
-					const constraints = {
-						video: {
-							facingMode: currentCameraFacing ? { ideal: currentCameraFacing } : "environment",
-							width: { ideal: 1280 },
-							height: { ideal: 720 },
+					let stream = null;
+					const attempts = [
+						{
+							video: {
+								facingMode: currentCameraFacing ? { ideal: currentCameraFacing } : "environment",
+								width: { ideal: 1280 },
+								height: { ideal: 720 },
+							},
+							audio: false,
 						},
-						audio: false,
-					};
-					const stream = await navigator.mediaDevices.getUserMedia(constraints);
+						{
+							video: {
+								facingMode: currentCameraFacing || "environment",
+							},
+							audio: false,
+						},
+						{
+							video: true,
+							audio: false,
+						},
+					];
+
+					let lastErr = null;
+					for (const c of attempts) {
+						try {
+							stream = await navigator.mediaDevices.getUserMedia(c);
+							if (stream) break;
+						} catch (e) {
+							lastErr = e;
+							if (e.name === "NotAllowedError" || e.name === "PermissionDeniedError") {
+								throw e;
+							}
+						}
+					}
+					if (!stream && lastErr) throw lastErr;
+
 					liveCameraStream = stream;
 					if (video) {
 						video.srcObject = stream;
@@ -24439,6 +24506,7 @@ Thank you! Your payment has been received successfully.`;
 						await video.play();
 					}
 					if (spinner) spinner.style.display = "none";
+					if (errorBox) errorBox.style.display = "none";
 				} catch (err) {
 					console.warn("Camera stream error:", err);
 					if (spinner) spinner.style.display = "none";
@@ -24447,8 +24515,8 @@ Thank you! Your payment has been received successfully.`;
 						if (errorText) {
 							errorText.textContent =
 								err.name === "NotAllowedError" || err.name === "PermissionDeniedError"
-									? "Camera permission denied. Please allow camera access in browser, or use device camera below."
-									: "Could not open camera (" + (err.message || "No camera device found") + ").";
+									? "Camera permission denied by browser or phone system. Please check permissions or use device camera below."
+									: "Could not open camera (" + (err.message || "Device busy or not found") + ").";
 						}
 					}
 				}
