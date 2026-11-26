@@ -10024,6 +10024,52 @@
 				setTimeout(() => t.classList.remove("show"), 3200);
 			}
 
+			// ==================== UNIVERSAL CLEAN PDF EXPORT OPTIONS (DESKTOP & MOBILE COMPATIBLE) ====================
+			function getCleanPdfExportOptions(fileName, targetElOrId, margin = [6, 6, 6, 6], scale = 2) {
+				const elementId =
+					typeof targetElOrId === "string"
+						? targetElOrId
+						: targetElOrId && targetElOrId.id
+						? targetElOrId.id
+						: null;
+				return {
+					margin: margin,
+					filename: fileName,
+					image: { type: "jpeg", quality: 0.98 },
+					html2canvas: {
+						scale: scale,
+						useCORS: true,
+						logging: false,
+						backgroundColor: "#ffffff",
+						windowWidth: 1024,
+						onclone: (clonedDoc) => {
+							const el = elementId
+								? clonedDoc.getElementById(elementId)
+								: clonedDoc.querySelector(".invoice-paper") || clonedDoc.body;
+							if (el) {
+								if (elementId === "receiptPrintArea") {
+									el.style.width = "680px";
+									el.style.maxWidth = "680px";
+								} else {
+									el.style.width = "780px";
+									el.style.maxWidth = "780px";
+								}
+								el.style.margin = "0 auto";
+								el.style.boxSizing = "border-box";
+								el.style.overflow = "visible";
+								const scrollables = el.querySelectorAll("*");
+								scrollables.forEach((s) => {
+									if (s.style) {
+										s.style.overflow = "visible";
+									}
+								});
+							}
+						},
+					},
+					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+				};
+			}
+
 			function fmtINR(n) {
 				return (
 					"₹" +
@@ -12279,22 +12325,7 @@
 					const element = document.getElementById("statementPrintArea");
 					if (!element || !window.html2pdf) return null;
 					const fileName = `${activeCompany}_Statement_${p.name.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
-					const opt = {
-						margin: [6, 6, 6, 6],
-						filename: fileName,
-						image: { type: "jpeg", quality: 0.95 },
-						html2canvas: {
-							scale: 1.5,
-							useCORS: true,
-							logging: false,
-							scrollY: 0,
-							scrollX: 0,
-							x: 0,
-							y: 0,
-							backgroundColor: "#ffffff",
-						},
-						jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-					};
+					const opt = getCleanPdfExportOptions(fileName, "statementPrintArea", [6, 6, 6, 6], 1.5);
 					const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
 					const reader = new FileReader();
 					const pureB64 = await new Promise((resolve) => {
@@ -19390,13 +19421,7 @@ Thank you! Your payment has been received successfully.`;
 
 				if (window.html2pdf) {
 					showToast("⏳ Generating Daily Summary PDF...");
-					const opt = {
-						margin: [8, 8, 8, 8],
-						filename: fileName,
-						image: { type: "jpeg", quality: 0.98 },
-						html2canvas: { scale: 2, useCORS: true },
-						jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-					};
+					const opt = getCleanPdfExportOptions(fileName, "dailySummaryPrintArea", [8, 8, 8, 8], 2);
 					html2pdf()
 						.set(opt)
 						.from(el)
@@ -22986,22 +23011,7 @@ Thank you! Your payment has been received successfully.`;
 
 					const element = document.getElementById("invoicePrintArea");
 					if (element && window.html2pdf) {
-						const opt = {
-							margin: [6, 6, 6, 6],
-							filename: fileName,
-							image: { type: "jpeg", quality: 0.98 },
-							html2canvas: {
-								scale: 2,
-								useCORS: true,
-								logging: false,
-								scrollY: 0,
-								scrollX: 0,
-								x: 0,
-								y: 0,
-								backgroundColor: "#ffffff",
-							},
-							jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-						};
+						const opt = getCleanPdfExportOptions(fileName, "invoicePrintArea", [6, 6, 6, 6], 2);
 						const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
 						cachedOrderPdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
 						cachedOrderPdfOrderId = ord.id;
@@ -23180,23 +23190,7 @@ Thank you! Your payment has been received successfully.`;
 
 				try {
 					if (window.html2pdf) {
-						const opt = {
-							margin: [6, 6, 6, 6],
-							filename: fileName,
-							image: { type: "jpeg", quality: 0.98 },
-							html2canvas: {
-								scale: 2,
-								useCORS: true,
-								logging: false,
-								scrollY: 0,
-								scrollX: 0,
-								x: 0,
-								y: 0,
-								backgroundColor: "#ffffff",
-							},
-							jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-						};
-
+						const opt = getCleanPdfExportOptions(fileName, "invoicePrintArea", [6, 6, 6, 6], 2);
 						await html2pdf().set(opt).from(element).save();
 						showToast(`✅ ${fileName} downloaded successfully!`);
 					} else {
@@ -23371,22 +23365,7 @@ Thank you! Your payment has been received successfully.`;
 					openPaymentReceipt(col.id);
 					const element = document.getElementById("receiptPrintArea");
 					if (element && window.html2pdf) {
-						const opt = {
-							margin: [6, 6, 6, 6],
-							filename: fileName,
-							image: { type: "jpeg", quality: 0.98 },
-							html2canvas: {
-								scale: 2,
-								useCORS: true,
-								logging: false,
-								scrollY: 0,
-								scrollX: 0,
-								x: 0,
-								y: 0,
-								backgroundColor: "#ffffff",
-							},
-							jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-						};
+						const opt = getCleanPdfExportOptions(fileName, "receiptPrintArea", [6, 6, 6, 6], 2);
 						const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
 						cachedColPdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
 						cachedColPdfId = col.id;
@@ -23418,22 +23397,7 @@ Thank you! Your payment has been received successfully.`;
 
 				try {
 					if (window.html2pdf) {
-						const opt = {
-							margin: [6, 6, 6, 6],
-							filename: fileName,
-							image: { type: "jpeg", quality: 0.98 },
-							html2canvas: {
-								scale: 2,
-								useCORS: true,
-								logging: false,
-								scrollY: 0,
-								scrollX: 0,
-								x: 0,
-								y: 0,
-								backgroundColor: "#ffffff",
-							},
-							jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-						};
+						const opt = getCleanPdfExportOptions(fileName, "receiptPrintArea", [6, 6, 6, 6], 2);
 						await html2pdf().set(opt).from(element).save();
 						showToast(`✅ ${fileName} downloaded successfully!`);
 					} else {
@@ -23482,22 +23446,7 @@ Thank you! Your payment has been received successfully.`;
 				showToast("⏳ Generating Statement PDF for download...");
 				try {
 					if (window.html2pdf) {
-						const opt = {
-							margin: [6, 6, 6, 6],
-							filename: fileName,
-							image: { type: "jpeg", quality: 0.98 },
-							html2canvas: {
-								scale: 2,
-								useCORS: true,
-								logging: false,
-								scrollY: 0,
-								scrollX: 0,
-								x: 0,
-								y: 0,
-								backgroundColor: "#ffffff",
-							},
-							jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-						};
+						const opt = getCleanPdfExportOptions(fileName, "statementPrintArea", [6, 6, 6, 6], 2);
 						await html2pdf().set(opt).from(element).save();
 						showToast(`✅ ${fileName} downloaded successfully!`);
 					} else {
@@ -23542,13 +23491,12 @@ Thank you! Your payment has been received successfully.`;
 
 				try {
 					if (window.html2pdf) {
-						const opt = {
-							margin: [6, 6, 6, 6],
-							filename: `${isDispatched ? "Tax_Invoice" : "Booking_Memo"}_${ord.memoNo || ord.orderNo}.pdf`,
-							image: { type: "jpeg", quality: 0.98 },
-							html2canvas: { scale: 2, useCORS: true, logging: false },
-							jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-						};
+						const opt = getCleanPdfExportOptions(
+							`${isDispatched ? "Tax_Invoice" : "Booking_Memo"}_${ord.memoNo || ord.orderNo}.pdf`,
+							"invoicePrintArea",
+							[6, 6, 6, 6],
+							2
+						);
 						const blob = await html2pdf().set(opt).from(element).outputPdf("blob");
 						const blobUrl = URL.createObjectURL(blob);
 						window.open(blobUrl, "_blank");
@@ -23574,13 +23522,7 @@ Thank you! Your payment has been received successfully.`;
 
 				try {
 					if (window.html2pdf) {
-						const opt = {
-							margin: [6, 6, 6, 6],
-							filename: `Receipt_${targetId}.pdf`,
-							image: { type: "jpeg", quality: 0.98 },
-							html2canvas: { scale: 2, useCORS: true, logging: false },
-							jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-						};
+						const opt = getCleanPdfExportOptions(`Receipt_${targetId}.pdf`, "receiptPrintArea", [6, 6, 6, 6], 2);
 						const blob = await html2pdf().set(opt).from(element).outputPdf("blob");
 						const blobUrl = URL.createObjectURL(blob);
 						window.open(blobUrl, "_blank");
