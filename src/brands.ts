@@ -23,7 +23,7 @@ export const BRANDS: Record<CompanyKey, BrandMetadata> = {
 	MADHAV: {
 		key: "MADHAV",
 		workerName: "madhav-enterprises",
-		origin: "https://madhav-enterprises.madhavshivom.workers.dev",
+		origin: "https://madhav-enterprises.mserp.workers.dev",
 		title: "MADHAV ENTERPRISES - Cloud ERP Portal",
 		shortName: "Madhav ERP",
 		description:
@@ -42,7 +42,7 @@ export const BRANDS: Record<CompanyKey, BrandMetadata> = {
 	SHIVOM: {
 		key: "SHIVOM",
 		workerName: "shivom-sales",
-		origin: "https://shivom-sales.madhavshivom.workers.dev",
+		origin: "https://shivom-sales.mserp.workers.dev",
 		title: "SHIVOM SALES & SERVICES - Cloud ERP Portal",
 		shortName: "Shivom ERP",
 		description:

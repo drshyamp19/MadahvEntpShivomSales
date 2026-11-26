@@ -8970,8 +8970,15 @@
 					if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
 						return window.location.origin;
 					}
-					const cfg = getBrandConfig();
-					if (cfg.brands && cfg.brands[co] && cfg.brands[co].origin) {
+					// If running on a workers.dev domain, dynamically preserve current subdomain (mserp or madhavshivom)
+					const parts = host.split(".");
+					if (parts.length >= 3 && host.includes("workers.dev")) {
+						const baseDomain = parts.slice(1).join(".");
+						const workerName = co === "SHIVOM" ? "shivom-sales" : "madhav-enterprises";
+						return `https://${workerName}.${baseDomain}`;
+					}
+					const cfg = typeof getBrandConfig === "function" ? getBrandConfig() : null;
+					if (cfg && cfg.brands && cfg.brands[co] && cfg.brands[co].origin) {
 						return cfg.brands[co].origin;
 					}
 					if (window.location.origin && !window.location.origin.includes("file://")) {
@@ -8979,8 +8986,8 @@
 					}
 				}
 				return co === "SHIVOM"
-					? "https://shivom-sales.madhavshivom.workers.dev"
-					: "https://madhav-enterprises.madhavshivom.workers.dev";
+					? "https://shivom-sales.mserp.workers.dev"
+					: "https://madhav-enterprises.mserp.workers.dev";
 			}
 
 			function getPublicDocUrl(docType, id, companyKey) {
