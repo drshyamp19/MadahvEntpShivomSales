@@ -3909,60 +3909,121 @@
 									</div>
 								</div>
 
-								<!-- Smart Filter Tabs for Orders (Default: Pending Only) -->
+								<!-- Smart Filter Tabs for Orders (Default: Pending Only) & View Switcher -->
 								<div
-									style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center"
-									id="orderFilterTabs"
+									style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between"
+									id="orderFilterTabsBar"
 								>
-									<button
-										type="button"
-										class="btn btn-sm order-tab-btn active"
-										id="orderTabPending"
-										onclick="setOrderRegisterTab('Pending')"
-										style="
-											font-weight: 700;
-											border-radius: 20px;
-											padding: 6px 16px;
-											background: #fff7ed;
-											color: #c2410c;
-											border: 1.5px solid #f97316;
-											box-shadow: 0 1px 3px rgba(249, 115, 22, 0.15);
-										"
-									>
-										📦 Active Pending Orders (<span id="countPendingOrders">0</span>)
-									</button>
-									<button
-										type="button"
-										class="btn btn-sm order-tab-btn"
-										id="orderTabCompleted"
-										onclick="setOrderRegisterTab('Completed')"
-										style="
-											font-weight: 700;
-											border-radius: 20px;
-											padding: 6px 14px;
-											background: #f1f5f9;
-											color: #475569;
-											border: 1px solid #e2e8f0;
-										"
-									>
-										✓ Dispatched Archive (<span id="countCompletedOrders">0</span>)
-									</button>
-									<button
-										type="button"
-										class="btn btn-sm order-tab-btn"
-										id="orderTabAll"
-										onclick="setOrderRegisterTab('All')"
-										style="
-											font-weight: 700;
-											border-radius: 20px;
-											padding: 6px 14px;
-											background: #f1f5f9;
-											color: #475569;
-											border: 1px solid #e2e8f0;
-										"
-									>
-										📁 All Orders History (<span id="countAllOrders">0</span>)
-									</button>
+									<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center" id="orderFilterTabs">
+										<button
+											type="button"
+											class="btn btn-sm order-tab-btn active"
+											id="orderTabPending"
+											onclick="setOrderRegisterTab('Pending')"
+											style="
+												font-weight: 700;
+												border-radius: 20px;
+												padding: 6px 16px;
+												background: #fff7ed;
+												color: #c2410c;
+												border: 1.5px solid #f97316;
+												box-shadow: 0 1px 3px rgba(249, 115, 22, 0.15);
+											"
+										>
+											📦 Active Pending Orders (<span id="countPendingOrders">0</span>)
+										</button>
+										<button
+											type="button"
+											class="btn btn-sm order-tab-btn"
+											id="orderTabCompleted"
+											onclick="setOrderRegisterTab('Completed')"
+											style="
+												font-weight: 700;
+												border-radius: 20px;
+												padding: 6px 14px;
+												background: #f1f5f9;
+												color: #475569;
+												border: 1px solid #e2e8f0;
+											"
+										>
+											✓ Dispatched Archive (<span id="countCompletedOrders">0</span>)
+										</button>
+										<button
+											type="button"
+											class="btn btn-sm order-tab-btn"
+											id="orderTabAll"
+											onclick="setOrderRegisterTab('All')"
+											style="
+												font-weight: 700;
+												border-radius: 20px;
+												padding: 6px 14px;
+												background: #f1f5f9;
+												color: #475569;
+												border: 1px solid #e2e8f0;
+											"
+										>
+											📁 All Orders History (<span id="countAllOrders">0</span>)
+										</button>
+									</div>
+
+									<!-- View Switcher (Cards vs Table) -->
+									<div style="display: inline-flex; align-items: center; gap: 8px; margin-left: auto">
+										<div
+											style="
+												display: inline-flex;
+												border-radius: 8px;
+												border: 1.5px solid #cbd5e1;
+												overflow: hidden;
+												background: #fff;
+												box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+											"
+										>
+											<button
+												type="button"
+												id="btnOrderViewCards"
+												class="btn btn-sm"
+												onclick="setOrderViewMode('cards')"
+												style="
+													padding: 5px 14px;
+													font-weight: 700;
+													font-size: 0.8rem;
+													border-radius: 0;
+													background: #15803d;
+													color: #fff;
+													border: none;
+													cursor: pointer;
+													display: inline-flex;
+													align-items: center;
+													gap: 5px;
+												"
+												title="Cards Grid View"
+											>
+												<span>🗂️</span> Cards
+											</button>
+											<button
+												type="button"
+												id="btnOrderViewTable"
+												class="btn btn-sm"
+												onclick="setOrderViewMode('table')"
+												style="
+													padding: 5px 14px;
+													font-weight: 700;
+													font-size: 0.8rem;
+													border-radius: 0;
+													background: #fff;
+													color: #475569;
+													border: none;
+													cursor: pointer;
+													display: inline-flex;
+													align-items: center;
+													gap: 5px;
+												"
+												title="Classic Table View"
+											>
+												<span>📋</span> Table
+											</button>
+										</div>
+									</div>
 								</div>
 							</div>
 
@@ -4031,7 +4092,21 @@
 								</div>
 							</div>
 
-							<div class="table-wrap">
+							<!-- Cards Grid View Container -->
+							<div
+								id="ordersCardsGrid"
+								class="orders-card-grid"
+								style="
+									display: grid;
+									grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+									gap: 14px;
+									margin-top: 10px;
+									padding: 0 14px 14px 14px;
+								"
+							></div>
+
+							<!-- Table View Container -->
+							<div class="table-wrap" id="ordersTableWrap" style="display: none">
 								<table id="ordersMainTable">
 									<thead>
 										<tr>
@@ -4667,6 +4742,63 @@
 									>
 										↺ Reset
 									</button>
+
+									<!-- Collection View Switcher (Cards vs Table) -->
+									<div
+										style="
+											display: inline-flex;
+											border-radius: 8px;
+											border: 1.5px solid #cbd5e1;
+											overflow: hidden;
+											background: #fff;
+											box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+										"
+									>
+										<button
+											type="button"
+											id="btnColViewCards"
+											class="btn btn-sm"
+											onclick="setColViewMode('cards')"
+											style="
+												padding: 4px 12px;
+												font-weight: 700;
+												font-size: 0.78rem;
+												border-radius: 0;
+												background: #15803d;
+												color: #fff;
+												border: none;
+												cursor: pointer;
+												display: inline-flex;
+												align-items: center;
+												gap: 4px;
+											"
+											title="Cards Grid View"
+										>
+											<span>🗂️</span> Cards
+										</button>
+										<button
+											type="button"
+											id="btnColViewTable"
+											class="btn btn-sm"
+											onclick="setColViewMode('table')"
+											style="
+												padding: 4px 12px;
+												font-weight: 700;
+												font-size: 0.78rem;
+												border-radius: 0;
+												background: #fff;
+												color: #475569;
+												border: none;
+												cursor: pointer;
+												display: inline-flex;
+												align-items: center;
+												gap: 4px;
+											"
+											title="Table View"
+										>
+											<span>📋</span> Table
+										</button>
+									</div>
 								</div>
 							</div>
 
@@ -4713,7 +4845,21 @@
 									>
 								</div>
 							</div>
-							<div class="table-wrap">
+							<!-- Collection Cards Grid View Container -->
+							<div
+								id="colCardsGrid"
+								class="col-cards-grid"
+								style="
+									display: grid;
+									grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+									gap: 14px;
+									margin-top: 10px;
+									padding: 0 14px 14px 14px;
+								"
+							></div>
+
+							<!-- Collection Table View Container -->
+							<div class="table-wrap" id="colTableWrap" style="display: none">
 								<table>
 									<thead>
 										<tr>
@@ -14210,7 +14356,31 @@ Thank you!`;
 				return list;
 			}
 
-			function renderOrdersTable() {
+			
+			let orderViewMode = localStorage.getItem("erp_order_view_mode") || "cards";
+
+			function setOrderViewMode(mode) {
+				orderViewMode = mode;
+				localStorage.setItem("erp_order_view_mode", mode);
+				const btnCards = document.getElementById("btnOrderViewCards");
+				const btnTable = document.getElementById("btnOrderViewTable");
+				if (btnCards && btnTable) {
+					if (mode === "cards") {
+						btnCards.style.background = "#15803d";
+						btnCards.style.color = "#fff";
+						btnTable.style.background = "#fff";
+						btnTable.style.color = "#475569";
+					} else {
+						btnCards.style.background = "#fff";
+						btnCards.style.color = "#475569";
+						btnTable.style.background = "#15803d";
+						btnTable.style.color = "#fff";
+					}
+				}
+				renderOrdersTable();
+			}
+
+function renderOrdersTable() {
 				const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
 				const canDispatch = isAdminLoggedIn || (currentStaff && currentStaff.role === "Manager");
 				const allOrders = state.orders || [];
@@ -14383,6 +14553,194 @@ Thank you!`;
 					return;
 				}
 
+				// Handle View Switcher Visibility
+				const cardsGridEl = document.getElementById("ordersCardsGrid");
+				const tableWrapEl = document.getElementById("ordersTableWrap");
+				const btnCardsEl = document.getElementById("btnOrderViewCards");
+				const btnTableEl = document.getElementById("btnOrderViewTable");
+
+				if (btnCardsEl && btnTableEl) {
+					if (orderViewMode === "cards") {
+						btnCardsEl.style.background = "#15803d";
+						btnCardsEl.style.color = "#fff";
+						btnTableEl.style.background = "#fff";
+						btnTableEl.style.color = "#475569";
+						if (cardsGridEl) cardsGridEl.style.display = "grid";
+						if (tableWrapEl) tableWrapEl.style.display = "none";
+					} else {
+						btnCardsEl.style.background = "#fff";
+						btnCardsEl.style.color = "#475569";
+						btnTableEl.style.background = "#15803d";
+						btnTableEl.style.color = "#fff";
+						if (cardsGridEl) cardsGridEl.style.display = "none";
+						if (tableWrapEl) tableWrapEl.style.display = "block";
+					}
+				}
+
+				if (list.length === 0) {
+					const colSpan = isSalesperson ? (currentOrderRegisterTab === "Pending" ? 8 : 9) : 12;
+					if (tbody) tbody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center" style="padding:24px;color:var(--muted);font-weight:600;">No orders found matching selected filters.</td></tr>`;
+					if (cardsGridEl) cardsGridEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:36px 20px;background:#fff;border-radius:12px;border:1.5px dashed #cbd5e1;color:var(--muted);font-weight:600;">No orders found matching selected filters.</div>`;
+					updateSelectedOrdersBar();
+					return;
+				}
+
+				// Render Cards Grid View
+				if (cardsGridEl) {
+					cardsGridEl.innerHTML = list.map((o) => {
+						const pending = Number(o.orderQty || 0) - Number(o.dispatchedQty || 0);
+						const ordQ = Number(o.orderQty || 0);
+						const dispQ = Number(o.dispatchedQty || 0);
+						const isDispatched = dispQ > 0;
+						const isCompleted = pending === 0 && ordQ > 0;
+						const isPartial = pending > 0 && isDispatched;
+						const lineTotal = Number(o.totalAmt || ordQ * Number(o.rate || 0) || 0);
+						const progressPct = ordQ > 0 ? Math.round((dispQ / ordQ) * 100) : 0;
+
+						let statusBadge = '';
+						if (isCompleted) {
+							statusBadge = `<span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:6px;font-size:0.72rem;font-weight:700;">✓ Dispatched</span>`;
+						} else if (isPartial) {
+							statusBadge = `<span style="background:#fef3c7;color:#b45309;padding:2px 8px;border-radius:6px;font-size:0.72rem;font-weight:700;">🟡 Partial</span>`;
+						} else {
+							statusBadge = `<span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:6px;font-size:0.72rem;font-weight:700;">Pending</span>`;
+						}
+
+						let ageingBadge = '';
+						let diffDays = 0;
+						if (o.date) {
+							const parts = o.date.split("-");
+							if (parts.length === 3) {
+								const oDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+								const now = new Date();
+								const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+								diffDays = Math.round((todayZero - oDate) / (1000 * 60 * 60 * 24));
+								if (diffDays <= 0) {
+									ageingBadge = `<span style="font-size:0.68rem;padding:2px 6px;border-radius:4px;background:#f0fdf4;color:#166534;font-weight:700;">Today</span>`;
+								} else if (diffDays === 1) {
+									ageingBadge = `<span style="font-size:0.68rem;padding:2px 6px;border-radius:4px;background:#f8fafc;color:#475569;font-weight:600;">1d ago</span>`;
+								} else {
+									if (pending > 0 && diffDays >= 2) {
+										ageingBadge = `<span style="font-size:0.68rem;padding:2px 6px;border-radius:4px;background:#fff1f2;color:#be123c;font-weight:700;">⚠️ ${diffDays}d Pending</span>`;
+									} else {
+										ageingBadge = `<span style="font-size:0.68rem;padding:2px 6px;border-radius:4px;background:#f1f5f9;color:#64748b;font-weight:600;">${diffDays}d ago</span>`;
+									}
+								}
+							}
+						}
+
+						const partyInfo = computedParties.find(p => p.name && p.name.trim().toLowerCase() === (o.partyName || "").trim().toLowerCase());
+						let partyDueHtml = '';
+						if (partyInfo) {
+							const bal = Number(partyInfo.netBalance || 0);
+							if (bal > 0) {
+								partyDueHtml = `
+								<div style="font-size:0.75rem;color:#dc2626;font-weight:700;display:inline-flex;align-items:center;gap:5px;">
+									<span>🔴 Due: ${fmtINR(bal)}</span>
+									<button type="button" class="btn btn-xs" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;font-size:0.66rem;padding:1px 6px;border-radius:4px;font-weight:700;cursor:pointer;" onclick="quickCollectFromDue('${escapeHtml(partyInfo.id || o.partyName)}')">💵 Collect</button>
+								</div>`;
+							} else if (bal === 0) {
+								partyDueHtml = `<div style="font-size:0.72rem;color:#15803d;font-weight:600;">🟢 Nil Due</div>`;
+							} else {
+								partyDueHtml = `<div style="font-size:0.72rem;color:#0284c7;font-weight:600;">🔵 Adv: ${fmtINR(Math.abs(bal))}</div>`;
+							}
+						}
+
+						let itemsSummary = '';
+						if (Array.isArray(o.items) && o.items.length > 0) {
+							const itemNames = o.items.map(it => `${it.productName || it.name || 'Item'} (${it.qty || it.orderQty || 1})`);
+							itemsSummary = itemNames.slice(0, 2).join(', ') + (itemNames.length > 2 ? ` (+${itemNames.length - 2} more)` : '');
+						} else {
+							itemsSummary = `${escapeHtml(o.productName || 'General Goods')} (${ordQ})`;
+						}
+
+						let actionBtn1 = '';
+						let actionBtn2 = '';
+						if (isCompleted) {
+							actionBtn1 = `<button type="button" class="btn btn-primary btn-sm" onclick="openTaxInvoice('${o.id}')" style="font-weight:700;padding:6px 12px;border-radius:6px;flex:1.2;display:inline-flex;align-items:center;justify-content:center;gap:4px;" title="View Final Tax Invoice Bill">🧾 Bill PDF</button>`;
+							actionBtn2 = `<button type="button" class="btn btn-whatsapp btn-sm" onclick="sendInvoiceWhatsAppDirect('${o.id}')" style="padding:6px 12px;border-radius:6px;flex:1.2;display:inline-flex;align-items:center;justify-content:center;gap:4px;" title="Send Bill to Party">💬 Send Bill</button>`;
+						} else {
+							actionBtn1 = canDispatch
+								? `<button type="button" class="btn btn-amber btn-sm" onclick="openDispatchModal('${o.id}')" style="font-weight:700;padding:6px 12px;border-radius:6px;flex:1.2;background:#ea580c;color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:4px;" title="Dispatch order">🚚 Dispatch</button>`
+								: `<button type="button" class="btn btn-sm" style="background:#0284c7;color:#fff;font-weight:700;padding:6px 12px;border-radius:6px;flex:1.2;" onclick="openOrderBookingMemo('${o.id}')" title="View Memo PDF">📄 Memo</button>`;
+							actionBtn2 = `<button type="button" class="btn btn-whatsapp btn-sm" onclick="sendOrderWhatsApp('${o.id}')" style="font-weight:700;padding:6px 12px;border-radius:6px;flex:1.2;display:inline-flex;align-items:center;justify-content:center;gap:4px;" title="Send Order on WhatsApp">💬 WhatsApp</button>`;
+						}
+
+						const memoDisplay = o.memoNo || ('OB-' + (o.id ? o.id.slice(-3) : ''));
+						const isChecked = selectedOrderIds.has(o.id) ? "checked" : "";
+						const cardBorderColor = isCompleted ? '#bbf7d0' : (pending > 0 && diffDays >= 2 ? '#fecaca' : '#fed7aa');
+
+						return `
+						<div class="order-card-item" style="background:#fff;border:1.5px solid ${cardBorderColor};border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;justify-content:space-between;gap:8px;transition:all 0.15s ease;">
+							<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;padding-bottom:6px;border-bottom:1px solid #f1f5f9;">
+								<div style="display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;">
+									${statusBadge}
+									<span style="font-size:0.73rem;color:#64748b;font-weight:600;">📅 ${fmtDate(o.date)}</span>
+									${ageingBadge}
+								</div>
+								<div style="display:inline-flex;align-items:center;gap:6px;">
+									<input type="checkbox" class="order-select-chk" value="${o.id}" data-party="${escapeHtml(o.partyName || '')}" ${isChecked} onchange="toggleSelectOrder(this, '${o.id}')" style="width:16px;height:16px;cursor:pointer;" />
+									<span style="background:#f8fafc;border:1px solid #cbd5e1;padding:2px 8px;border-radius:6px;font-weight:800;font-size:0.76rem;color:#1e293b;display:inline-flex;align-items:center;gap:4px;">
+										${memoDisplay}
+										<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;"></span>
+									</span>
+								</div>
+							</div>
+
+							<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+								<div style="font-weight:800;font-size:0.95rem;color:#0f172a;line-height:1.25;text-transform:uppercase;">
+									${escapeHtml(o.partyName)}
+								</div>
+								<div style="text-align:right;white-space:nowrap;">
+									<div style="font-weight:800;font-size:1.05rem;color:#0f172a;">${fmtINR(lineTotal)}</div>
+									<div style="font-size:0.62rem;color:#64748b;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">ORDER TOTAL</div>
+								</div>
+							</div>
+
+							<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;font-size:0.75rem;">
+								<div>${partyDueHtml}</div>
+								<div style="color:#64748b;font-weight:600;">👤 Booked by: <strong style="color:#334155;">${escapeHtml(o.salespersonName || 'Admin')}</strong></div>
+							</div>
+
+							<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 10px;">
+								<div style="font-size:0.63rem;color:#64748b;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">ORDERED ITEMS:</div>
+								<div style="font-size:0.8rem;color:#1e293b;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(itemsSummary)}">
+									${escapeHtml(itemsSummary)}
+								</div>
+							</div>
+
+							<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 4px;display:grid;grid-template-columns:repeat(4, 1fr);text-align:center;">
+								<div>
+									<div style="font-size:0.62rem;color:#64748b;font-weight:700;">ORDERED</div>
+									<div style="font-size:0.88rem;font-weight:800;color:#0f172a;">${ordQ}</div>
+								</div>
+								<div>
+									<div style="font-size:0.62rem;color:#64748b;font-weight:700;">DISPATCHED</div>
+									<div style="font-size:0.88rem;font-weight:800;color:#15803d;">${dispQ}</div>
+								</div>
+								<div>
+									<div style="font-size:0.62rem;color:#64748b;font-weight:700;">PENDING</div>
+									<div style="font-size:0.88rem;font-weight:800;color:#ea580c;">${pending}</div>
+								</div>
+								<div>
+									<div style="font-size:0.62rem;color:#64748b;font-weight:700;">PROGRESS</div>
+									<div style="font-size:0.88rem;font-weight:800;color:${progressPct === 100 ? '#15803d' : '#0284c7'};">${progressPct}%</div>
+								</div>
+							</div>
+
+							<div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+								${actionBtn1}
+								${actionBtn2}
+								<button type="button" class="btn btn-sm btn-outline order-more-btn" onclick="toggleOrderActionMenu(event, '${o.id}')" style="background:#f8fafc;color:#334155;border:1px solid #cbd5e1;font-weight:800;font-size:1.1rem;padding:6px 10px;border-radius:6px;line-height:1;cursor:pointer;" title="More Options">
+									⋮
+								</button>
+							</div>
+						</div>
+						`;
+					}).join("");
+				}
+
+				// Render Table View
 				tbody.innerHTML = list
 					.map((o) => {
 						const pending = Number(o.orderQty || 0) - Number(o.dispatchedQty || 0);
@@ -15710,6 +16068,30 @@ Thank you!`;
 				return true;
 			}
 
+			
+			let colViewMode = localStorage.getItem("erp_col_view_mode") || "cards";
+
+			function setColViewMode(mode) {
+				colViewMode = mode;
+				localStorage.setItem("erp_col_view_mode", mode);
+				const btnCards = document.getElementById("btnColViewCards");
+				const btnTable = document.getElementById("btnColViewTable");
+				if (btnCards && btnTable) {
+					if (mode === "cards") {
+						btnCards.style.background = "#15803d";
+						btnCards.style.color = "#fff";
+						btnTable.style.background = "#fff";
+						btnTable.style.color = "#475569";
+					} else {
+						btnCards.style.background = "#fff";
+						btnCards.style.color = "#475569";
+						btnTable.style.background = "#15803d";
+						btnTable.style.color = "#fff";
+					}
+				}
+				renderCollectionTable();
+			}
+
 			function renderCollectionTable() {
 				const q = (
 					document.getElementById("colSearch") ? document.getElementById("colSearch").value : ""
@@ -15818,11 +16200,108 @@ Thank you!`;
 				}
 
 				const tbody = document.getElementById("collectionTableBody");
-				if (!tbody) return;
+				const cardsGridEl = document.getElementById("colCardsGrid");
+				const tableWrapEl = document.getElementById("colTableWrap");
+				const btnCardsEl = document.getElementById("btnColViewCards");
+				const btnTableEl = document.getElementById("btnColViewTable");
+
+				if (btnCardsEl && btnTableEl) {
+					if (colViewMode === "cards") {
+						btnCardsEl.style.background = "#15803d";
+						btnCardsEl.style.color = "#fff";
+						btnTableEl.style.background = "#fff";
+						btnTableEl.style.color = "#475569";
+						if (cardsGridEl) cardsGridEl.style.display = "grid";
+						if (tableWrapEl) tableWrapEl.style.display = "none";
+					} else {
+						btnCardsEl.style.background = "#fff";
+						btnCardsEl.style.color = "#475569";
+						btnTableEl.style.background = "#15803d";
+						btnTableEl.style.color = "#fff";
+						if (cardsGridEl) cardsGridEl.style.display = "none";
+						if (tableWrapEl) tableWrapEl.style.display = "block";
+					}
+				}
 
 				if (list.length === 0) {
-					tbody.innerHTML = `<tr><td colspan="8" class="text-center" style="padding:22px;color:var(--muted);font-weight:600;">${isSalesperson ? "No collection receipts found for this period under your name." : "No collection receipts found for the selected filter."}</td></tr>`;
+					const emptyMsg = isSalesperson ? "No collection receipts found for this period under your name." : "No collection receipts found for the selected filter.";
+					if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="text-center" style="padding:22px;color:var(--muted);font-weight:600;">${emptyMsg}</td></tr>`;
+					if (cardsGridEl) cardsGridEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:36px 20px;background:#fff;border-radius:12px;border:1.5px dashed #cbd5e1;color:var(--muted);font-weight:600;">${emptyMsg}</div>`;
 					return;
+				}
+
+				// Render Collection Cards Grid View
+				if (cardsGridEl) {
+					cardsGridEl.innerHTML = list.map((c) => {
+						let modePill = "";
+						if (c.mode === "Cash") {
+							modePill = `<span class="pill pill-green">Cash</span>`;
+						} else if (c.mode === "Bank") {
+							modePill = `<span class="pill pill-blue">Bank (${getAccShortName(c.depositAccount)})</span>`;
+						} else if (c.mode === "Cheque") {
+							const chqSt = c.chequeStatus || "Pending";
+							if (chqSt === "Cleared") {
+								modePill = `<span class="pill pill-green">✓ Cheque (Cleared)</span>`;
+							} else if (chqSt === "Bounced") {
+								modePill = `<span class="pill pill-red">✕ Cheque (Bounced)</span>`;
+							} else {
+								modePill = `<span class="pill pill-yellow">🟡 Cheque (In Hand)</span>`;
+							}
+						} else {
+							modePill = `<span class="pill pill-blue">${c.mode}</span>`;
+						}
+
+						const proofBtn = (c.proofUrl || c.proofImg)
+							? `<button type="button" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-weight:700;padding:6px 10px;border-radius:6px;" onclick="openProofImageModal('${c.id}')" title="View Cheque/Payment Proof">📷 Proof</button>`
+							: '';
+
+						const adminActions = isAdmin
+							? `
+							<button type="button" class="btn btn-sm" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;font-weight:700;padding:6px 10px;border-radius:6px;" onclick="openEditCollectionModal('${c.id}')" title="Edit Collection Receipt">✏️</button>
+							<button type="button" class="btn btn-danger btn-sm" style="padding:6px 10px;border-radius:6px;" onclick="deleteCollectionRecord('${c.id}')" title="Delete Collection Receipt">🗑️</button>
+							`
+							: '';
+
+						return `
+						<div class="col-card-item" style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;justify-content:space-between;gap:8px;transition:all 0.15s ease;">
+							<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;padding-bottom:6px;border-bottom:1px solid #f1f5f9;">
+								<div style="display:inline-flex;align-items:center;gap:6px;">
+									<span style="background:#f8fafc;border:1px solid #cbd5e1;padding:2px 8px;border-radius:6px;font-weight:800;font-size:0.78rem;color:#1e293b;">
+										${c.receiptNo}
+									</span>
+									<span style="font-size:0.73rem;color:#64748b;font-weight:600;">📅 ${fmtDate(c.date)}</span>
+								</div>
+								<div>${modePill}</div>
+							</div>
+
+							<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+								<div style="font-weight:800;font-size:0.95rem;color:#0f172a;line-height:1.25;text-transform:uppercase;">
+									${escapeHtml(c.partyName)}
+								</div>
+								<div style="text-align:right;white-space:nowrap;">
+									<div style="font-weight:800;font-size:1.15rem;color:#15803d;">${fmtINR(c.amount)}</div>
+									<div style="font-size:0.62rem;color:#64748b;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">AMOUNT RECEIVED</div>
+								</div>
+							</div>
+
+							<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;font-size:0.75rem;">
+								<div style="color:#64748b;font-weight:600;">👤 Collected by: <strong style="color:#334155;">${escapeHtml(c.salespersonName || 'Admin')}</strong></div>
+								<div style="color:#64748b;font-weight:600;">🏦 Ref: <strong style="color:#334155;">${escapeHtml(c.bankRef || '-')}</strong></div>
+							</div>
+
+							<div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+								<button type="button" class="btn btn-whatsapp btn-sm" onclick="sendCollectionWhatsApp('${c.id}')" style="font-weight:700;padding:6px 12px;border-radius:6px;flex:1.2;display:inline-flex;align-items:center;justify-content:center;gap:4px;" title="Send WhatsApp">
+									💬 WhatsApp
+								</button>
+								<button type="button" class="btn btn-primary btn-sm" onclick="openPaymentReceipt('${c.id}')" style="font-weight:700;padding:6px 12px;border-radius:6px;flex:1.2;display:inline-flex;align-items:center;justify-content:center;gap:4px;" title="Print/View Official Receipt">
+									📄 Receipt
+								</button>
+								${proofBtn}
+								${adminActions}
+							</div>
+						</div>
+						`;
+					}).join("");
 				}
 
 				tbody.innerHTML = list
