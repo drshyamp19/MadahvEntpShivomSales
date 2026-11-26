@@ -1270,6 +1270,40 @@
 				}
 			}
 
+			/* ==================== HTML2PDF EXPORT STYLING RULES ==================== */
+			.html2pdf__overlay {
+				overflow: visible !important;
+			}
+			.html2pdf__container {
+				box-sizing: border-box !important;
+				background: #ffffff !important;
+				margin: 0 !important;
+				padding: 0 !important;
+			}
+			.html2pdf__container > * {
+				width: 100% !important;
+				max-width: 100% !important;
+				min-width: 100% !important;
+				box-sizing: border-box !important;
+				margin: 0 auto !important;
+				overflow: visible !important;
+			}
+			.html2pdf__container .invoice-paper {
+				width: 100% !important;
+				max-width: 100% !important;
+				box-sizing: border-box !important;
+			}
+			.html2pdf__container #receiptPrintArea {
+				border: none !important;
+				padding: 0 !important;
+				box-shadow: none !important;
+				border-radius: 0 !important;
+				background: transparent !important;
+				width: 100% !important;
+				max-width: 100% !important;
+				box-sizing: border-box !important;
+			}
+
 			.toast {
 				position: fixed;
 				bottom: 20px;
@@ -6521,14 +6555,14 @@
 				</div>
 				<div
 					id="receiptPrintArea"
-					class="invoice-paper"
 					style="
-						max-width: 680px;
+						width: 100%;
+						max-width: 100%;
+						box-sizing: border-box;
 						margin: 0 auto;
-						background: #fff;
-						padding: 24px;
-						border: 1px solid #cbd5e1;
-						border-radius: 8px;
+						background: transparent;
+						padding: 0;
+						border: none;
 					"
 				></div>
 			</div>
@@ -10061,9 +10095,8 @@
 				elementOrHtml,
 				fileName,
 				action = "save",
-				customMargin = [6, 6, 6, 6],
-				scale = 2,
-				targetWidth = 680
+				customMargin = [8, 8, 8, 8],
+				scale = 2
 			) {
 				const targetEl =
 					typeof elementOrHtml === "string"
@@ -10075,6 +10108,7 @@
 				const prevWidth = targetEl.style.width;
 				const prevMinWidth = targetEl.style.minWidth;
 				const prevMaxWidth = targetEl.style.maxWidth;
+				const prevMargin = targetEl.style.margin;
 				const prevOverflow = targetEl.style.overflow;
 				const prevBoxSizing = targetEl.style.boxSizing;
 
@@ -10082,16 +10116,13 @@
 				const prevModalOverflow = parentModal ? parentModal.style.overflow : "";
 				const prevModalOverflowX = parentModal ? parentModal.style.overflowX : "";
 				const prevModalOverflowY = parentModal ? parentModal.style.overflowY : "";
-				const prevModalMaxWidth = parentModal ? parentModal.style.maxWidth : "";
-				const prevModalWidth = parentModal ? parentModal.style.width : "";
-				const prevModalPadding = parentModal ? parentModal.style.padding : "";
 
 				const modalBackdrop = targetEl.closest(".modal-backdrop");
 				const prevBackdropOverflow = modalBackdrop ? modalBackdrop.style.overflow : "";
 
 				// Minimal, clean options without x/y or windowWidth overrides that cause clipping or offset
 				const opt = {
-					margin: customMargin,
+					margin: customMargin || [8, 8, 8, 8],
 					filename: fileName,
 					image: { type: "jpeg", quality: 0.98 },
 					html2canvas: {
@@ -10104,24 +10135,21 @@
 				};
 
 				try {
-					// Set element to printable width (680px fits A4 perfectly with equal margins)
-					targetEl.style.width = targetWidth + "px";
-					targetEl.style.minWidth = targetWidth + "px";
-					targetEl.style.maxWidth = targetWidth + "px";
-					targetEl.style.boxSizing = "border-box";
-					targetEl.style.overflow = "visible";
+					targetEl.style.setProperty("width", "100%", "important");
+					targetEl.style.setProperty("max-width", "100%", "important");
+					targetEl.style.setProperty("min-width", "0px", "important");
+					targetEl.style.setProperty("margin", "0 auto", "important");
+					targetEl.style.setProperty("box-sizing", "border-box", "important");
+					targetEl.style.setProperty("overflow", "visible", "important");
 
 					if (parentModal) {
-						parentModal.style.overflow = "visible";
-						parentModal.style.overflowX = "visible";
-						parentModal.style.overflowY = "visible";
-						parentModal.style.maxWidth = "none";
-						parentModal.style.padding = "0px";
-						parentModal.style.width = targetWidth + 40 + "px";
+						parentModal.style.setProperty("overflow", "visible", "important");
+						parentModal.style.setProperty("overflow-x", "visible", "important");
+						parentModal.style.setProperty("overflow-y", "visible", "important");
 					}
 
 					if (modalBackdrop) {
-						modalBackdrop.style.overflow = "visible";
+						modalBackdrop.style.setProperty("overflow", "visible", "important");
 					}
 
 					// Allow 60ms for reflow
@@ -10138,6 +10166,7 @@
 					targetEl.style.width = prevWidth;
 					targetEl.style.minWidth = prevMinWidth;
 					targetEl.style.maxWidth = prevMaxWidth;
+					targetEl.style.margin = prevMargin;
 					targetEl.style.overflow = prevOverflow;
 					targetEl.style.boxSizing = prevBoxSizing;
 
@@ -10145,9 +10174,6 @@
 						parentModal.style.overflow = prevModalOverflow;
 						parentModal.style.overflowX = prevModalOverflowX;
 						parentModal.style.overflowY = prevModalOverflowY;
-						parentModal.style.maxWidth = prevModalMaxWidth;
-						parentModal.style.width = prevModalWidth;
-						parentModal.style.padding = prevModalPadding;
 					}
 
 					if (modalBackdrop) {
@@ -10156,7 +10182,7 @@
 				}
 			}
 
-			function getCleanPdfExportOptions(fileName, margin = [6, 6, 6, 6], scale = 2) {
+			function getCleanPdfExportOptions(fileName, margin = [8, 8, 8, 8], scale = 2) {
 				return {
 					margin: margin,
 					filename: fileName,
@@ -12426,7 +12452,7 @@
 					const element = document.getElementById("statementPrintArea");
 					if (!element || !window.html2pdf) return null;
 					const fileName = `${activeCompany}_Statement_${p.name.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
-					const pdfBlob = await exportCleanPdf(element, fileName, "blob", [6, 6, 6, 6], 1.5, 680);
+					const pdfBlob = await exportCleanPdf(element, fileName, "blob", [8, 8, 8, 8], 2);
 					const reader = new FileReader();
 					const pureB64 = await new Promise((resolve) => {
 						reader.onloadend = () => {
@@ -19521,7 +19547,7 @@ Thank you! Your payment has been received successfully.`;
 
 				if (window.html2pdf) {
 					showToast("⏳ Generating Daily Summary PDF...");
-					exportCleanPdf(el, fileName, "save", [8, 8, 8, 8], 2, 680)
+					exportCleanPdf(el, fileName, "save", [8, 8, 8, 8], 2)
 						.then(() => {
 							showToast("✅ Daily Summary PDF Downloaded!");
 						})
@@ -23111,7 +23137,7 @@ Thank you! Your payment has been received successfully.`;
 
 					const element = document.getElementById("invoicePrintArea");
 					if (element && window.html2pdf) {
-						const pdfBlob = await exportCleanPdf(element, fileName, "blob", [6, 6, 6, 6], 2, 680);
+						const pdfBlob = await exportCleanPdf(element, fileName, "blob", [8, 8, 8, 8], 2);
 						cachedOrderPdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
 						cachedOrderPdfOrderId = ord.id;
 					}
@@ -23289,7 +23315,7 @@ Thank you! Your payment has been received successfully.`;
 
 				try {
 					if (window.html2pdf) {
-						await exportCleanPdf(element, fileName, "save", [6, 6, 6, 6], 2, 680);
+						await exportCleanPdf(element, fileName, "save", [8, 8, 8, 8], 2);
 						showToast(`✅ ${fileName} downloaded successfully!`);
 					} else {
 						window.print();
@@ -23463,7 +23489,7 @@ Thank you! Your payment has been received successfully.`;
 					openPaymentReceipt(col.id);
 					const element = document.getElementById("receiptPrintArea");
 					if (element && window.html2pdf) {
-						const pdfBlob = await exportCleanPdf(element, fileName, "blob", [6, 6, 6, 6], 2, 680);
+						const pdfBlob = await exportCleanPdf(element, fileName, "blob", [8, 8, 8, 8], 2);
 						cachedColPdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
 						cachedColPdfId = col.id;
 					}
@@ -23494,7 +23520,7 @@ Thank you! Your payment has been received successfully.`;
 
 				try {
 					if (window.html2pdf) {
-						await exportCleanPdf(element, fileName, "save", [6, 6, 6, 6], 2, 680);
+						await exportCleanPdf(element, fileName, "save", [8, 8, 8, 8], 2);
 						showToast(`✅ ${fileName} downloaded successfully!`);
 					} else {
 						window.print();
@@ -23542,7 +23568,7 @@ Thank you! Your payment has been received successfully.`;
 				showToast("⏳ Generating Statement PDF for download...");
 				try {
 					if (window.html2pdf) {
-						await exportCleanPdf(element, fileName, "save", [6, 6, 6, 6], 2, 680);
+						await exportCleanPdf(element, fileName, "save", [8, 8, 8, 8], 2);
 						showToast(`✅ ${fileName} downloaded successfully!`);
 					} else {
 						window.print();
@@ -23590,9 +23616,8 @@ Thank you! Your payment has been received successfully.`;
 							element,
 							`${isDispatched ? "Tax_Invoice" : "Booking_Memo"}_${ord.memoNo || ord.orderNo}.pdf`,
 							"blob",
-							[6, 6, 6, 6],
-							2,
-							680
+							[8, 8, 8, 8],
+							2
 						);
 						const blobUrl = URL.createObjectURL(blob);
 						window.open(blobUrl, "_blank");
@@ -23618,7 +23643,7 @@ Thank you! Your payment has been received successfully.`;
 
 				try {
 					if (window.html2pdf) {
-						const blob = await exportCleanPdf(element, `Receipt_${targetId}.pdf`, "blob", [6, 6, 6, 6], 2, 680);
+						const blob = await exportCleanPdf(element, `Receipt_${targetId}.pdf`, "blob", [8, 8, 8, 8], 2);
 						const blobUrl = URL.createObjectURL(blob);
 						window.open(blobUrl, "_blank");
 					} else {
