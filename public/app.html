@@ -6491,6 +6491,26 @@
 					<h3 style="margin: 0; font-size: 1.05rem">Official Payment Receipt Preview</h3>
 					<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
 						<button
+							id="receiptViewPdfBtn"
+							type="button"
+							class="btn btn-sm"
+							style="
+								background: #059669;
+								color: #fff;
+								font-weight: 700;
+								padding: 7px 14px;
+								display: flex;
+								align-items: center;
+								gap: 6px;
+								border: none;
+								cursor: pointer;
+							"
+							onclick="openReceiptPdfBlob(lastActiveColId)"
+							title="Open Fullscreen PDF in viewer"
+						>
+							👁️ View PDF
+						</button>
+						<button
 							type="button"
 							class="btn btn-sm"
 							style="
@@ -6507,7 +6527,7 @@
 							onclick="downloadPaymentReceiptPdf(lastActiveColId)"
 							title="Download Official Payment Receipt PDF"
 						>
-							📥 Download PDF
+							📥 Download
 						</button>
 						<button
 							type="button"
@@ -7826,6 +7846,26 @@
 					</h3>
 					<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
 						<button
+							id="invoiceViewPdfBtn"
+							type="button"
+							class="btn btn-sm"
+							style="
+								background: #059669;
+								color: #fff;
+								font-weight: 700;
+								padding: 7px 14px;
+								display: flex;
+								align-items: center;
+								gap: 6px;
+								border: none;
+								cursor: pointer;
+							"
+							onclick="openInvoicePdfBlob(currentPreviewInvoiceOrderId || lastActiveMemoOrderId)"
+							title="Open Fullscreen PDF in viewer"
+						>
+							👁️ View PDF
+						</button>
+						<button
 							id="invoiceDownloadPdfBtn"
 							type="button"
 							class="btn btn-sm"
@@ -7841,9 +7881,9 @@
 								cursor: pointer;
 							"
 							onclick="downloadOrderPdf(currentPreviewInvoiceOrderId || lastActiveMemoOrderId)"
-							title="Download high-quality official PDF"
+							title="Download official PDF file"
 						>
-							📥 Download PDF
+							📥 Download
 						</button>
 						<button
 							id="invoicePrintBtn"
@@ -7909,6 +7949,26 @@
 					<h3 style="margin: 0; color: var(--primary)">Party Account Statement Preview</h3>
 					<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
 						<button
+							id="stmtViewPdfBtn"
+							type="button"
+							class="btn btn-sm"
+							style="
+								background: #059669;
+								color: #fff;
+								font-weight: 700;
+								padding: 7px 14px;
+								display: flex;
+								align-items: center;
+								gap: 6px;
+								border: none;
+								cursor: pointer;
+							"
+							onclick="openStatementPdfBlob()"
+							title="Open Fullscreen Statement PDF in viewer"
+						>
+							👁️ View PDF
+						</button>
+						<button
 							id="stmtDownloadPdfBtn"
 							type="button"
 							class="btn btn-sm"
@@ -7926,7 +7986,7 @@
 							onclick="downloadCurrentStatementPdf()"
 							title="Download Account Statement PDF"
 						>
-							📥 Download PDF
+							📥 Download
 						</button>
 						<button
 							class="btn btn-primary btn-sm"
@@ -23610,6 +23670,18 @@ Thank you! Your payment has been received successfully.`;
 				if (!element) return;
 				showToast("⏳ Opening Fullscreen PDF in viewer...");
 
+				let viewerWin = null;
+				try {
+					viewerWin = window.open("", "_blank");
+					if (viewerWin && viewerWin.document) {
+						viewerWin.document.write(
+							"<!DOCTYPE html><html><head><title>Loading PDF...</title></head><body style='font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:90vh;margin:0;'><div style='text-align:center;'><h2>⏳ Loading PDF Viewer...</h2><p>Please wait while your document is being prepared.</p></div></body></html>"
+						);
+					}
+				} catch (winErr) {
+					console.warn("Sync window open notice:", winErr);
+				}
+
 				try {
 					if (window.html2pdf) {
 						const blob = await exportCleanPdf(
@@ -23620,11 +23692,17 @@ Thank you! Your payment has been received successfully.`;
 							2
 						);
 						const blobUrl = URL.createObjectURL(blob);
-						window.open(blobUrl, "_blank");
+						if (viewerWin && !viewerWin.closed) {
+							viewerWin.location.href = blobUrl;
+						} else {
+							window.open(blobUrl, "_blank");
+						}
 					} else {
+						if (viewerWin && !viewerWin.closed) viewerWin.close();
 						window.print();
 					}
 				} catch (e) {
+					if (viewerWin && !viewerWin.closed) viewerWin.close();
 					console.error("Open PDF error:", e);
 					window.print();
 				}
@@ -23641,16 +23719,79 @@ Thank you! Your payment has been received successfully.`;
 				if (!element) return;
 				showToast("⏳ Opening Fullscreen Receipt in viewer...");
 
+				let viewerWin = null;
+				try {
+					viewerWin = window.open("", "_blank");
+					if (viewerWin && viewerWin.document) {
+						viewerWin.document.write(
+							"<!DOCTYPE html><html><head><title>Loading Receipt...</title></head><body style='font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:90vh;margin:0;'><div style='text-align:center;'><h2>⏳ Loading Receipt Viewer...</h2><p>Please wait while your receipt is being prepared.</p></div></body></html>"
+						);
+					}
+				} catch (winErr) {
+					console.warn("Sync window open notice:", winErr);
+				}
+
 				try {
 					if (window.html2pdf) {
 						const blob = await exportCleanPdf(element, `Receipt_${targetId}.pdf`, "blob", [8, 8, 8, 8], 2);
 						const blobUrl = URL.createObjectURL(blob);
-						window.open(blobUrl, "_blank");
+						if (viewerWin && !viewerWin.closed) {
+							viewerWin.location.href = blobUrl;
+						} else {
+							window.open(blobUrl, "_blank");
+						}
 					} else {
+						if (viewerWin && !viewerWin.closed) viewerWin.close();
 						window.print();
 					}
 				} catch (e) {
+					if (viewerWin && !viewerWin.closed) viewerWin.close();
 					console.error("Open Receipt PDF error:", e);
+					window.print();
+				}
+			}
+
+			async function openStatementPdfBlob() {
+				if (!currentStatementPartyId) {
+					showToast("⚠️ Party statement not found.");
+					return;
+				}
+				const p = getComputedParties().find((x) => x.id === currentStatementPartyId);
+				if (!p) return;
+				const fileName = `Statement_${p.name.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
+				const element = document.getElementById("statementPrintArea");
+				if (!element) return;
+
+				showToast("⏳ Opening Fullscreen Statement in viewer...");
+
+				let viewerWin = null;
+				try {
+					viewerWin = window.open("", "_blank");
+					if (viewerWin && viewerWin.document) {
+						viewerWin.document.write(
+							"<!DOCTYPE html><html><head><title>Loading Statement...</title></head><body style='font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:90vh;margin:0;'><div style='text-align:center;'><h2>⏳ Loading Statement Viewer...</h2><p>Please wait while your statement is being prepared.</p></div></body></html>"
+						);
+					}
+				} catch (winErr) {
+					console.warn("Sync window open notice:", winErr);
+				}
+
+				try {
+					if (window.html2pdf) {
+						const blob = await exportCleanPdf(element, fileName, "blob", [8, 8, 8, 8], 2);
+						const blobUrl = URL.createObjectURL(blob);
+						if (viewerWin && !viewerWin.closed) {
+							viewerWin.location.href = blobUrl;
+						} else {
+							window.open(blobUrl, "_blank");
+						}
+					} else {
+						if (viewerWin && !viewerWin.closed) viewerWin.close();
+						window.print();
+					}
+				} catch (e) {
+					if (viewerWin && !viewerWin.closed) viewerWin.close();
+					console.error("Open Statement PDF error:", e);
 					window.print();
 				}
 			}
