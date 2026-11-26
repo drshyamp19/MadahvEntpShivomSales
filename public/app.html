@@ -10056,7 +10056,7 @@
 				setTimeout(() => t.classList.remove("show"), 3200);
 			}
 
-			// ==================== UNIVERSAL CLEAN PDF EXPORT ENGINE (ISOLATED FULL-WIDTH RENDERER) ====================
+			// ==================== UNIVERSAL CLEAN PDF EXPORT ENGINE ====================
 			async function exportCleanPdf(
 				elementOrHtml,
 				fileName,
@@ -10065,45 +10065,23 @@
 				scale = 2,
 				targetWidth = 780
 			) {
-				const isHtmlString = typeof elementOrHtml === "string";
-				const contentHtml = isHtmlString
-					? elementOrHtml
-					: elementOrHtml
-					? elementOrHtml.innerHTML
-					: "";
-				if (!contentHtml) throw new Error("No content to export");
+				const targetEl =
+					typeof elementOrHtml === "string"
+						? document.getElementById(elementOrHtml)
+						: elementOrHtml;
+				if (!targetEl) throw new Error("No element to export");
 
-				// Create isolated off-screen printable clone directly attached to body
-				const container = document.createElement("div");
-				container.className = "invoice-paper";
-				container.style.position = "fixed";
-				container.style.left = "0";
-				container.style.top = "0";
-				container.style.width = targetWidth + "px";
-				container.style.maxWidth = targetWidth + "px";
-				container.style.minWidth = targetWidth + "px";
-				container.style.margin = "0";
-				container.style.padding = targetWidth === 680 ? "24px" : "18px";
-				container.style.background = "#ffffff";
-				container.style.color = "#0f172a";
-				container.style.boxSizing = "border-box";
-				container.style.zIndex = "9999999";
-				container.style.visibility = "visible";
-				container.innerHTML = contentHtml;
+				// Save original styling
+				const prevWidth = targetEl.style.width;
+				const prevMinWidth = targetEl.style.minWidth;
+				const prevMaxWidth = targetEl.style.maxWidth;
+				const prevOverflow = targetEl.style.overflow;
+				const parentModal = targetEl.closest(".modal");
+				const prevModalOverflow = parentModal ? parentModal.style.overflow : "";
+				const prevModalMaxWidth = parentModal ? parentModal.style.maxWidth : "";
+				const prevModalWidth = parentModal ? parentModal.style.width : "";
 
-				// Ensure all nested tables/grids have visible overflow
-				const allScrolls = container.querySelectorAll("*");
-				allScrolls.forEach((el) => {
-					if (el.style) {
-						el.style.overflow = "visible";
-					}
-				});
-
-				document.body.appendChild(container);
-
-				// Wait briefly for layout and image decoding
-				await new Promise((resolve) => setTimeout(resolve, 60));
-
+				// Minimal, clean options without x/y or windowWidth overrides that cause clipping or offset
 				const opt = {
 					margin: customMargin,
 					filename: fileName,
@@ -10112,30 +10090,47 @@
 						scale: scale,
 						useCORS: true,
 						logging: false,
-						backgroundColor: "#ffffff",
-						scrollX: 0,
-						scrollY: 0,
-						x: 0,
-						y: 0,
-						width: targetWidth,
-						windowWidth: Math.max(window.innerWidth || 1024, targetWidth + 50),
+						backgroundColor: "#ffffff"
 					},
-					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
 				};
 
 				try {
+					// Set element to printable width so mobile viewports also capture full invoice width
+					targetEl.style.width = targetWidth + "px";
+					targetEl.style.minWidth = targetWidth + "px";
+					targetEl.style.maxWidth = targetWidth + "px";
+					targetEl.style.overflow = "visible";
+					if (parentModal) {
+						parentModal.style.overflow = "visible";
+						parentModal.style.maxWidth = "none";
+						parentModal.style.width = targetWidth + 40 + "px";
+					}
+
+					// Allow 60ms for reflow
+					await new Promise((r) => setTimeout(r, 60));
+
 					if (action === "blob") {
-						return await html2pdf().set(opt).from(container).outputPdf("blob");
+						return await html2pdf().set(opt).from(targetEl).outputPdf("blob");
 					} else {
-						await html2pdf().set(opt).from(container).save();
+						await html2pdf().set(opt).from(targetEl).save();
 						return true;
 					}
 				} finally {
-					container.remove();
+					// Restore original styling cleanly
+					targetEl.style.width = prevWidth;
+					targetEl.style.minWidth = prevMinWidth;
+					targetEl.style.maxWidth = prevMaxWidth;
+					targetEl.style.overflow = prevOverflow;
+					if (parentModal) {
+						parentModal.style.overflow = prevModalOverflow;
+						parentModal.style.maxWidth = prevModalMaxWidth;
+						parentModal.style.width = prevModalWidth;
+					}
 				}
 			}
 
-			function getCleanPdfExportOptions(fileName, targetElOrId, margin = [6, 6, 6, 6], scale = 2) {
+			function getCleanPdfExportOptions(fileName, margin = [6, 6, 6, 6], scale = 2) {
 				return {
 					margin: margin,
 					filename: fileName,
@@ -10144,11 +10139,9 @@
 						scale: scale,
 						useCORS: true,
 						logging: false,
-						backgroundColor: "#ffffff",
-						scrollX: 0,
-						scrollY: 0,
+						backgroundColor: "#ffffff"
 					},
-					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
 				};
 			}
 
