@@ -4399,36 +4399,73 @@
 										onchange="handleProofImageSelect(event)"
 										style="display: none"
 									/>
+									<input
+										type="file"
+										id="colProofCameraFile"
+										accept="image/*"
+										capture="environment"
+										onchange="handleProofImageSelect(event)"
+										style="display: none"
+									/>
 
-									<div style="display: flex; flex-direction: column; gap: 6px">
-										<button
-											type="button"
-											class="btn btn-sm"
-											id="colPickProofBtn"
-											onclick="document.getElementById('colProofFile').click()"
-											style="
-												background: #f0fdf4;
-												border: 1.5px dashed #16a34a;
-												color: #15803d;
-												font-weight: 700;
-												padding: 12px 16px;
-												border-radius: 8px;
-												display: flex;
-												align-items: center;
-												justify-content: center;
-												gap: 8px;
-												width: 100%;
-												font-size: 0.92rem;
-												cursor: pointer;
-											"
-										>
-											<span id="colPickProofBtnText">📷 Take Photo / 🖼️ Choose from Gallery</span>
-										</button>
+									<div id="colPickProofBtn" style="display: flex; flex-direction: column; gap: 8px">
+										<div style="display: flex; gap: 10px; flex-wrap: wrap;">
+											<button
+												type="button"
+												class="btn btn-sm"
+												id="colCameraBtn"
+												onclick="startCameraCapture('col')"
+												style="
+													background: #ecfdf5;
+													border: 1.5px solid #10b981;
+													color: #047857;
+													font-weight: 700;
+													padding: 10px 16px;
+													border-radius: 8px;
+													display: inline-flex;
+													align-items: center;
+													justify-content: center;
+													gap: 8px;
+													font-size: 0.92rem;
+													cursor: pointer;
+													flex: 1;
+													min-width: 145px;
+													box-shadow: 0 1px 2px rgba(16, 185, 129, 0.12);
+												"
+											>
+												<span id="colCameraBtnText">📸 Take Photo / Camera</span>
+											</button>
+											<button
+												type="button"
+												class="btn btn-sm"
+												id="colGalleryBtn"
+												onclick="document.getElementById('colProofFile').click()"
+												style="
+													background: #f8fafc;
+													border: 1.5px solid #94a3b8;
+													color: #1e293b;
+													font-weight: 700;
+													padding: 10px 16px;
+													border-radius: 8px;
+													display: inline-flex;
+													align-items: center;
+													justify-content: center;
+													gap: 8px;
+													font-size: 0.92rem;
+													cursor: pointer;
+													flex: 1;
+													min-width: 145px;
+													box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+												"
+											>
+												<span id="colPickProofBtnText">🖼️ Choose from Gallery</span>
+											</button>
+										</div>
 										<div
 											id="colProofHint"
 											style="font-size: 0.75rem; color: #64748b; font-style: italic"
 										>
-											Tap to capture photo with camera or choose screenshot from gallery.
+											Tap 'Take Photo / Camera' to capture live via camera, or 'Choose from Gallery' for screenshot / slip.
 										</div>
 									</div>
 
@@ -7391,23 +7428,56 @@
 							onchange="handleRcProofImageSelect(event)"
 							style="display: none"
 						/>
-						<button
-							type="button"
-							class="btn btn-sm"
-							onclick="document.getElementById('rcProofFile').click()"
-							style="
-								background: #f0fdf4;
-								border: 1.5px dashed #16a34a;
-								color: #15803d;
-								font-weight: 700;
-								width: 100%;
-								padding: 8px;
-								justify-content: center;
-								gap: 6px;
-							"
-						>
-							<span id="rcProofBtnText">📷 Take Cheque Photo / Gallery</span>
-						</button>
+						<input
+							type="file"
+							id="rcProofCameraFile"
+							accept="image/*"
+							capture="environment"
+							onchange="handleRcProofImageSelect(event)"
+							style="display: none"
+						/>
+						<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+							<button
+								type="button"
+								class="btn btn-sm"
+								onclick="startCameraCapture('rc')"
+								style="
+									background: #ecfdf5;
+									border: 1.5px solid #10b981;
+									color: #047857;
+									font-weight: 700;
+									flex: 1;
+									min-width: 120px;
+									padding: 8px 12px;
+									justify-content: center;
+									gap: 6px;
+									display: inline-flex;
+									align-items: center;
+								"
+							>
+								<span>📸 Open Camera</span>
+							</button>
+							<button
+								type="button"
+								class="btn btn-sm"
+								onclick="document.getElementById('rcProofFile').click()"
+								style="
+									background: #f8fafc;
+									border: 1.5px solid #94a3b8;
+									color: #1e293b;
+									font-weight: 700;
+									flex: 1;
+									min-width: 120px;
+									padding: 8px 12px;
+									justify-content: center;
+									gap: 6px;
+									display: inline-flex;
+									align-items: center;
+								"
+							>
+								<span id="rcProofBtnText">🖼️ Gallery</span>
+							</button>
+						</div>
 						<div id="rcProofPreview" style="display: none; margin-top: 8px; text-align: center">
 							<img
 								id="rcProofImgTag"
@@ -8127,6 +8197,176 @@
 					class="invoice-paper"
 					style="padding: 20px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px"
 				></div>
+			</div>
+		</div>
+
+		<!-- Live In-App Camera Viewfinder Modal -->
+		<div class="modal-backdrop" id="liveCameraModal" style="z-index: 10005;">
+			<div class="modal" style="max-width: 520px; text-align: center; padding: 18px">
+				<div
+					style="
+						display: flex;
+						justify-content: space-between;
+						align-items: center;
+						margin-bottom: 12px;
+					"
+				>
+					<h3 style="margin: 0; font-size: 1.05rem; display: flex; align-items: center; gap: 8px">
+						<span>📸</span> Take Photo with Camera
+					</h3>
+					<button
+						type="button"
+						class="btn btn-sm"
+						style="background: #e2e8f0; font-weight: 700"
+						onclick="closeLiveCameraModal()"
+					>
+						✕ Close
+					</button>
+				</div>
+
+				<!-- Camera Viewfinder container -->
+				<div
+					style="
+						position: relative;
+						background: #000;
+						border-radius: 10px;
+						overflow: hidden;
+						min-height: 260px;
+						max-height: 400px;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						margin-bottom: 14px;
+					"
+				>
+					<video
+						id="liveCameraVideo"
+						autoplay
+						playsinline
+						muted
+						style="width: 100%; height: 100%; max-height: 400px; object-fit: contain"
+					></video>
+					<div
+						id="cameraLoadingSpinner"
+						style="
+							position: absolute;
+							color: #fff;
+							font-size: 0.9rem;
+							font-weight: 600;
+							display: flex;
+							flex-direction: column;
+							align-items: center;
+							gap: 8px;
+							padding: 16px;
+							text-align: center;
+						"
+					>
+						<span>⏳ Starting camera...</span>
+						<span style="font-size: 0.75rem; color: #94a3b8"
+							>Please allow camera permission in your browser if prompted.</span
+						>
+					</div>
+					<div
+						id="cameraErrorMsg"
+						style="
+							position: absolute;
+							color: #f87171;
+							font-size: 0.85rem;
+							font-weight: 600;
+							padding: 20px;
+							background: rgba(0, 0, 0, 0.88);
+							display: none;
+							text-align: center;
+							width: 100%;
+							height: 100%;
+							box-sizing: border-box;
+							flex-direction: column;
+							justify-content: center;
+							align-items: center;
+						"
+					>
+						<div style="font-size: 1.6rem; margin-bottom: 6px">📷❌</div>
+						<div id="cameraErrorText">Unable to access live camera.</div>
+						<button
+							type="button"
+							class="btn btn-sm btn-primary"
+							style="margin-top: 12px; font-weight: 700"
+							onclick="fallbackToDeviceCamera()"
+						>
+							📱 Use Device Camera / File Picker
+						</button>
+					</div>
+				</div>
+
+				<!-- Action buttons -->
+				<div
+					style="
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						gap: 10px;
+						flex-wrap: wrap;
+					"
+				>
+					<button
+						type="button"
+						class="btn btn-sm"
+						id="cameraFlipBtn"
+						onclick="flipLiveCamera()"
+						style="
+							background: #f1f5f9;
+							border: 1px solid #cbd5e1;
+							color: #334155;
+							font-weight: 700;
+							padding: 9px 14px;
+							border-radius: 8px;
+							display: inline-flex;
+							align-items: center;
+							gap: 6px;
+						"
+					>
+						🔄 Flip Camera
+					</button>
+					<button
+						type="button"
+						class="btn"
+						id="cameraCaptureBtn"
+						onclick="captureLiveCameraPhoto()"
+						style="
+							background: #16a34a;
+							color: #fff;
+							font-weight: 800;
+							font-size: 1rem;
+							padding: 10px 24px;
+							border-radius: 30px;
+							box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
+							display: inline-flex;
+							align-items: center;
+							gap: 8px;
+							cursor: pointer;
+						"
+					>
+						📸 Click to Capture
+					</button>
+					<button
+						type="button"
+						class="btn btn-sm"
+						onclick="fallbackToDeviceCamera()"
+						style="
+							background: #f8fafc;
+							border: 1px dashed #94a3b8;
+							color: #475569;
+							font-weight: 600;
+							padding: 9px 14px;
+							border-radius: 8px;
+							display: inline-flex;
+							align-items: center;
+							gap: 6px;
+						"
+					>
+						📱 Phone Camera App
+					</button>
+				</div>
 			</div>
 		</div>
 
@@ -11032,12 +11272,14 @@
 				rcProofBase64 = "";
 				const fileInp = document.getElementById("rcProofFile");
 				if (fileInp) fileInp.value = "";
+				const camInp = document.getElementById("rcProofCameraFile");
+				if (camInp) camInp.value = "";
 				const prevWrap = document.getElementById("rcProofPreview");
 				const imgTag = document.getElementById("rcProofImgTag");
 				const btnText = document.getElementById("rcProofBtnText");
 				if (imgTag) imgTag.src = "";
 				if (prevWrap) prevWrap.style.display = "none";
-				if (btnText) btnText.innerHTML = "📷 Take Cheque Photo / Gallery";
+				if (btnText) btnText.innerHTML = "🖼️ Gallery";
 			}
 
 			function openNewChequeFromStaffModal(defaultStaff) {
@@ -23668,36 +23910,44 @@ Thank you! Your payment has been received successfully.`;
 				openModal("invoiceModal");
 			}
 
-			// Payment Proof Image Handling
+			// Payment Proof Image & Live Camera Handling
 			let currentProofBase64 = "";
+			let liveCameraStream = null;
+			let currentCameraFacing = "environment";
+			let currentCameraTarget = "col"; // 'col' or 'rc'
 
-			function handleProofImageSelect(e) {
-				const file = e.target.files && e.target.files[0];
-				if (!file) return;
-
-				const reader = new FileReader();
-				reader.onload = function (evt) {
-					const img = new Image();
-					img.onload = function () {
-						const canvas = document.createElement("canvas");
-						let w = img.width;
-						let h = img.height;
-						const maxDim = 800;
-						if (w > maxDim || h > maxDim) {
-							if (w > h) {
-								h = Math.round((h * maxDim) / w);
-								w = maxDim;
-							} else {
-								w = Math.round((w * maxDim) / h);
-								h = maxDim;
-							}
+			function processImageDataUrl(dataUrl, target) {
+				const img = new Image();
+				img.onload = function () {
+					const canvas = document.createElement("canvas");
+					let w = img.width;
+					let h = img.height;
+					const maxDim = 800;
+					if (w > maxDim || h > maxDim) {
+						if (w > h) {
+							h = Math.round((h * maxDim) / w);
+							w = maxDim;
+						} else {
+							w = Math.round((w * maxDim) / h);
+							h = maxDim;
 						}
-						canvas.width = w;
-						canvas.height = h;
-						const ctx = canvas.getContext("2d");
-						ctx.drawImage(img, 0, 0, w, h);
-						currentProofBase64 = canvas.toDataURL("image/jpeg", 0.65);
+					}
+					canvas.width = w;
+					canvas.height = h;
+					const ctx = canvas.getContext("2d");
+					ctx.drawImage(img, 0, 0, w, h);
+					const compressedBase64 = canvas.toDataURL("image/jpeg", 0.65);
 
+					if (target === "rc") {
+						rcProofBase64 = compressedBase64;
+						const prevWrap = document.getElementById("rcProofPreview");
+						const imgTag = document.getElementById("rcProofImgTag");
+						const btnText = document.getElementById("rcProofBtnText");
+						if (imgTag) imgTag.src = rcProofBase64;
+						if (prevWrap) prevWrap.style.display = "block";
+						if (btnText) btnText.innerHTML = "🔄 Change Cheque Photo";
+					} else {
+						currentProofBase64 = compressedBase64;
 						const prevWrap = document.getElementById("colProofPreview");
 						const imgTag = document.getElementById("colProofImgTag");
 						const clrBtn = document.getElementById("colClearProofBtn");
@@ -23706,16 +23956,137 @@ Thank you! Your payment has been received successfully.`;
 						if (prevWrap) prevWrap.style.display = "block";
 						if (clrBtn) clrBtn.style.display = "inline-flex";
 						if (btnText) btnText.innerHTML = "🔄 Change Photo / Screenshot";
-					};
-					img.src = evt.target.result;
+					}
+				};
+				img.src = dataUrl;
+			}
+
+			function handleProofImageSelect(e) {
+				const file = e.target.files && e.target.files[0];
+				if (!file) return;
+				const reader = new FileReader();
+				reader.onload = function (evt) {
+					processImageDataUrl(evt.target.result, "col");
 				};
 				reader.readAsDataURL(file);
+			}
+
+			async function startCameraCapture(target = "col") {
+				currentCameraTarget = target;
+				openModal("liveCameraModal");
+				await initLiveCameraStream();
+			}
+
+			async function initLiveCameraStream() {
+				const video = document.getElementById("liveCameraVideo");
+				const spinner = document.getElementById("cameraLoadingSpinner");
+				const errorBox = document.getElementById("cameraErrorMsg");
+				const errorText = document.getElementById("cameraErrorText");
+
+				if (spinner) spinner.style.display = "flex";
+				if (errorBox) errorBox.style.display = "none";
+
+				if (liveCameraStream) {
+					liveCameraStream.getTracks().forEach((t) => t.stop());
+					liveCameraStream = null;
+				}
+
+				if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+					if (spinner) spinner.style.display = "none";
+					if (errorBox) {
+						errorBox.style.display = "flex";
+						if (errorText) {
+							errorText.textContent = "Live camera stream not supported on this browser/connection. Please use your device camera app.";
+						}
+					}
+					return;
+				}
+
+				try {
+					const constraints = {
+						video: {
+							facingMode: currentCameraFacing ? { ideal: currentCameraFacing } : "environment",
+							width: { ideal: 1280 },
+							height: { ideal: 720 },
+						},
+						audio: false,
+					};
+					const stream = await navigator.mediaDevices.getUserMedia(constraints);
+					liveCameraStream = stream;
+					if (video) {
+						video.srcObject = stream;
+						video.setAttribute("playsinline", "true");
+						video.setAttribute("autoplay", "true");
+						await video.play();
+					}
+					if (spinner) spinner.style.display = "none";
+				} catch (err) {
+					console.warn("Camera stream error:", err);
+					if (spinner) spinner.style.display = "none";
+					if (errorBox) {
+						errorBox.style.display = "flex";
+						if (errorText) {
+							errorText.textContent =
+								err.name === "NotAllowedError" || err.name === "PermissionDeniedError"
+									? "Camera permission denied. Please allow camera access in browser, or use device camera below."
+									: "Could not open camera (" + (err.message || "No camera device found") + ").";
+						}
+					}
+				}
+			}
+
+			function captureLiveCameraPhoto() {
+				const video = document.getElementById("liveCameraVideo");
+				if (!video || !video.videoWidth) {
+					alert("Camera feed is not ready yet. Please wait a moment or allow camera permission.");
+					return;
+				}
+				const canvas = document.createElement("canvas");
+				canvas.width = video.videoWidth;
+				canvas.height = video.videoHeight;
+				const ctx = canvas.getContext("2d");
+				ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+				const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+
+				processImageDataUrl(dataUrl, currentCameraTarget);
+				closeLiveCameraModal();
+				if (typeof showToast === "function") {
+					showToast("✓ Photo captured successfully from camera!");
+				}
+			}
+
+			function flipLiveCamera() {
+				currentCameraFacing = currentCameraFacing === "environment" ? "user" : "environment";
+				initLiveCameraStream();
+			}
+
+			function closeLiveCameraModal() {
+				if (liveCameraStream) {
+					liveCameraStream.getTracks().forEach((t) => t.stop());
+					liveCameraStream = null;
+				}
+				const video = document.getElementById("liveCameraVideo");
+				if (video) video.srcObject = null;
+				closeModal("liveCameraModal");
+			}
+
+			function fallbackToDeviceCamera() {
+				closeLiveCameraModal();
+				if (currentCameraTarget === "rc") {
+					const cam = document.getElementById("rcProofCameraFile") || document.getElementById("rcProofFile");
+					if (cam) cam.click();
+				} else {
+					const cam = document.getElementById("colProofCameraFile") || document.getElementById("colProofFile");
+					if (cam) cam.click();
+				}
 			}
 
 			function clearProofImage() {
 				currentProofBase64 = "";
 				const fileInp = document.getElementById("colProofFile");
 				if (fileInp) fileInp.value = "";
+				const camInp = document.getElementById("colProofCameraFile");
+				if (camInp) camInp.value = "";
 				const prevWrap = document.getElementById("colProofPreview");
 				const imgTag = document.getElementById("colProofImgTag");
 				const clrBtn = document.getElementById("colClearProofBtn");
@@ -23723,7 +24094,7 @@ Thank you! Your payment has been received successfully.`;
 				if (imgTag) imgTag.src = "";
 				if (prevWrap) prevWrap.style.display = "none";
 				if (clrBtn) clrBtn.style.display = "none";
-				if (btnText) btnText.innerHTML = "📷 Take Photo / 🖼️ Choose from Gallery";
+				if (btnText) btnText.innerHTML = "🖼️ Choose from Gallery";
 			}
 
 			let activeProofColId = null;
