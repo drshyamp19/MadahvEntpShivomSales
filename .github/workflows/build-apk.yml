@@ -72,7 +72,7 @@ jobs:
           body: |
             ### 📲 Madhav Enterprises & Shivom Sales — Android ERP App
             - **Direct APK Setup File:** Download `MadhavShivomERP.apk` below and tap to install on Android mobile.
-            - **Cloudflare Live Portals:** `https://madhav-enterprises.madhavshivom.workers.dev` & `https://shivom-sales.madhavshivom.workers.dev` (Real-time SQLite Durable Objects + WebSocket Live Sync).
+            - **Cloudflare Live Portals:** `https://madhav-enterprises.mserp.workers.dev` & `https://shivom-sales.mserp.workers.dev` (Real-time SQLite Durable Objects + WebSocket Live Sync).
             - **Built-in Support:** Native WhatsApp sharing, Print/PDF Invoices & Receipts, Excel Backup to Downloads.
           files: MadhavShivomERP.apk
           make_latest: true

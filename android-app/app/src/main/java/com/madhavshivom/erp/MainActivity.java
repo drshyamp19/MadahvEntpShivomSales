@@ -40,9 +40,9 @@ import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String ERP_URL = "https://madhav-enterprises.madhavshivom.workers.dev";
-    private static final String ERP_HOST = "madhav-enterprises.madhavshivom.workers.dev";
-    private static final String ERP_HOST_ALT = "shivom-sales.madhavshivom.workers.dev";
+    private static final String ERP_URL = "https://madhav-enterprises.mserp.workers.dev";
+    private static final String ERP_HOST = "madhav-enterprises.mserp.workers.dev";
+    private static final String ERP_HOST_ALT = "shivom-sales.mserp.workers.dev";
     private static final int FILE_CHOOSER_REQUEST_CODE = 1001;
 
     private WebView webView;
@@ -166,9 +166,9 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
 
-                // Keep our ERP portal inside the WebView (both domains supported)
+                // Keep our ERP portal inside the WebView (both domains and subdomains supported)
                 if (("https".equals(scheme) || "http".equals(scheme))
-                        && (host.endsWith(ERP_HOST) || host.endsWith(ERP_HOST_ALT))) {
+                        && (host.endsWith("mserp.workers.dev") || host.endsWith(ERP_HOST) || host.endsWith(ERP_HOST_ALT) || host.endsWith("madhavshivom.workers.dev"))) {
                     return false;
                 }
 
