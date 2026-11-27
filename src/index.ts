@@ -394,10 +394,21 @@ export default {
 					return jsonNoStore({ ok: false, error: "Invalid collection" }, 400);
 
 				if (
-					(col === "salespersons" || col === "purchaseBills" || col === "expenses") &&
+					(col === "salespersons" || col === "purchaseBills") &&
 					!session.isAdmin
 				) {
 					return jsonNoStore({ ok: false, error: "Admin permission required" }, 403);
+				}
+
+				if (col === "expenses" && !session.isAdmin) {
+					const isAllowedStaff =
+						session.role === "Salesperson" ||
+						session.role === "Manager" ||
+						session.role === "Accountant" ||
+						session.role === "Co-Owner";
+					if (!isAllowedStaff) {
+						return jsonNoStore({ ok: false, error: "Staff permission required to record expenses" }, 403);
+					}
 				}
 
 				const co = normalizeCompanyKey(url.searchParams.get("co"), defaultBrandKey);
@@ -422,6 +433,16 @@ export default {
 					item.senderName = session.name;
 					item.senderRole = session.role;
 					if (!item.timestamp) item.timestamp = Date.now();
+					if (!item.createdAt) item.createdAt = new Date().toISOString();
+				}
+
+				if (col === "expenses") {
+					if (!session.isAdmin) {
+						if (!item.staff) item.staff = session.name;
+						if (!item.status) item.status = "Pending";
+						item.submittedBy = session.name;
+						item.submittedRole = session.role;
+					}
 					if (!item.createdAt) item.createdAt = new Date().toISOString();
 				}
 

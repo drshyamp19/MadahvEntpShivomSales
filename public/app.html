@@ -4999,15 +4999,15 @@
 					</div>
 				</section>
 
-				<!-- ==================== ADMIN TAB: EXPENSES & PROFIT ==================== -->
+				<!-- ==================== TAB: EXPENSES, REIMBURSEMENTS & PROFIT ==================== -->
 				<section id="tab-admin-expenses" class="tab-panel">
 					<div class="card" style="border-left: 4px solid #b45309; margin-bottom: 16px">
 						<div class="card-header" style="background: #fffbeb; flex-wrap: wrap; gap: 10px">
 							<div>
-								<span class="card-title" style="color: #92400e"
+								<span class="card-title" id="expTabHeaderTitle" style="color: #92400e"
 									>💸 Daily Business Expenses, Cash-in-Hand &amp; Profit Tracker</span
 								>
-								<div style="font-size: 0.76rem; color: #78350f; margin-top: 2px">
+								<div id="expTabHeaderSubtitle" style="font-size: 0.76rem; color: #78350f; margin-top: 2px">
 									Track petrol, tempo freight, hamali, godown rent, salary &amp; daily expenses to
 									know real Cash-in-Hand and Net Profit
 								</div>
@@ -5043,18 +5043,19 @@
 						</div>
 					</div>
 
-					<div class="kpi-grid" style="margin-bottom: 16px">
+					<!-- ADMIN & MANAGER KPI GRID -->
+					<div class="kpi-grid" id="expAdminKpiGrid" style="margin-bottom: 16px">
 						<div class="kpi-card red">
 							<div class="kpi-label">Total Expenses</div>
 							<div class="kpi-val" id="expKpiTotal">₹0</div>
 							<div class="kpi-sub" id="expKpiSplit">Cash: ₹0 | Bank/UPI: ₹0</div>
 						</div>
-						<div class="kpi-card green">
+						<div class="kpi-card green" id="expKpiCashColCard">
 							<div class="kpi-label">Cash Collections</div>
 							<div class="kpi-val" id="expKpiCashCol">₹0</div>
 							<div class="kpi-sub" id="expKpiBankDep">Bank Deposited: ₹0</div>
 						</div>
-						<div class="kpi-card teal">
+						<div class="kpi-card teal" id="expKpiCashInHandCard">
 							<div class="kpi-label">Real Cash-in-Hand</div>
 							<div class="kpi-val" id="expKpiCashInHand">₹0</div>
 							<div class="kpi-sub">Cash Col. − Cash Exp. − Bank Dep.</div>
@@ -5066,11 +5067,43 @@
 								Dispatched Sales − Purchases − Expenses
 							</div>
 						</div>
+						<div class="kpi-card" id="expKpiPendingReimbCard" style="background: #fff1f2; border: 1px solid #fecdd3;">
+							<div class="kpi-label" style="color: #be123c;">Pending Staff Claims (देणे बाकी)</div>
+							<div class="kpi-val" id="expKpiPendingReimbVal" style="color: #e11d48;">₹0</div>
+							<div class="kpi-sub" id="expKpiPendingReimbSub" style="color: #9f1239;">Awaiting payout</div>
+						</div>
+					</div>
+
+					<!-- SALESPERSON FIELD STAFF KPI GRID -->
+					<div class="kpi-grid" id="expStaffKpiGrid" style="margin-bottom: 16px; display: none;">
+						<div class="kpi-card blue">
+							<div class="kpi-label">My Field Expenses</div>
+							<div class="kpi-val" id="expStaffKpiTotal">₹0</div>
+							<div class="kpi-sub" id="expStaffKpiCount">0 entries this month</div>
+						</div>
+						<div class="kpi-card" style="background: #fff1f2; border: 1px solid #fecdd3;">
+							<div class="kpi-label" style="color: #be123c;">⏳ Pending Reimbursement (येणे बाकी)</div>
+							<div class="kpi-val" id="expStaffKpiPending" style="color: #e11d48;">₹0</div>
+							<div class="kpi-sub" style="color: #9f1239;">Company to pay you</div>
+						</div>
+						<div class="kpi-card green">
+							<div class="kpi-label">✅ Paid / Reimbursed (मिळालेले)</div>
+							<div class="kpi-val" id="expStaffKpiPaid">₹0</div>
+							<div class="kpi-sub">Settled by Company</div>
+						</div>
+						<div class="kpi-card teal">
+							<div class="kpi-label">👤 Salary Advance (उचल)</div>
+							<div class="kpi-val" id="expStaffKpiAdvance">₹0</div>
+							<div class="kpi-sub">Month Advance Taken</div>
+						</div>
 					</div>
 
 					<div class="card">
-						<div class="card-header">
-							<span class="card-title">+ Record New Daily Expense</span>
+						<div class="card-header" style="justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+							<span class="card-title" id="expFormTitle">+ Record New Daily Expense</span>
+							<button type="button" class="btn btn-outline btn-sm admin-only-item" onclick="openGiveAdvanceModal()" style="font-weight: 700; color: #4338ca; border-color: #c7d2fe; background: #eef2ff;">
+								👤 + Quick Salary Advance (उचल)
+							</button>
 						</div>
 						<form class="form-grid" onsubmit="handleAddExpense(event)">
 							<div class="form-group">
@@ -5079,24 +5112,33 @@
 							</div>
 							<div class="form-group">
 								<label>Category *</label>
-								<select id="expCategory" class="form-control" required>
-									<option value="Petrol / Conveyance">⛽ Petrol / Conveyance</option>
+								<select id="expCategory" class="form-control" onchange="handleExpCategoryChange(this.value)" required>
+									<option value="Petrol / Conveyance">⛽ Bike Petrol / Conveyance</option>
 									<option value="Transport / Tempo Freight">🚚 Transport / Tempo Freight</option>
 									<option value="Hamali / Loading">📦 Hamali / Loading</option>
-									<option value="Staff Salary / Advance">👤 Staff Salary / Advance</option>
-									<option value="Godown Rent & Electricity">
+									<option value="Tea / Office Misc">☕ Tea / Daily Misc</option>
+									<option value="Other">📝 Other Expense</option>
+									<option value="Staff Salary / Advance" class="exp-admin-mgr-opt">👤 Staff Salary / Advance (उचल)</option>
+									<option value="Godown Rent & Electricity" class="exp-admin-only-opt">
 										🏭 Godown Rent &amp; Electricity
 									</option>
-									<option value="Tea / Office Misc">☕ Tea / Office Misc</option>
-									<option value="Repair / Warranty">🔧 Repair / Warranty</option>
-									<option value="Other">📝 Other Expense</option>
+									<option value="Repair / Warranty" class="exp-admin-mgr-opt">🔧 Repair / Warranty</option>
 								</select>
 							</div>
 							<div class="form-group">
 								<label>Payment Mode *</label>
 								<select id="expMode" class="form-control" required>
-									<option value="Cash">💵 Cash (From Counter/Hand)</option>
-									<option value="Bank">🏦 Bank / UPI</option>
+									<option value="Cash">💵 Cash (Counter / Pocket)</option>
+									<option value="Bank">🏦 Bank / Online UPI</option>
+								</select>
+							</div>
+							<div class="form-group" id="expStatusGroup">
+								<label>Claim / Settlement Status *</label>
+								<select id="expStatus" class="form-control" required>
+									<option value="Pending">🔴 Pending Reimbursement (Paid from pocket / देणे बाकी)</option>
+									<option value="Paid">🟢 Paid / Settled (Already Paid / कंपनीने दिले)</option>
+									<option value="Adjusted">🔵 Deducted from Cash Collection (कलेक्शनमधून कापले)</option>
+									<option value="Salary Advance" class="exp-admin-mgr-opt">👤 Salary Advance (पगार उचल)</option>
 								</select>
 							</div>
 							<div class="form-group">
@@ -5111,14 +5153,18 @@
 									required
 								/>
 							</div>
-							<div class="form-group">
-								<label>Paid By / Staff</label>
+							<div class="form-group" id="expStaffGroup">
+								<label>Paid By / Staff *</label>
+								<select id="expStaffSelect" class="form-control" onchange="syncExpStaffInput(this.value)" style="margin-bottom: 4px;">
+									<option value="Roshan Thakre">👑 Roshan Thakre (Owner)</option>
+								</select>
 								<input
 									type="text"
 									id="expStaff"
 									class="form-control"
-									placeholder="e.g. Roshan / Prashik / Gopal"
+									placeholder="Staff name..."
 									value="Roshan Thakre"
+									required
 								/>
 							</div>
 							<div class="form-group" style="grid-column: span 2">
@@ -5127,13 +5173,13 @@
 									type="text"
 									id="expNote"
 									class="form-control"
-									placeholder="e.g. Tempo bhada Hingna delivery / Gopal bike petrol"
+									placeholder="e.g. Tempo bhada Hingna delivery / bike petrol / puncture"
 									required
 								/>
 							</div>
 							<div class="form-group">
 								<label>&nbsp;</label>
-								<button type="submit" class="btn btn-primary" style="width: 100%; font-weight: 700">
+								<button type="submit" id="expSubmitBtn" class="btn btn-primary" style="width: 100%; font-weight: 700">
 									💾 Save Expense
 								</button>
 							</div>
@@ -5144,22 +5190,36 @@
 						<div class="card">
 							<div class="card-header" style="flex-wrap: wrap; gap: 8px">
 								<span class="card-title">Expense Register</span>
-								<select
-									id="expCatFilter"
-									class="form-control"
-									style="width: 190px"
-									onchange="renderExpensesTab()"
-								>
-									<option value="ALL">All Categories</option>
-									<option value="Petrol / Conveyance">Petrol / Conveyance</option>
-									<option value="Transport / Tempo Freight">Transport / Tempo Freight</option>
-									<option value="Hamali / Loading">Hamali / Loading</option>
-									<option value="Staff Salary / Advance">Staff Salary / Advance</option>
-									<option value="Godown Rent & Electricity">Godown Rent &amp; Electricity</option>
-									<option value="Tea / Office Misc">Tea / Office Misc</option>
-									<option value="Repair / Warranty">Repair / Warranty</option>
-									<option value="Other">Other</option>
-								</select>
+								<div style="display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto;">
+									<select
+										id="expCatFilter"
+										class="form-control"
+										style="width: 150px"
+										onchange="renderExpensesTab()"
+									>
+										<option value="ALL">All Categories</option>
+										<option value="Petrol / Conveyance">Petrol / Conveyance</option>
+										<option value="Transport / Tempo Freight">Transport / Tempo Freight</option>
+										<option value="Hamali / Loading">Hamali / Loading</option>
+										<option value="Staff Salary / Advance">Staff Salary / Advance</option>
+										<option value="Godown Rent & Electricity">Godown Rent &amp; Electricity</option>
+										<option value="Tea / Office Misc">Tea / Office Misc</option>
+										<option value="Repair / Warranty">Repair / Warranty</option>
+										<option value="Other">Other</option>
+									</select>
+									<select
+										id="expStatusFilter"
+										class="form-control"
+										style="width: 140px"
+										onchange="renderExpensesTab()"
+									>
+										<option value="ALL">All Status</option>
+										<option value="Pending">🔴 Pending</option>
+										<option value="Paid">🟢 Paid / Settled</option>
+										<option value="Adjusted">🔵 Collection Adj.</option>
+										<option value="Salary Advance">👤 Salary Advance</option>
+									</select>
+								</div>
 							</div>
 							<div class="table-wrap">
 								<table>
@@ -5167,7 +5227,8 @@
 										<tr>
 											<th>Date</th>
 											<th>Category &amp; Note</th>
-											<th>Mode / Staff</th>
+											<th>Staff / Mode</th>
+											<th class="text-center">Status</th>
 											<th class="text-right">Amount</th>
 											<th class="text-center">Action</th>
 										</tr>
@@ -5177,7 +5238,7 @@
 							</div>
 						</div>
 
-						<div class="card">
+						<div class="card" id="expCategorySummaryCard">
 							<div class="card-header">
 								<span class="card-title">Category-Wise Expense Summary</span>
 							</div>
@@ -5193,6 +5254,42 @@
 									<tbody id="expenseCategorySummaryBody"></tbody>
 								</table>
 							</div>
+						</div>
+					</div>
+
+					<!-- STAFF SALARY ADVANCE & PENDING EXPENSE CLAIMS LEDGER (ADMIN & MANAGER VIEW) -->
+					<div class="card" id="staffAdvanceSummaryCard" style="margin-top: 16px; border-left: 4px solid #4f46e5;">
+						<div class="card-header" style="background: #eef2ff; flex-wrap: wrap; gap: 8px;">
+							<div>
+								<span class="card-title" style="color: #3730a3;">👤 Staff Salary Advance &amp; Pending Expense Ledger</span>
+								<div style="font-size: 0.74rem; color: #4338ca; margin-top: 2px;">
+									Track monthly salary advances (उचल) and pending field expense reimbursements per staff member
+								</div>
+							</div>
+							<div style="display: flex; gap: 8px; margin-left: auto;">
+								<button
+									type="button"
+									class="btn btn-primary btn-sm admin-only-item"
+									onclick="openGiveAdvanceModal()"
+									style="font-weight: 700;"
+								>
+									➕ Give Salary Advance
+								</button>
+							</div>
+						</div>
+						<div class="table-wrap">
+							<table>
+								<thead>
+									<tr>
+										<th>Staff Member</th>
+										<th>Role</th>
+										<th class="text-right">Month Salary Advance (उचल)</th>
+										<th class="text-right">Pending Expense Claims (देणे बाकी)</th>
+										<th class="text-center">Action</th>
+									</tr>
+								</thead>
+								<tbody id="staffAdvanceLedgerTableBody"></tbody>
+							</table>
 						</div>
 					</div>
 				</section>
@@ -5788,6 +5885,7 @@
 										<th>Mobile (Login ID)</th>
 										<th>Assigned Area</th>
 										<th>Cash Rights</th>
+										<th>Month Advance (उचल)</th>
 										<th>Actions</th>
 									</tr>
 								</thead>
@@ -5838,6 +5936,98 @@
 					</div>
 				</section>
 			</main>
+		</div>
+
+		<!-- ==================== GIVE SALARY ADVANCE MODAL ==================== -->
+		<div class="modal-backdrop" id="giveAdvanceModal">
+			<div class="modal" style="max-width: 480px; text-align: left">
+				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+					<h3 style="margin: 0; color: #4338ca; font-size: 1.18rem; display: flex; align-items: center; gap: 8px;">
+						<span>👤</span> Give Staff Salary Advance (उचल)
+					</h3>
+					<button type="button" class="modal-close" onclick="closeModal('giveAdvanceModal')" style="background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #64748b;">✕</button>
+				</div>
+				<form onsubmit="handleSaveSalaryAdvance(event)">
+					<div class="form-group" style="margin-bottom: 12px;">
+						<label style="font-weight: 700; color: #334155;">Select Staff Member *</label>
+						<select id="advStaffSelect" class="form-control" required style="font-weight: 600;">
+							<!-- dynamically populated -->
+						</select>
+					</div>
+					<div class="form-group" style="margin-bottom: 12px;">
+						<label style="font-weight: 700; color: #334155;">Advance Date *</label>
+						<input type="date" id="advDate" class="form-control" required />
+					</div>
+					<div class="form-group" style="margin-bottom: 12px;">
+						<label style="font-weight: 700; color: #334155;">Advance Amount (₹) *</label>
+						<input type="number" id="advAmount" class="form-control font-bold" min="1" step="0.01" placeholder="e.g. 2000" required />
+					</div>
+					<div class="form-group" style="margin-bottom: 12px;">
+						<label style="font-weight: 700; color: #334155;">Payment Mode *</label>
+						<select id="advMode" class="form-control" required>
+							<option value="Cash">💵 Cash (From Counter)</option>
+							<option value="Bank">🏦 Bank / Online UPI</option>
+						</select>
+					</div>
+					<div class="form-group" style="margin-bottom: 16px;">
+						<label style="font-weight: 700; color: #334155;">Reason / Note *</label>
+						<input type="text" id="advNote" class="form-control" placeholder="e.g. सॅलरी उचल / घरगुती कामासाठी ॲडव्हान्स" required />
+					</div>
+					<div style="display: flex; gap: 8px; justify-content: flex-end;">
+						<button type="button" class="btn btn-outline" onclick="closeModal('giveAdvanceModal')">Cancel</button>
+						<button type="submit" class="btn btn-primary" style="font-weight: 700; background: #4338ca;">💾 Save Salary Advance</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- ==================== STAFF ADVANCE & CLAIM LEDGER MODAL ==================== -->
+		<div class="modal-backdrop" id="staffAdvanceLedgerModal">
+			<div class="modal" style="max-width: 680px; text-align: left;">
+				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+					<div>
+						<h3 id="staffLedgerModalTitle" style="margin: 0; color: #1e293b; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+							<span>👤</span> Staff Ledger &amp; Advance Breakdown
+						</h3>
+						<div id="staffLedgerModalSubtitle" style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">All salary advances &amp; field expense claims</div>
+					</div>
+					<button type="button" class="modal-close" onclick="closeModal('staffAdvanceLedgerModal')" style="background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #64748b;">✕</button>
+				</div>
+				<div class="kpi-grid" style="margin-bottom: 14px; grid-template-columns: repeat(3, 1fr);">
+					<div class="kpi-card teal" style="padding: 10px;">
+						<div class="kpi-label" style="font-size: 0.72rem;">Month Salary Advance (उचल)</div>
+						<div class="kpi-val" id="ledgerStaffAdvanceTotal" style="font-size: 1.2rem;">₹0</div>
+					</div>
+					<div class="kpi-card red" style="padding: 10px;">
+						<div class="kpi-label" style="font-size: 0.72rem;">Pending Expense Claims (देणे बाकी)</div>
+						<div class="kpi-val" id="ledgerStaffPendingTotal" style="font-size: 1.2rem;">₹0</div>
+					</div>
+					<div class="kpi-card green" style="padding: 10px;">
+						<div class="kpi-label" style="font-size: 0.72rem;">Paid Expense Claims</div>
+						<div class="kpi-val" id="ledgerStaffPaidTotal" style="font-size: 1.2rem;">₹0</div>
+					</div>
+				</div>
+				<div class="table-wrap" style="max-height: 320px; overflow-y: auto;">
+					<table>
+						<thead>
+							<tr>
+								<th>Date</th>
+								<th>Type / Category</th>
+								<th>Note / Reason</th>
+								<th>Mode</th>
+								<th>Status</th>
+								<th class="text-right">Amount</th>
+								<th class="text-center">Action</th>
+							</tr>
+						</thead>
+						<tbody id="staffLedgerTableBody"></tbody>
+					</table>
+				</div>
+				<div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+					<button type="button" class="btn btn-outline btn-sm admin-only-item" onclick="openGiveAdvanceModalForCurrent()">+ Give Advance to this Staff</button>
+					<button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('staffAdvanceLedgerModal')">Close</button>
+				</div>
+			</div>
 		</div>
 
 		<!-- ==================== ADD / EDIT STAFF & USER MODAL ==================== -->
@@ -10158,7 +10348,6 @@
 					returnToGateway();
 					return;
 				}
-				const isAccountantRole = currentStaff && currentStaff.role === "Accountant";
 				const isStaffAllowed =
 					currentStaff &&
 					(tabId === "open-stock" ||
@@ -10166,7 +10355,7 @@
 						tabId === "admin-orders" ||
 						tabId === "admin-collection" ||
 						tabId === "staff-cash" ||
-						(isAccountantRole && tabId === "admin-expenses"));
+						tabId === "admin-expenses");
 				if (!isAdminLoggedIn && !isStaffAllowed) {
 					tabId = "open-stock";
 					btnEl = document.querySelector('[data-tab="open-stock"]');
@@ -10526,11 +10715,23 @@
 
 				const activeBtn = document.querySelector(".nav-tab.active");
 				if (activeBtn) {
-					const curTab = activeBtn.getAttribute("data-tab");
-					const isAccountant = isStaff && currentStaff.role === "Accountant";
-				const accountantNavBtn = document.getElementById("accountantExpenseTabBtn");
-				if (accountantNavBtn) {
-					accountantNavBtn.style.display = (isAdmin || isAccountant) ? "inline-flex" : "none";
+					const expNavBtn = document.getElementById("accountantExpenseTabBtn");
+				if (expNavBtn) {
+					if (isAdmin) {
+						expNavBtn.style.display = "none";
+					} else if (isStaff) {
+						expNavBtn.style.display = "inline-flex";
+						const sRole = (currentStaff && currentStaff.role) || "";
+						if (sRole === "Salesperson") {
+							expNavBtn.innerHTML = "💸 Field Expenses";
+						} else if (sRole === "Manager") {
+							expNavBtn.innerHTML = "💸 Daily Expenses";
+						} else {
+							expNavBtn.innerHTML = "💸 Expenses";
+						}
+					} else {
+						expNavBtn.style.display = "none";
+					}
 				}
 
 				const isAllowedForStaff =
@@ -10540,7 +10741,7 @@
 							curTab === "admin-orders" ||
 							curTab === "admin-collection" ||
 							curTab === "staff-cash" ||
-							(isAccountant && curTab === "admin-expenses"));
+							curTab === "admin-expenses");
 					if (!isAdmin && !isAllowedForStaff) {
 						switchTab("open-stock", document.querySelector('[data-tab="open-stock"]'));
 					}
@@ -18267,6 +18468,16 @@ Thank you! Your payment has been received successfully.`;
 								(s.name.toUpperCase().includes("SHYAM") ||
 									s.name.toUpperCase().includes("ROSHAN")));
 
+						const curMonthStr = new Date().toISOString().slice(0, 7);
+						const sAdvSum = (state.expenses || [])
+							.filter(
+								(x) =>
+									x.staff === s.name &&
+									String(x.date || "").startsWith(curMonthStr) &&
+									(x.category === "Staff Salary / Advance" || x.status === "Salary Advance")
+							)
+							.reduce((sum, x) => sum + Number(x.amount || 0), 0);
+
 						return `
           <tr>
             <td class="font-bold">
@@ -18282,6 +18493,10 @@ Thank you! Your payment has been received successfully.`;
             <td><a href="tel:${escapeHtml(s.mobile)}" style="color:var(--primary);font-weight:600;text-decoration:none;">📞 ${escapeHtml(s.mobile)}</a></td>
             <td>${escapeHtml(s.area || "Field Route")}</td>
             <td>${cashBadge}</td>
+            <td>
+              <div style="font-weight:700;color:#b45309;font-size:0.86rem;">${fmtINR(sAdvSum)}</div>
+              <button type="button" class="btn btn-xs btn-outline" style="margin-top:2px;font-size:0.68rem;padding:2px 6px;" onclick="openStaffAdvanceLedgerModal('${escapeHtml(s.name)}')">👁️ Ledger</button>
+            </td>
             <td>
               <div style="display:flex;gap:6px;align-items:center;">
                 <button type="button" class="btn btn-sm btn-outline" onclick="openStaffUserModal('${s.id || s.mobile}')" style="padding:4px 8px;font-size:0.75rem;font-weight:600;" title="Edit Member">✏️ Edit</button>
@@ -21345,11 +21560,57 @@ Thank you! Your payment has been received successfully.`;
 				openModal("invoiceModal");
 			}
 
-			// ==================== DAILY EXPENSES, CASH-IN-HAND & PROFIT TRACKER ====================
+			// ==================== DAILY EXPENSES, REIMBURSEMENTS, ADVANCES & PROFIT TRACKER ====================
+			let currentViewingLedgerStaffName = "";
+
+			function handleExpCategoryChange(cat) {
+				const statusEl = document.getElementById("expStatus");
+				if (!statusEl) return;
+				if (cat === "Staff Salary / Advance") {
+					statusEl.value = "Salary Advance";
+				} else {
+					if (statusEl.value === "Salary Advance") {
+						statusEl.value = isAdminLoggedIn ? "Paid" : "Pending";
+					}
+				}
+			}
+
+			function syncExpStaffInput(val) {
+				const staffInp = document.getElementById("expStaff");
+				if (staffInp) staffInp.value = val;
+			}
+
+			function populateExpenseStaffDropdowns() {
+				const allMembers = (typeof getAllStaffMembers === "function") ? getAllStaffMembers() : [];
+				const expStaffSelect = document.getElementById("expStaffSelect");
+				if (expStaffSelect) {
+					const curVal = expStaffSelect.value;
+					let opts = `<option value="Roshan Thakre">👑 Roshan Thakre (Owner)</option>`;
+					allMembers.forEach((m) => {
+						if (m.name && !m.name.toUpperCase().includes("ROSHAN")) {
+							opts += `<option value="${escapeHtml(m.name)}">👤 ${escapeHtml(m.name)} (${escapeHtml(m.role || "Staff")})</option>`;
+						}
+					});
+					expStaffSelect.innerHTML = opts;
+					if (curVal) expStaffSelect.value = curVal;
+				}
+
+				const advStaffSelect = document.getElementById("advStaffSelect");
+				if (advStaffSelect) {
+					const curAdv = advStaffSelect.value;
+					let advOpts = "";
+					allMembers.forEach((m) => {
+						advOpts += `<option value="${escapeHtml(m.name)}">👤 ${escapeHtml(m.name)} (${escapeHtml(m.role || "Staff")})</option>`;
+					});
+					advStaffSelect.innerHTML = advOpts || `<option value="Roshan Thakre">Roshan Thakre</option>`;
+					if (curAdv) advStaffSelect.value = curAdv;
+				}
+			}
+
 			async function handleAddExpense(e) {
 				e.preventDefault();
-				if (!isAdminLoggedIn) {
-					alert("Only Owner Admin can record expenses.");
+				if (!isAdminLoggedIn && !currentStaff) {
+					alert("Please log in to record expenses.");
 					return;
 				}
 				const dateVal =
@@ -21358,7 +21619,17 @@ Thank you! Your payment has been received successfully.`;
 				const category = document.getElementById("expCategory")?.value || "Other";
 				const mode = document.getElementById("expMode")?.value || "Cash";
 				const amount = Number(document.getElementById("expAmount")?.value || 0);
-				const staff = (document.getElementById("expStaff")?.value || "").trim() || "Owner";
+				let status = document.getElementById("expStatus")?.value || "Pending";
+				if (category === "Staff Salary / Advance") status = "Salary Advance";
+
+				let staff = "";
+				if (!isAdminLoggedIn && currentStaff) {
+					staff = currentStaff.name;
+					if (status !== "Adjusted" && status !== "Salary Advance") status = "Pending";
+				} else {
+					staff = (document.getElementById("expStaff")?.value || "").trim() || "Roshan Thakre";
+				}
+
 				const note = (document.getElementById("expNote")?.value || "").trim();
 
 				if (amount <= 0) {
@@ -21374,6 +21645,11 @@ Thank you! Your payment has been received successfully.`;
 					amount: Number(amount.toFixed(2)),
 					staff,
 					note,
+					status,
+					createdAt: new Date().toISOString(),
+					submittedBy: currentStaff ? currentStaff.name : (isAdminLoggedIn ? "Admin" : "Staff"),
+					paidAt: status === "Paid" ? new Date().toISOString() : null,
+					paidBy: status === "Paid" ? (isAdminLoggedIn ? "Admin" : staff) : null,
 				};
 
 				if (!state.expenses) state.expenses = [];
@@ -21382,8 +21658,30 @@ Thank you! Your payment has been received successfully.`;
 				const dEl = document.getElementById("expDate");
 				if (dEl) dEl.value = new Date().toISOString().split("T")[0];
 				const sEl = document.getElementById("expStaff");
-				if (sEl) sEl.value = "Roshan Thakre";
-				showToast(`💸 Expense saved: ${category} — ${fmtINR(expRec.amount)} (${mode})`);
+				if (sEl) sEl.value = !isAdminLoggedIn && currentStaff ? currentStaff.name : "Roshan Thakre";
+				const statEl = document.getElementById("expStatus");
+				if (statEl) statEl.value = isAdminLoggedIn ? "Paid" : "Pending";
+				showToast(`💸 Expense saved: ${category} — ${fmtINR(expRec.amount)} (${status})`);
+				renderExpensesTab();
+			}
+
+			async function markExpensePaid(expId) {
+				if (!isAdminLoggedIn && (!currentStaff || currentStaff.role !== "Manager")) {
+					alert("Only Admin or Manager can mark expenses as Reimbursed / Paid.");
+					return;
+				}
+				const ex = (state.expenses || []).find((x) => x.id === expId);
+				if (!ex) return;
+				if (!confirm(`Mark expense as Reimbursed / Paid: ${ex.category} (${fmtINR(ex.amount)}) to ${ex.staff}?`)) return;
+
+				ex.status = "Paid";
+				ex.paidAt = new Date().toISOString();
+				ex.paidBy = isAdminLoggedIn ? "Admin (Roshan Thakre)" : (currentStaff ? currentStaff.name : "Manager");
+
+				await saveRecord("expenses", ex);
+				showToast(`✅ Reimbursed ${fmtINR(ex.amount)} to ${ex.staff}!`);
+				renderExpensesTab();
+				if (currentViewingLedgerStaffName) openStaffAdvanceLedgerModal(currentViewingLedgerStaffName);
 			}
 
 			async function deleteExpense(expId) {
@@ -21401,11 +21699,210 @@ Thank you! Your payment has been received successfully.`;
 					return;
 				await deleteRecord("expenses", expId);
 				showToast(`🗑️ Deleted expense entry`);
+				renderExpensesTab();
+				if (currentViewingLedgerStaffName) openStaffAdvanceLedgerModal(currentViewingLedgerStaffName);
+			}
+
+			function openGiveAdvanceModal(preselectedStaff) {
+				populateExpenseStaffDropdowns();
+				const staffSel = document.getElementById("advStaffSelect");
+				if (staffSel && preselectedStaff) {
+					staffSel.value = preselectedStaff;
+				}
+				const advDate = document.getElementById("advDate");
+				if (advDate) advDate.value = new Date().toISOString().split("T")[0];
+				const advAmt = document.getElementById("advAmount");
+				if (advAmt) advAmt.value = "";
+				const advNote = document.getElementById("advNote");
+				if (advNote) advNote.value = "सॅलरी उचल / Salary Advance";
+				openModal("giveAdvanceModal");
+			}
+
+			function openGiveAdvanceModalForCurrent() {
+				closeModal("staffAdvanceLedgerModal");
+				openGiveAdvanceModal(currentViewingLedgerStaffName);
+			}
+
+			async function handleSaveSalaryAdvance(e) {
+				e.preventDefault();
+				if (!isAdminLoggedIn && (!currentStaff || currentStaff.role !== "Manager")) {
+					alert("Only Admin or Manager can issue Salary Advances.");
+					return;
+				}
+				const staff = (document.getElementById("advStaffSelect")?.value || "").trim();
+				const dateVal = (document.getElementById("advDate")?.value || "").trim() || new Date().toISOString().split("T")[0];
+				const amount = Number(document.getElementById("advAmount")?.value || 0);
+				const mode = document.getElementById("advMode")?.value || "Cash";
+				const note = (document.getElementById("advNote")?.value || "").trim() || "Salary Advance (उचल)";
+
+				if (amount <= 0 || !staff) {
+					alert("Please enter a valid staff name and advance amount.");
+					return;
+				}
+
+				const expRec = {
+					id: "EXP_ADV_" + Date.now(),
+					date: dateVal,
+					category: "Staff Salary / Advance",
+					mode,
+					amount: Number(amount.toFixed(2)),
+					staff,
+					note,
+					status: "Salary Advance",
+					isSalaryAdvance: true,
+					createdAt: new Date().toISOString(),
+					submittedBy: isAdminLoggedIn ? "Admin" : (currentStaff ? currentStaff.name : "Manager"),
+					paidAt: new Date().toISOString(),
+					paidBy: isAdminLoggedIn ? "Admin (Roshan Thakre)" : (currentStaff ? currentStaff.name : "Manager"),
+				};
+
+				if (!state.expenses) state.expenses = [];
+				await saveRecord("expenses", expRec);
+				closeModal("giveAdvanceModal");
+				showToast(`👤 Salary Advance saved: ${fmtINR(amount)} to ${staff}!`);
+				renderExpensesTab();
+				if (typeof renderMasterSalespersons === "function") renderMasterSalespersons();
+			}
+
+			function openStaffAdvanceLedgerModal(staffName) {
+				currentViewingLedgerStaffName = staffName;
+				const titleEl = document.getElementById("staffLedgerModalTitle");
+				const subEl = document.getElementById("staffLedgerModalSubtitle");
+				const tbody = document.getElementById("staffLedgerTableBody");
+				if (titleEl) titleEl.innerHTML = `<span>👤</span> ${escapeHtml(staffName)} — Advance &amp; Expense Breakdown`;
+				if (subEl) subEl.textContent = `Detailed monthly ledger of salary advances (उचल) and field expense claims`;
+
+				const now = new Date();
+				const curMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+				const allExpenses = (state.expenses || []).filter((x) => x.staff === staffName);
+
+				let advTotal = 0;
+				let pendingTotal = 0;
+				let paidTotal = 0;
+
+				allExpenses.forEach((x) => {
+					const amt = Number(x.amount || 0);
+					const isAdv = x.category === "Staff Salary / Advance" || x.status === "Salary Advance";
+					if (isAdv) {
+						if (String(x.date || "").startsWith(curMonth)) advTotal += amt;
+					} else if (x.status === "Pending") {
+						pendingTotal += amt;
+					} else {
+						paidTotal += amt;
+					}
+				});
+
+				const setVal = (id, v) => {
+					const el = document.getElementById(id);
+					if (el) el.textContent = v;
+				};
+				setVal("ledgerStaffAdvanceTotal", fmtINR(advTotal));
+				setVal("ledgerStaffPendingTotal", fmtINR(pendingTotal));
+				setVal("ledgerStaffPaidTotal", fmtINR(paidTotal));
+
+				if (!tbody) return;
+				if (allExpenses.length === 0) {
+					tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="padding:18px;color:var(--muted);">No expenses or salary advances recorded for ${escapeHtml(staffName)}.</td></tr>`;
+				} else {
+					tbody.innerHTML = allExpenses
+						.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
+						.map((x) => {
+							const isAdv = x.category === "Staff Salary / Advance" || x.status === "Salary Advance";
+							const isPending = x.status === "Pending";
+							let badgeHtml = "";
+							if (isAdv) {
+								badgeHtml = `<span class="badge" style="background:#fef3c7;color:#92400e;font-weight:700;">👤 Salary Advance</span>`;
+							} else if (isPending) {
+								badgeHtml = `<span class="badge" style="background:#fee2e2;color:#991b1b;font-weight:700;">🔴 Pending Claim</span>`;
+							} else if (x.status === "Adjusted") {
+								badgeHtml = `<span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:700;">🔵 In Collection</span>`;
+							} else {
+								badgeHtml = `<span class="badge" style="background:#dcfce7;color:#166534;font-weight:700;">🟢 Paid</span>`;
+							}
+
+							return `
+								<tr>
+									<td>${fmtDate(x.date)}</td>
+									<td><strong>${escapeHtml(x.category)}</strong></td>
+									<td><div style="font-size:0.75rem;color:var(--muted);">${escapeHtml(x.note || "-")}</div></td>
+									<td><span class="pill ${x.mode === "Cash" ? "pill-yellow" : "pill-green"}" style="font-size:0.7rem;">${x.mode}</span></td>
+									<td>${badgeHtml}</td>
+									<td class="text-right font-bold" style="color:${isAdv ? "#b45309" : "#dc2626"};">${fmtINR(x.amount)}</td>
+									<td class="text-center">
+										${isPending && (isAdminLoggedIn || (currentStaff && currentStaff.role === "Manager"))
+											? `<button type="button" class="btn btn-success btn-xs" onclick="markExpensePaid('${x.id}')" title="Reimburse / Pay">✅ Pay</button>`
+											: (isAdminLoggedIn ? `<button type="button" class="btn btn-danger btn-xs" onclick="deleteExpense('${x.id}')" title="Delete">🗑️</button>` : "-")
+										}
+									</td>
+								</tr>
+							`;
+						})
+						.join("");
+				}
+
+				openModal("staffAdvanceLedgerModal");
 			}
 
 			function renderExpensesTab() {
 				const tbody = document.getElementById("expensesTableBody");
 				if (!tbody) return;
+
+				populateExpenseStaffDropdowns();
+
+				const isSalesperson = !isAdminLoggedIn && currentStaff && currentStaff.role === "Salesperson";
+				const isManager = !isAdminLoggedIn && currentStaff && currentStaff.role === "Manager";
+				const isAdmin = !!isAdminLoggedIn;
+
+				// Adjust Header Title & Subtitle based on role
+				const titleEl = document.getElementById("expTabHeaderTitle");
+				const subEl = document.getElementById("expTabHeaderSubtitle");
+				const formTitle = document.getElementById("expFormTitle");
+				const staffSelect = document.getElementById("expStaffSelect");
+				const staffInp = document.getElementById("expStaff");
+
+				if (isSalesperson) {
+					if (titleEl) titleEl.textContent = "💸 My Daily Field Expenses & Reimbursements";
+					if (subEl) subEl.textContent = "Record your daily bike petrol, tempo freight, hamali & daily misc expenses to get quick reimbursement";
+					if (formTitle) formTitle.textContent = "+ Submit Daily Field Expense";
+					if (staffSelect) staffSelect.style.display = "none";
+					if (staffInp) {
+						staffInp.value = currentStaff.name;
+						staffInp.readOnly = true;
+					}
+					document.querySelectorAll(".exp-admin-mgr-opt, .exp-admin-only-opt").forEach(el => el.style.display = "none");
+
+					const adminGrid = document.getElementById("expAdminKpiGrid");
+					const staffGrid = document.getElementById("expStaffKpiGrid");
+					if (adminGrid) adminGrid.style.display = "none";
+					if (staffGrid) staffGrid.style.display = "grid";
+
+					const advCard = document.getElementById("staffAdvanceSummaryCard");
+					if (advCard) advCard.style.display = "none";
+					const catCard = document.getElementById("expCategorySummaryCard");
+					if (catCard) catCard.style.display = "none";
+				} else {
+					if (titleEl) titleEl.textContent = "💸 Daily Business Expenses, Cash-in-Hand & Profit Tracker";
+					if (subEl) subEl.textContent = "Track petrol, tempo freight, hamali, godown rent, salary & daily expenses to know real Cash-in-Hand and Net Profit";
+					if (formTitle) formTitle.textContent = "+ Record New Daily Expense";
+					if (staffSelect) staffSelect.style.display = "block";
+					if (staffInp) staffInp.readOnly = false;
+
+					document.querySelectorAll(".exp-admin-mgr-opt").forEach(el => el.style.display = "");
+					document.querySelectorAll(".exp-admin-only-opt").forEach(el => el.style.display = isAdmin ? "" : "none");
+
+					const adminGrid = document.getElementById("expAdminKpiGrid");
+					const staffGrid = document.getElementById("expStaffKpiGrid");
+					if (adminGrid) adminGrid.style.display = "grid";
+					if (staffGrid) staffGrid.style.display = "none";
+
+					const pCard = document.getElementById("expKpiProfitCard");
+					if (pCard) pCard.style.display = isAdmin ? "block" : "none";
+
+					const advCard = document.getElementById("staffAdvanceSummaryCard");
+					if (advCard) advCard.style.display = "block";
+					const catCard = document.getElementById("expCategorySummaryCard");
+					if (catCard) catCard.style.display = "block";
+				}
 
 				const dateInp = document.getElementById("expDate");
 				if (dateInp && !dateInp.value) dateInp.value = new Date().toISOString().split("T")[0];
@@ -21419,11 +21916,14 @@ Thank you! Your payment has been received successfully.`;
 				const selMonth = monthInp ? monthInp.value : "";
 				const inPeriod = (d) => allTime || !selMonth || String(d || "").startsWith(selMonth);
 
-				const expenses = (state.expenses || []).filter((x) => inPeriod(x.date));
-				const cashExp = expenses
+				const allExpenses = state.expenses || [];
+				const periodExpenses = allExpenses.filter((x) => inPeriod(x.date));
+
+				// Calculate KPIs for Admin / Manager
+				const cashExp = periodExpenses
 					.filter((x) => x.mode === "Cash")
 					.reduce((s, x) => s + Number(x.amount || 0), 0);
-				const bankExp = expenses
+				const bankExp = periodExpenses
 					.filter((x) => x.mode !== "Cash")
 					.reduce((s, x) => s + Number(x.amount || 0), 0);
 				const totalExp = cashExp + bankExp;
@@ -21447,14 +21947,19 @@ Thank you! Your payment has been received successfully.`;
 					.reduce((s, b) => s + Number(b.totalAmt || 0), 0);
 				const netSurplus = dispatchedSales - returnTotal - purchaseTotal - totalExp;
 
+				const pendingClaimsTotal = periodExpenses
+					.filter((x) => x.status === "Pending")
+					.reduce((s, x) => s + Number(x.amount || 0), 0);
+
 				const setTxt = (id, v) => {
 					const el = document.getElementById(id);
 					if (el) el.textContent = v;
 				};
+
 				setTxt("expKpiTotal", fmtINR(totalExp));
 				setTxt(
 					"expKpiSplit",
-					`Cash: ${fmtINR(cashExp)} | Bank/UPI: ${fmtINR(bankExp)} (${expenses.length} entries)`,
+					`Cash: ${fmtINR(cashExp)} | Bank/UPI: ${fmtINR(bankExp)} (${periodExpenses.length} entries)`,
 				);
 				setTxt("expKpiCashCol", fmtINR(cashCol));
 				setTxt("expKpiBankDep", `Bank Deposited: ${fmtINR(bankDep)}`);
@@ -21464,6 +21969,11 @@ Thank you! Your payment has been received successfully.`;
 					"expKpiProfitSub",
 					`Net Sales ${fmtINR(dispatchedSales - returnTotal)} − Pur. ${fmtINR(purchaseTotal)} − Exp. ${fmtINR(totalExp)}`,
 				);
+				setTxt("expKpiPendingReimbVal", fmtINR(pendingClaimsTotal));
+				setTxt(
+					"expKpiPendingReimbSub",
+					pendingClaimsTotal > 0 ? "Awaiting cash/online reimbursement" : "All staff claims settled",
+				);
 
 				const pCard = document.getElementById("expKpiProfitCard");
 				if (pCard) {
@@ -21471,40 +21981,97 @@ Thank you! Your payment has been received successfully.`;
 					pCard.classList.add(netSurplus >= 0 ? "green" : "red");
 				}
 
+				// If Salesperson: compute their own KPIs
+				if (isSalesperson) {
+					const myExpenses = periodExpenses.filter((x) => x.staff === currentStaff.name);
+					const myTotal = myExpenses.reduce((s, x) => s + Number(x.amount || 0), 0);
+					const myPending = myExpenses
+						.filter((x) => x.status === "Pending")
+						.reduce((s, x) => s + Number(x.amount || 0), 0);
+					const myPaid = myExpenses
+						.filter((x) => x.status === "Paid")
+						.reduce((s, x) => s + Number(x.amount || 0), 0);
+					const myAdvance = myExpenses
+						.filter((x) => x.category === "Staff Salary / Advance" || x.status === "Salary Advance")
+						.reduce((s, x) => s + Number(x.amount || 0), 0);
+
+					setTxt("expStaffKpiTotal", fmtINR(myTotal));
+					setTxt("expStaffKpiCount", `${myExpenses.length} entries this month`);
+					setTxt("expStaffKpiPending", fmtINR(myPending));
+					setTxt("expStaffKpiPaid", fmtINR(myPaid));
+					setTxt("expStaffKpiAdvance", fmtINR(myAdvance));
+				}
+
+				// Filtering for table
 				const catFilter = document.getElementById("expCatFilter")?.value || "ALL";
-				const shown = expenses.filter((x) => catFilter === "ALL" || x.category === catFilter);
+				const statusFilter = document.getElementById("expStatusFilter")?.value || "ALL";
+
+				let shown = periodExpenses;
+				if (isSalesperson) {
+					shown = shown.filter((x) => x.staff === currentStaff.name);
+				}
+				if (catFilter !== "ALL") {
+					shown = shown.filter((x) => x.category === catFilter);
+				}
+				if (statusFilter !== "ALL") {
+					shown = shown.filter((x) => (x.status || "Paid") === statusFilter);
+				}
 
 				if (shown.length === 0) {
-					tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding:18px;color:var(--muted);">No expenses recorded for this period.</td></tr>`;
+					tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="padding:18px;color:var(--muted);">No expenses recorded for this selection.</td></tr>`;
 				} else {
 					tbody.innerHTML = shown
-						.map(
-							(x) => `
-          <tr>
-            <td>${fmtDate(x.date)}</td>
-            <td>
-              <strong>${x.category}</strong>
-              <div style="font-size:0.74rem;color:var(--muted);">${x.note || "-"}</div>
-            </td>
-            <td>
-              <span class="pill ${x.mode === "Cash" ? "pill-yellow" : "pill-green"}" style="font-size:0.7rem;">${x.mode}</span>
-              <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">${x.staff || "Owner"}</div>
-            </td>
-            <td class="text-right font-bold" style="color:#dc2626;">${fmtINR(x.amount)}</td>
-            <td class="text-center">
-              <button type="button" class="btn btn-danger btn-sm" onclick="deleteExpense('${x.id}')" title="Delete">🗑️</button>
-            </td>
-          </tr>
-        `,
-						)
+						.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
+						.map((x) => {
+							const isPending = x.status === "Pending";
+							const isSalaryAdv = x.category === "Staff Salary / Advance" || x.status === "Salary Advance";
+							let badgeHtml = "";
+							if (isSalaryAdv) {
+								badgeHtml = `<span class="badge" style="background:#fef3c7;color:#92400e;font-weight:700;">👤 Salary Advance</span>`;
+							} else if (isPending) {
+								badgeHtml = `<span class="badge" style="background:#fee2e2;color:#991b1b;font-weight:700;">🔴 Pending (देणे बाकी)</span>`;
+							} else if (x.status === "Adjusted") {
+								badgeHtml = `<span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:700;">🔵 In Collection</span>`;
+							} else {
+								badgeHtml = `<span class="badge" style="background:#dcfce7;color:#166534;font-weight:700;">🟢 Paid</span>`;
+							}
+
+							return `
+								<tr>
+									<td>${fmtDate(x.date)}</td>
+									<td>
+										<strong>${escapeHtml(x.category)}</strong>
+										<div style="font-size:0.74rem;color:var(--muted);">${escapeHtml(x.note || "-")}</div>
+									</td>
+									<td>
+										<div style="font-weight:600;color:#0f172a;">${escapeHtml(x.staff || "Owner")}</div>
+										<span class="pill ${x.mode === "Cash" ? "pill-yellow" : "pill-green"}" style="font-size:0.7rem;margin-top:2px;">${x.mode}</span>
+									</td>
+									<td class="text-center">${badgeHtml}</td>
+									<td class="text-right font-bold" style="color:${isSalaryAdv ? "#b45309" : "#dc2626"};">${fmtINR(x.amount)}</td>
+									<td class="text-center">
+										<div style="display:inline-flex;gap:4px;align-items:center;">
+											${isPending && (isAdmin || isManager)
+												? `<button type="button" class="btn btn-success btn-xs" onclick="markExpensePaid('${x.id}')" title="Reimburse / Pay">✅ Pay</button>`
+												: ""
+											}
+											${isAdmin
+												? `<button type="button" class="btn btn-danger btn-xs" onclick="deleteExpense('${x.id}')" title="Delete">🗑️</button>`
+												: (isPending ? `<span style="font-size:0.7rem;color:#e11d48;font-weight:600;">Pending</span>` : "")
+											}
+										</div>
+									</td>
+								</tr>
+							`;
+						})
 						.join("");
 				}
 
-				// Category-wise breakdown
+				// Category-wise summary
 				const catBody = document.getElementById("expenseCategorySummaryBody");
 				if (catBody) {
 					const map = {};
-					expenses.forEach((x) => {
+					periodExpenses.forEach((x) => {
 						const k = x.category || "Other";
 						if (!map[k]) map[k] = { category: k, count: 0, total: 0 };
 						map[k].count++;
@@ -21517,13 +22084,55 @@ Thank you! Your payment has been received successfully.`;
 						catBody.innerHTML = rows
 							.map(
 								(r) => `
-            <tr>
-              <td class="font-bold">${r.category}</td>
-              <td class="text-center">${r.count}</td>
-              <td class="text-right font-bold" style="color:#b91c1c;">${fmtINR(r.total)}</td>
-            </tr>
-          `,
+									<tr>
+										<td class="font-bold">${escapeHtml(r.category)}</td>
+										<td class="text-center">${r.count}</td>
+										<td class="text-right font-bold" style="color:#b91c1c;">${fmtINR(r.total)}</td>
+									</tr>
+								`,
 							)
+							.join("");
+					}
+				}
+
+				// Staff Salary Advance & Pending Claims Ledger Table (Admin / Manager)
+				const ledgerBody = document.getElementById("staffAdvanceLedgerTableBody");
+				if (ledgerBody) {
+					const allMembers = (typeof getAllStaffMembers === "function") ? getAllStaffMembers() : [];
+					if (allMembers.length === 0) {
+						ledgerBody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding:18px;color:var(--muted);">No staff members found.</td></tr>`;
+					} else {
+						ledgerBody.innerHTML = allMembers
+							.map((m) => {
+								const sName = m.name;
+								const mExpenses = periodExpenses.filter((x) => x.staff === sName);
+								const advSum = mExpenses
+									.filter((x) => x.category === "Staff Salary / Advance" || x.status === "Salary Advance")
+									.reduce((s, x) => s + Number(x.amount || 0), 0);
+								const pendingSum = mExpenses
+									.filter((x) => x.status === "Pending")
+									.reduce((s, x) => s + Number(x.amount || 0), 0);
+
+								return `
+									<tr>
+										<td class="font-bold">
+											<div style="display:flex;align-items:center;gap:6px;">
+												<span>👤</span>
+												<span>${escapeHtml(sName)}</span>
+											</div>
+										</td>
+										<td><span class="pill pill-gray" style="font-size:0.72rem;">${escapeHtml(m.role || "Staff")}</span></td>
+										<td class="text-right font-bold" style="color:#b45309;">${fmtINR(advSum)}</td>
+										<td class="text-right font-bold" style="color:${pendingSum > 0 ? '#e11d48' : '#16a34a'};">${fmtINR(pendingSum)}</td>
+										<td class="text-center">
+											<div style="display:inline-flex;gap:4px;">
+												<button type="button" class="btn btn-xs btn-outline" onclick="openStaffAdvanceLedgerModal('${escapeHtml(sName)}')">👁️ Ledger</button>
+												${isAdmin || isManager ? `<button type="button" class="btn btn-xs btn-primary" onclick="openGiveAdvanceModal('${escapeHtml(sName)}')">+ Advance</button>` : ""}
+											</div>
+										</td>
+									</tr>
+								`;
+							})
 							.join("");
 					}
 				}
