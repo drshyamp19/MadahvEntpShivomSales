@@ -14557,32 +14557,36 @@ Thank you!`;
       if (kpiTotValEl) kpiTotValEl.textContent = fmtINR(totalBookedVal);
       if (kpiTotCntEl) kpiTotCntEl.textContent = visibleOrdersForStats.length;
 
-      // Update Tab Counter Badges (Pending reflects personal for Salesperson; All & Dispatched reflect full history)
+      // Update Tab Counter Badges (For Salespersons: All, Pending & Dispatched all strictly reflect their personal orders)
       let myPendingCount = 0;
-      allOrders.forEach(o => {
+      let myCompletedOrdersCount = 0;
+
+      const baseOrdersForBadges = isSalesperson && currentStaff && currentStaff.name ? allOrders.filter(o => {
+        const myName = currentStaff.name.toUpperCase();
+        const isGopal = myName.includes("GOPAL");
+        const isVikram = myName.includes("VIKARAM") || myName.includes("VIKRAM");
+        const sp = (o.salespersonName || "").toUpperCase();
+        if (isGopal) return sp.includes("GOPAL");
+        if (isVikram) return sp.includes("VIKARAM") || sp.includes("VIKRAM");
+        const firstName = myName.split(" ")[0];
+        return sp === myName || (firstName.length >= 3 && sp.includes(firstName));
+      }) : allOrders;
+
+      baseOrdersForBadges.forEach(o => {
         const remQ = Number(o.orderQty || 0) - Number(o.dispatchedQty || 0);
         if (remQ > 0) {
-          if (isSalesperson && currentStaff && currentStaff.name) {
-            const myName = currentStaff.name.toUpperCase();
-            const isGopal = myName.includes("GOPAL");
-            const isVikram = myName.includes("VIKARAM") || myName.includes("VIKRAM");
-            const sp = (o.salespersonName || "").toUpperCase();
-            if ((isGopal && sp.includes("GOPAL")) || (isVikram && (sp.includes("VIKARAM") || sp.includes("VIKRAM")))) {
-              myPendingCount++;
-            }
-          } else {
-            myPendingCount++;
-          }
+          myPendingCount++;
+        } else {
+          myCompletedOrdersCount++;
         }
       });
-      const totalCompletedOrdersCount = allOrders.filter(o => (Number(o.orderQty || 0) - Number(o.dispatchedQty || 0)) === 0).length;
 
       const cAllEl = document.getElementById("countAllOrders");
       const cPenEl = document.getElementById("countPendingOrders");
       const cCompEl = document.getElementById("countCompletedOrders");
-      if (cAllEl) cAllEl.textContent = allOrders.length;
+      if (cAllEl) cAllEl.textContent = baseOrdersForBadges.length;
       if (cPenEl) cPenEl.textContent = myPendingCount;
-      if (cCompEl) cCompEl.textContent = totalCompletedOrdersCount;
+      if (cCompEl) cCompEl.textContent = myCompletedOrdersCount;
 
       updateOrderSortHeaders();
 
@@ -19686,24 +19690,50 @@ Thank you! Your payment has been received successfully.`;
            </div>`
 					: `<div style="font-size:2rem;">${isShivom ? "⚡" : "🏢"}</div>`;
 
-				// 1. Filter Orders
-				const dayOrders = (state.orders || []).filter((o) => o.date === selDate);
+				const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
+
+				// 1. Filter Orders (Salespersons only see their personal bookings/dispatches)
+				let dayOrders = (state.orders || []).filter((o) => o.date === selDate);
+				if (isSalesperson && currentStaff && currentStaff.name) {
+					const myName = currentStaff.name.toUpperCase();
+					const isGopal = myName.includes("GOPAL");
+					const isVikram = myName.includes("VIKARAM") || myName.includes("VIKRAM");
+					dayOrders = dayOrders.filter((o) => {
+						const sp = (o.salespersonName || "").toUpperCase();
+						if (isGopal) return sp.includes("GOPAL");
+						if (isVikram) return sp.includes("VIKARAM") || sp.includes("VIKRAM");
+						const firstName = myName.split(" ")[0];
+						return sp === myName || (firstName.length >= 3 && sp.includes(firstName));
+					});
+				}
 				const bookedOrdersAmt = dayOrders.reduce((s, o) => s + getOrderTotalAmount(o), 0);
 				const dispatchedOrders = dayOrders.filter(
 					(o) => Number(o.dispatchedQty || 0) > 0 || o.status === "DISPATCHED",
 				);
 				const dispatchedAmt = dispatchedOrders.reduce((s, o) => s + getOrderDispatchedAmount(o), 0);
 
-				// 2. Filter Collections
-				const dayCols = (state.collections || []).filter((c) => c.date === selDate);
+				// 2. Filter Collections (Salespersons only see their personal receipts)
+				let dayCols = (state.collections || []).filter((c) => c.date === selDate);
+				if (isSalesperson && currentStaff && currentStaff.name) {
+					const myName = currentStaff.name.toUpperCase();
+					const isGopal = myName.includes("GOPAL");
+					const isVikram = myName.includes("VIKARAM") || myName.includes("VIKRAM");
+					dayCols = dayCols.filter((c) => {
+						const sp = (c.salespersonName || "").toUpperCase();
+						if (isGopal) return sp.includes("GOPAL");
+						if (isVikram) return sp.includes("VIKARAM") || sp.includes("VIKRAM");
+						const firstName = myName.split(" ")[0];
+						return sp === myName || (firstName.length >= 3 && sp.includes(firstName));
+					});
+				}
 				const cashCols = dayCols.filter((c) => c.mode === "Cash");
 				const bankCols = dayCols.filter((c) => c.mode === "Bank");
 				const totalCashAmt = cashCols.reduce((s, c) => s + Number(c.amount || 0), 0);
 				const totalBankAmt = bankCols.reduce((s, c) => s + Number(c.amount || 0), 0);
 				const totalColAmt = totalCashAmt + totalBankAmt;
 
-				// 3. Filter Expenses
-				const dayExps = (state.expenses || []).filter((e) => e.date === selDate);
+				// 3. Filter Expenses (Salespersons do not manage company expenses)
+				const dayExps = isSalesperson ? [] : (state.expenses || []).filter((e) => e.date === selDate);
 				const cashExps = dayExps.filter((e) => e.mode === "Cash");
 				const totalCashExpAmt = cashExps.reduce((s, e) => s + Number(e.amount || 0), 0);
 				const totalExpAmt = dayExps.reduce((s, e) => s + Number(e.amount || 0), 0);
@@ -19772,7 +19802,7 @@ Thank you! Your payment has been received successfully.`;
         </div>
 
         <div class="inv-title-bar" style="background:#0f766e;color:#fff;text-align:center;padding:7px;font-weight:800;font-size:13.5px;letter-spacing:1px;margin:10px 0;border-radius:4px;">
-          DAILY BUSINESS CLOSING AUDIT REPORT — ${fmtDate(selDate).toUpperCase()}
+          ${isSalesperson ? `DAILY SALESPERSON CLOSING REPORT (${currentStaff.name})` : "DAILY BUSINESS CLOSING AUDIT REPORT"} — ${fmtDate(selDate).toUpperCase()}
         </div>
 
         <!-- 4-KPI Grid -->
@@ -23386,7 +23416,23 @@ Thank you! Your payment has been received successfully.`;
 					ordBadge.textContent = `${pendingCount} Pending`;
 				}
 				const colBadge = document.getElementById("subtabColCountBadge");
-				if (colBadge && state.collections) colBadge.textContent = state.collections.length;
+				if (colBadge && state.collections) {
+					const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
+					let colList = state.collections;
+					if (isSalesperson && currentStaff && currentStaff.name) {
+						const myName = currentStaff.name.toUpperCase();
+						const isGopal = myName.includes("GOPAL");
+						const isVikram = myName.includes("VIKARAM") || myName.includes("VIKRAM");
+						colList = state.collections.filter((c) => {
+							const sp = (c.salespersonName || "").toUpperCase();
+							if (isGopal) return sp.includes("GOPAL");
+							if (isVikram) return sp.includes("VIKARAM") || sp.includes("VIKRAM");
+							const firstName = myName.split(" ")[0];
+							return sp === myName || (firstName.length >= 3 && sp.includes(firstName));
+						});
+					}
+					colBadge.textContent = colList.length;
+				}
 			}
 
 			function quickCollectFromDue(partyId) {
