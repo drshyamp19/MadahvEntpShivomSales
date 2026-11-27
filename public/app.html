@@ -17577,13 +17577,13 @@ Thank you!`;
 									}
 								} else if (isAccepted) {
 									actionHtml = `<span style="font-size:0.75rem;color:#15803d;font-weight:600;">✓ Cleared ${h.acceptedBy ? "(" + h.acceptedBy + ")" : ""}</span>`;
-									if (isPrashik || isAdmin) {
-										actionHtml += ` <button type="button" class="btn btn-sm btn-danger" onclick="deleteCashHandover('${h.id}')" title="Delete Handover" style="padding:2px 6px;font-size:0.72rem;margin-left:6px;">🗑️</button>`;
+									if (isAdmin) {
+										actionHtml += ` <button type="button" class="btn btn-sm btn-danger" onclick="deleteCashHandover('${h.id}')" title="Owner Only: Delete Handover" style="padding:2px 6px;font-size:0.72rem;margin-left:6px;">🗑️</button>`;
 									}
 								} else {
 									actionHtml = `<span style="font-size:0.72rem;color:#dc2626;" title="${h.rejectReason || ""}">${h.rejectReason || "Rejected"}</span>`;
-									if (isPrashik || isAdmin) {
-										actionHtml += ` <button type="button" class="btn btn-sm btn-danger" onclick="deleteCashHandover('${h.id}')" title="Delete Handover" style="padding:2px 6px;font-size:0.72rem;margin-left:6px;">🗑️</button>`;
+									if (isAdmin) {
+										actionHtml += ` <button type="button" class="btn btn-sm btn-danger" onclick="deleteCashHandover('${h.id}')" title="Owner Only: Delete Handover" style="padding:2px 6px;font-size:0.72rem;margin-left:6px;">🗑️</button>`;
 									}
 								}
 
@@ -17925,10 +17925,11 @@ Thank you!`;
 			}
 
 			async function deleteCashHandover(id) {
-				const isPrashik = currentStaff && currentStaff.role === "Manager";
-				const isAdmin = !!isAdminLoggedIn;
-				if (!isPrashik && !isAdmin) {
-					alert("Only Manager (Prashik Hajare) or Owner can delete cash handover records.");
+				const isAdmin =
+					!!isAdminLoggedIn ||
+					(currentStaff && (currentStaff.role === "Owner" || currentStaff.role === "Co-Owner"));
+				if (!isAdmin) {
+					alert("⚠️ Security Rule: Only Owner / Admin can delete cash handover records. Staff and Managers are strictly prohibited from deleting cash handover records.");
 					return;
 				}
 				const h = (state.cashHandovers || []).find((x) => x.id === id);
