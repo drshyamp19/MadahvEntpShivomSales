@@ -63,7 +63,7 @@ function escapeHtmlAttr(s: string): string {
 }
 
 function buildServiceWorkerJs(brandKey: CompanyKey): string {
-	const cacheName = `madhav-shivom-cf-erp-${brandKey.toLowerCase()}-v1`;
+	const cacheName = `madhav-shivom-cf-erp-${brandKey.toLowerCase()}-v3-nativecam`;
 	return `const CACHE_NAME = '${cacheName}';
 const APP_SHELL = [
   '/',
@@ -603,7 +603,9 @@ export default {
 					status: 200,
 					headers: {
 						"Content-Type": "text/html; charset=utf-8",
-						"Cache-Control": "no-cache, must-revalidate",
+						"Cache-Control": "no-cache, no-store, must-revalidate",
+						"Pragma": "no-cache",
+						"Expires": "0",
 					},
 				});
 			}
