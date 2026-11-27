@@ -16,7 +16,7 @@ export const COLLECTION_NAMES = [
 
 export type CollectionName = (typeof COLLECTION_NAMES)[number];
 
-export type StaffRole = "Owner" | "Co-Owner" | "Manager" | "Salesperson";
+export type StaffRole = "Owner" | "Co-Owner" | "Manager" | "Salesperson" | "Accountant";
 
 export type ErpLeafValue = string | number | boolean | null | undefined;
 export type ErpSubObject = { [key: string]: ErpLeafValue };

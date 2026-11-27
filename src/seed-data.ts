@@ -7149,6 +7149,13 @@ export const SEED_DATA: Record<Lowercase<CompanyKey>, ErpSeedData> = {
 				mobile: "9588406934",
 				area: "Field Sales & Recovery",
 			},
+			{
+				id: "SP05",
+				name: "DHANSHYAM",
+				role: "Accountant",
+				mobile: "9960376719",
+				area: "Accounts & Audit H.O.",
+			},
 		],
 	},
 	shivom: {
@@ -9743,6 +9750,13 @@ export const SEED_DATA: Record<Lowercase<CompanyKey>, ErpSeedData> = {
 				role: "Manager",
 				mobile: "9588406934",
 				area: "Field Sales & Recovery",
+			},
+			{
+				id: "SP05",
+				name: "DHANSHYAM",
+				role: "Accountant",
+				mobile: "9960376719",
+				area: "Accounts & Audit H.O.",
 			},
 		],
 	},

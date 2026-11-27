@@ -422,7 +422,7 @@ export class ErpLedgerDO extends DurableObject<Env> {
 				u.id !== "SP04" &&
 				u.role !== "Owner" &&
 				u.role !== "Co-Owner" &&
-				!upName.includes("SHYAM") &&
+				(!upName.includes("SHYAM") || upName.includes("DHANSHYAM")) &&
 				!upName.includes("ROSHAN")
 			);
 		});
@@ -441,7 +441,8 @@ export class ErpLedgerDO extends DurableObject<Env> {
 				u.name.toLowerCase() === idLower ||
 				(idLower === "gopal" && upName.includes("GOPAL")) ||
 				((idLower === "vikram" || idLower === "vikaram") &&
-					(upName.includes("VIKRAM") || upName.includes("VIKARAM")))
+					(upName.includes("VIKRAM") || upName.includes("VIKARAM"))) ||
+				(idLower === "dhanshyam" && upName.includes("DHANSHYAM"))
 			);
 		});
 

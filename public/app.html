@@ -2523,6 +2523,15 @@
 					>
 						🤝 Cash Handover &amp; Bank
 					</button>
+					<button
+						class="nav-tab"
+						id="accountantExpenseTabBtn"
+						style="display: none"
+						data-tab="admin-expenses"
+						onclick="switchTab('admin-expenses', this)"
+					>
+						💸 Expenses
+					</button>
 
 				</div>
 
@@ -4920,6 +4929,14 @@
 							>
 								👥 Sales Team Market Collections &amp; Handover Balance (Gopal, Vikram, Prashik)
 							</span>
+							<button
+								type="button"
+								class="btn btn-sm btn-primary"
+								onclick="openDayEndSummaryModal()"
+								style="font-weight: 700; padding: 6px 14px; display: inline-flex; align-items: center; gap: 6px"
+							>
+								📋 Day-End Summary (डेली क्लोजिंग)
+							</button>
 
 						</div>
 						<div class="table-wrap">
@@ -6036,6 +6053,7 @@
 							>
 								<option value="Salesperson" selected>🛵 Salesperson (Field Route)</option>
 								<option value="Manager">👔 Manager (Supervisory &amp; Ledger)</option>
+								<option value="Accountant">📊 Accountant (H.O. Audit &amp; Accounts)</option>
 								<option value="Co-Owner">👑 Co-Owner (Full Admin Controls)</option>
 							</select>
 						</div>
@@ -7748,6 +7766,7 @@
 		<div class="modal-backdrop" id="dispatchModal">
 			<div class="modal" style="max-width: 560px">
 				<h3 style="margin-bottom: 8px">📦 Dispatch Order (Item-Wise Warehouse Deduction)</h3>
+				<div id="dispatchOverdueAlertWrap" style="display: none"></div>
 				<p
 					id="dispatchModalInfo"
 					style="font-size: 0.85rem; color: var(--muted); margin-bottom: 14px"
@@ -7773,6 +7792,77 @@
 						</button>
 					</div>
 				</form>
+			</div>
+		</div>
+
+		<!-- Day-End Closing Summary Modal -->
+		<div class="modal-backdrop" id="dayEndSummaryModal">
+			<div class="modal" style="max-width: 580px; max-height: 90vh; overflow-y: auto">
+				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px">
+					<div>
+						<h3 style="margin: 0; color: var(--primary); font-size: 1.15rem">📋 Daily Day-End Closing Summary</h3>
+						<div style="font-size: 0.8rem; color: var(--muted)"><span id="dayEndCompany">Company</span> — <span id="dayEndDate">Date</span></div>
+					</div>
+					<button type="button" class="btn btn-sm btn-outline" onclick="closeModal('dayEndSummaryModal')">✕</button>
+				</div>
+
+				<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px">
+					<div class="card" style="padding: 12px; background: #f0fdf4; border: 1px solid #bbf7d0">
+						<div style="font-size: 0.75rem; color: #166534; font-weight: 700">🛒 TODAY'S ORDERS</div>
+						<div style="font-size: 1.25rem; font-weight: 900; color: #15803d" id="dayEndOrdersVal">₹0.00</div>
+						<div style="font-size: 0.75rem; color: #166534" id="dayEndOrdersCount">0 Orders</div>
+					</div>
+					<div class="card" style="padding: 12px; background: #eff6ff; border: 1px solid #bfdbfe">
+						<div style="font-size: 0.75rem; color: #1e40af; font-weight: 700">💰 TOTAL COLLECTION</div>
+						<div style="font-size: 1.25rem; font-weight: 900; color: #1d4ed8" id="dayEndTotalCol">₹0.00</div>
+						<div style="font-size: 0.75rem; color: #1e40af">Cash + UPI + Cheques</div>
+					</div>
+				</div>
+
+				<div class="card" style="padding: 14px; margin-bottom: 14px; border: 1px solid #e2e8f0; background: #f8fafc">
+					<h4 style="margin: 0 0 10px 0; font-size: 0.88rem; color: #334155; text-transform: uppercase">💵 Collection Breakdown</h4>
+					<div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #cbd5e1; font-size: 0.85rem">
+						<span>💵 Cash Collection</span>
+						<strong style="color: #15803d" id="dayEndCashCol">₹0.00</strong>
+					</div>
+					<div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #cbd5e1; font-size: 0.85rem">
+						<span>📱 Online (UPI / Bank)</span>
+						<strong style="color: #0f766e" id="dayEndOnlineCol">₹0.00</strong>
+					</div>
+					<div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem">
+						<span>📝 Physical Cheques</span>
+						<strong style="color: #7c3aed" id="dayEndChequeCol">0 (₹0.00)</strong>
+					</div>
+				</div>
+
+				<div class="card" style="padding: 14px; margin-bottom: 16px; border: 1px solid #e2e8f0; background: #fffbeb">
+					<h4 style="margin: 0 0 10px 0; font-size: 0.88rem; color: #92400e; text-transform: uppercase">🏢 Closing Cash &amp; Bank Custody</h4>
+					<div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #fde68a; font-size: 0.85rem">
+						<span>💼 Prashik Cash Box (In Office)</span>
+						<strong style="color: #b45309; font-size: 0.95rem" id="dayEndPrashikCash">₹0.00</strong>
+					</div>
+					<div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #fde68a; font-size: 0.85rem">
+						<span>🚶 Gopal Cash in Hand</span>
+						<strong style="color: #ea580c" id="dayEndGopalCash">₹0.00</strong>
+					</div>
+					<div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #fde68a; font-size: 0.85rem">
+						<span>🏦 Today's Bank Deposit</span>
+						<strong style="color: #047857" id="dayEndBankDeposit">₹0.00</strong>
+					</div>
+					<div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem">
+						<span>🏢 Cheques in Office Custody</span>
+						<strong style="color: #2563eb" id="dayEndOfficeCheques">0 Cheques</strong>
+					</div>
+				</div>
+
+				<div style="display: flex; justify-content: flex-end; gap: 8px">
+					<button type="button" class="btn btn-whatsapp" onclick="shareDayEndSummaryWhatsApp()" style="display: inline-flex; align-items: center; gap: 6px">
+						💬 Share on WhatsApp
+					</button>
+					<button type="button" class="btn btn-outline" onclick="closeModal('dayEndSummaryModal')">
+						Close
+					</button>
+				</div>
 			</div>
 		</div>
 
@@ -10189,13 +10279,15 @@
 					returnToGateway();
 					return;
 				}
+				const isAccountantRole = currentStaff && currentStaff.role === "Accountant";
 				const isStaffAllowed =
 					currentStaff &&
 					(tabId === "open-stock" ||
 						tabId === "open-dues" ||
 						tabId === "admin-orders" ||
 						tabId === "admin-collection" ||
-						tabId === "staff-cash");
+						tabId === "staff-cash" ||
+						(isAccountantRole && tabId === "admin-expenses"));
 				if (!isAdminLoggedIn && !isStaffAllowed) {
 					tabId = "open-stock";
 					btnEl = document.querySelector('[data-tab="open-stock"]');
@@ -10556,13 +10648,20 @@
 				const activeBtn = document.querySelector(".nav-tab.active");
 				if (activeBtn) {
 					const curTab = activeBtn.getAttribute("data-tab");
-					const isAllowedForStaff =
+					const isAccountant = isStaff && currentStaff.role === "Accountant";
+				const accountantNavBtn = document.getElementById("accountantExpenseTabBtn");
+				if (accountantNavBtn) {
+					accountantNavBtn.style.display = (isAdmin || isAccountant) ? "inline-flex" : "none";
+				}
+
+				const isAllowedForStaff =
 						isStaff &&
 						(curTab === "open-stock" ||
 							curTab === "open-dues" ||
 							curTab === "admin-orders" ||
 							curTab === "admin-collection" ||
-							curTab === "staff-cash");
+							curTab === "staff-cash" ||
+							(isAccountant && curTab === "admin-expenses"));
 					if (!isAdmin && !isAllowedForStaff) {
 						switchTab("open-stock", document.querySelector('[data-tab="open-stock"]'));
 					}
@@ -11164,8 +11263,10 @@
 					)
 				)
 					return;
+				const receiptNo = "HO-REC-" + Date.now().toString().slice(-6);
 				const newHo = {
 					id: "HO_" + Date.now(),
+					receiptNo: receiptNo,
 					date: new Date().toISOString().split("T")[0],
 					time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
 					fromStaffName: staffName,
@@ -11173,11 +11274,12 @@
 					amount: Number(amount),
 					status: "Accepted",
 					acceptedAt: new Date().toISOString(),
+					acceptedBy: currentStaff ? currentStaff.name : (isAdminLoggedIn ? "OWNER" : "PRASHIK HAJARE"),
 					note: "Directly received cash by Manager (Prashik)",
 				};
 				if (!state.cashHandovers) state.cashHandovers = [];
 				await saveRecord("cashHandovers", newHo);
-				showToast(`✓ Received ${fmtINR(amount)} cash directly from ${staffName}!`);
+				showToast(`✓ Received ${fmtINR(amount)} cash directly from ${staffName}! Receipt: #${receiptNo}`);
 			}
 
 			function renderChequeRegister() {
@@ -11209,7 +11311,7 @@
 
 				const canManageCheque =
 					isAdminLoggedIn ||
-					(currentStaff && (currentStaff.role === "Manager" || currentStaff.role === "Owner"));
+					(currentStaff && (currentStaff.role === "Manager" || currentStaff.role === "Owner" || currentStaff.role === "Accountant"));
 
 				tbody.innerHTML = cheques
 					.map((c) => {
@@ -11276,9 +11378,10 @@
 
 			async function acceptChequeAtOffice(colId) {
 				const isPrashik = currentStaff && currentStaff.role === "Manager";
+				const isAccountant = currentStaff && currentStaff.role === "Accountant";
 				const isAdmin = !!isAdminLoggedIn;
-				if (!isPrashik && !isAdmin) {
-					alert("Only Manager (Prashik Hajare) or Owner can receive physical cheques at office.");
+				if (!isPrashik && !isAdmin && !isAccountant) {
+					alert("Only Manager (Prashik Hajare), Accountant (Dhanshyam), or Owner can receive physical cheques at office.");
 					return;
 				}
 				const c = (state.collections || []).find((x) => x.id === colId);
@@ -11298,18 +11401,20 @@
 					: isAdminLoggedIn
 						? "OWNER"
 						: "PRASHIK HAJARE";
-				c.bankRef = `Chq #${c.chequeNo || ""} (${c.chequeBank || "Bank"}) - Received at Office by ${c.chequeReceivedBy}`;
+				c.chequeReceiptId = c.chequeReceiptId || ("CHQ-" + Date.now().toString().slice(-6));
+				c.bankRef = `Chq #${c.chequeNo || ""} (${c.chequeBank || "Bank"}) - Received at Office by ${c.chequeReceivedBy} (Receipt #${c.chequeReceiptId})`;
 				await saveRecord("collections", c);
-				showToast(`✅ Physical Cheque #${c.chequeNo} (${fmtINR(c.amount)}) received at office!`);
+				showToast(`✅ Physical Cheque #${c.chequeNo} (${fmtINR(c.amount)}) received at office by ${c.chequeReceivedBy}! Receipt: #${c.chequeReceiptId}`);
 				renderStaffCashTab();
 				renderChequeRegister();
 			}
 
 			async function receiveAllStaffCheques(staffName) {
 				const isPrashik = currentStaff && currentStaff.role === "Manager";
+				const isAccountant = currentStaff && currentStaff.role === "Accountant";
 				const isAdmin = !!isAdminLoggedIn;
-				if (!isPrashik && !isAdmin) {
-					alert("Only Manager (Prashik Hajare) or Owner can receive physical cheques at office.");
+				if (!isPrashik && !isAdmin && !isAccountant) {
+					alert("Only Manager (Prashik Hajare), Accountant (Dhanshyam), or Owner can receive physical cheques at office.");
 					return;
 				}
 				const sName = (staffName || "").trim().toUpperCase();
@@ -11356,12 +11461,13 @@
 					c.chequeHandedToPrashik = true;
 					c.chequeHandedDate = today;
 					c.chequeReceivedBy = receivedBy;
-					c.bankRef = `Chq #${c.chequeNo || ""} (${c.chequeBank || "Bank"}) - Received at Office by ${receivedBy}`;
+					c.chequeReceiptId = c.chequeReceiptId || ("CHQ-" + Date.now().toString().slice(-6));
+					c.bankRef = `Chq #${c.chequeNo || ""} (${c.chequeBank || "Bank"}) - Received at Office by ${receivedBy} (Receipt #${c.chequeReceiptId})`;
 					await saveRecord("collections", c);
 				}
 
 				showToast(
-					`✅ Successfully received ${pendingCheques.length} cheque(s) (${fmtINR(totalAmt)}) from ${staffName} at office!`,
+					`✅ Successfully received ${pendingCheques.length} cheque(s) (${fmtINR(totalAmt)}) from ${staffName} at office by ${receivedBy}!`,
 				);
 				renderStaffCashTab();
 				renderChequeRegister();
@@ -16954,8 +17060,9 @@ function renderOrdersTable() {
 
 				const isPrashik = currentStaff && currentStaff.role === "Manager";
 				const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
+				const isAccountant = currentStaff && currentStaff.role === "Accountant";
 				const isAdmin = !!isAdminLoggedIn;
-				const canViewAllCash = isPrashik || isAdmin;
+				const canViewAllCash = isPrashik || isAdmin || isAccountant;
 
 				// Role-based visibility: Hide full team summary table & bank sections for Salespersons (Gopal & Vikram)
 				const spCard = document.getElementById("salesTeamCashOverviewCard");
@@ -17137,8 +17244,28 @@ function renderOrdersTable() {
 
 				// 2. Pending Approvals, Cheque Verification & Reminders Container
 				if (pendingContainer) {
-					if (isPrashik || isAdmin) {
+					if (isPrashik || isAdmin || isAccountant) {
 						let pCards = [];
+
+						// 0: Office Cash Safety Alert (> ₹50,000 threshold)
+						if (cs.prashikInHand >= 50000) {
+							pCards.push(`
+								<div class="card" style="background:#fef2f2;border:2px solid #ef4444;padding:14px 16px;margin-bottom:12px;">
+									<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+										<div style="display:flex;align-items:center;gap:10px;">
+											<span style="font-size:1.6rem;">🚨</span>
+											<div>
+												<h4 style="margin:0;color:#b91c1c;font-size:1rem;">Office Cash Safety Alert: ${fmtINR(cs.prashikInHand)} in Office Box</h4>
+												<div style="font-size:0.8rem;color:#7f1d1d;">
+													Office cash has exceeded the ₹50,000 safety threshold. Please deposit this cash into the bank account immediately.
+												</div>
+											</div>
+										</div>
+										${(isPrashik || isAdmin) ? `<button class="btn btn-sm btn-teal" onclick="openBankDepositModal()" style="font-weight:700;padding:6px 14px;">🏦 Deposit in Bank Now</button>` : ""}
+									</div>
+								</div>
+							`);
+						}
 
 						// A: Pending Cash Handover Requests
 						const pendingHandovers = (state.cashHandovers || []).filter(
@@ -17167,6 +17294,7 @@ function renderOrdersTable() {
                       </div>
                       <div style="display:flex;align-items:center;gap:14px;">
                         <span style="font-size:1.25rem;font-weight:900;color:#ea580c;">${fmtINR(h.amount)}</span>
+                        ${(isPrashik || isAdmin) ? `
                         <div style="display:flex;gap:6px;">
                           <button class="btn btn-sm btn-success" onclick="acceptCashHandover('${h.id}')" style="font-weight:700;padding:6px 14px;">
                             ✓ Accept Cash
@@ -17175,6 +17303,9 @@ function renderOrdersTable() {
                             ✕ Reject
                           </button>
                         </div>
+                        ` : `
+                        <span class="pill pill-yellow" style="font-weight:700;">⏳ Awaiting Prashik Verification</span>
+                        `}
                       </div>
                     </div>
                   `,
@@ -17252,16 +17383,30 @@ function renderOrdersTable() {
                 <div style="display:grid;gap:10px;">
                   ${cs.chequesInOffice
 										.map(
-											(c) => `
+											(c) => {
+												const handedDateStr = c.chequeHandedDate || c.date;
+												let daysInOffice = 0;
+												if (handedDateStr) {
+													const d = new Date(handedDateStr + "T00:00:00");
+													if (!isNaN(d.getTime())) {
+														daysInOffice = Math.max(0, Math.floor((new Date() - d) / (1000 * 60 * 60 * 24)));
+													}
+												}
+												const staleBadge = daysInOffice >= 3
+													? `<span class="pill pill-red" style="font-size:0.72rem;font-weight:700;margin-left:6px;">⚠️ ${daysInOffice}d in Office! Deposit Soon</span>`
+													: "";
+
+												return `
                     <div style="background:#ffffff;border:1px solid #bbf7d0;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                       <div>
-                        <div style="font-size:0.95rem;font-weight:800;color:#1e293b;">${c.partyName}</div>
+                        <div style="font-size:0.95rem;font-weight:800;color:#1e293b;">${c.partyName} ${staleBadge}</div>
                         <div style="font-size:0.78rem;color:#64748b;">
                           Chq #${c.chequeNo || "-"} | ${c.chequeBank || "Bank"} | Target Bank: <strong style="color:#047857;">${getAccShortName(c.depositAccount)}</strong>
                         </div>
                       </div>
                       <div style="display:flex;align-items:center;gap:14px;">
                         <span style="font-size:1.25rem;font-weight:900;color:#0f766e;">${fmtINR(c.amount)}</span>
+                        ${(isPrashik || isAdmin) ? `
                         <div style="display:flex;gap:6px;">
                           <button class="btn btn-sm btn-teal" onclick="depositChequeInBank('${c.id}')" style="font-weight:700;padding:6px 12px;">
                             🏦 Mark Deposited in Bank
@@ -17270,9 +17415,11 @@ function renderOrdersTable() {
                             ✓ Cleared
                           </button>
                         </div>
+                        ` : `<span class="pill pill-blue" style="font-weight:700;">🏢 In Office (${c.chequeReceivedBy || "Office Box"})</span>`}
                       </div>
                     </div>
-                  `,
+                  `;
+											}
 										)
 										.join("")}
                 </div>
@@ -17294,9 +17441,11 @@ function renderOrdersTable() {
                       </div>
                     </div>
                   </div>
+                  ${(isPrashik || isAdmin) ? `
                   <button class="btn btn-sm btn-success" onclick="directReceiveCashFromStaff('GOPAL AMBAGADE', ${cs.gopalPocket})" style="font-weight:700;padding:6px 14px;">
                     📥 Direct Receive Cash (${fmtINR(cs.gopalPocket)})
                   </button>
+                  ` : `<span class="pill pill-red" style="font-weight:700;">⚠️ In Gopal's Pocket</span>`}
                 </div>
               </div>
             `);
@@ -17653,7 +17802,7 @@ function renderOrdersTable() {
 
 								return `
               <tr>
-                <td>${fmtDate(h.date)} <span style="font-size:0.75rem;color:var(--muted);">${h.time || ""}</span></td>
+                <td>${fmtDate(h.date)} <span style="font-size:0.75rem;color:var(--muted);">${h.time || ""}</span><br/><small style="font-family:monospace;color:#0284c7;font-weight:700;">#${h.receiptNo || h.id}</small></td>
                 <td class="font-bold">${h.fromStaffName}</td>
                 <td class="text-right font-bold" style="color:#15803d;">${fmtINR(h.amount)}</td>
                 <td>${h.toStaffName || "PRASHIK HAJARE"}</td>
@@ -17952,9 +18101,10 @@ function renderOrdersTable() {
 				h.status = "Accepted";
 				h.acceptedAt = new Date().toISOString();
 				h.acceptedBy = currentStaff ? currentStaff.name : "OWNER";
+				h.receiptNo = h.receiptNo || ("HO-REC-" + Date.now().toString().slice(-6));
 
 				await saveRecord("cashHandovers", h);
-				showToast(`✅ Accepted: Received ${fmtINR(h.amount)} cash from ${h.fromStaffName}!`);
+				showToast(`✅ Accepted: Received ${fmtINR(h.amount)} cash from ${h.fromStaffName}! Receipt: #${h.receiptNo}`);
 				renderStaffCashTab();
 			}
 
@@ -18006,6 +18156,84 @@ function renderOrdersTable() {
 				await deleteRecord("cashHandovers", id);
 				showToast(`🗑️ Cash handover record (${fmtINR(h.amount)}) deleted successfully.`);
 				renderStaffCashTab();
+			}
+
+			function openDayEndSummaryModal() {
+				const today = new Date().toISOString().split("T")[0];
+				const allOrders = state.orders || [];
+				const todayOrders = allOrders.filter((o) => (o.date || "").split("T")[0] === today);
+				const todayOrdersCount = todayOrders.length;
+				const todayOrdersVal = todayOrders.reduce((sum, o) => {
+					const amt = Number(o.totalAmount || o.orderAmount || 0);
+					return sum + amt;
+				}, 0);
+
+				const allCols = state.collections || [];
+				const todayCols = allCols.filter((c) => (c.date || "").split("T")[0] === today);
+				const todayCash = todayCols
+					.filter((c) => c.mode === "Cash")
+					.reduce((s, c) => s + Number(c.amount || 0), 0);
+				const todayOnline = todayCols
+					.filter((c) => c.mode === "Bank" || c.mode === "UPI" || c.mode === "Online")
+					.reduce((s, c) => s + Number(c.amount || 0), 0);
+				const todayCheques = todayCols.filter((c) => c.mode === "Cheque");
+				const todayChequesCount = todayCheques.length;
+				const todayChequesVal = todayCheques.reduce((s, c) => s + Number(c.amount || 0), 0);
+				const totalCollectionToday = todayCash + todayOnline + todayChequesVal;
+
+				const cs = typeof getCashSummary === "function" ? getCashSummary() : { prashikInHand: 0, gopalPocket: 0, chequesInOffice: [], totalBankDeposits: 0 };
+				const todayDeposits = (state.bankDeposits || []).filter((b) => (b.date || "").split("T")[0] === today);
+				const todayDepositsVal = todayDeposits.reduce((s, b) => s + Number(b.amount || 0), 0);
+
+				const coName = currentCompany === "SHIVOM" ? "Shivom Sales & Services" : "Madhav Enterprises";
+				const coEl = document.getElementById("dayEndCompany");
+				if (coEl) coEl.textContent = coName;
+				const dateEl = document.getElementById("dayEndDate");
+				if (dateEl) dateEl.textContent = fmtDate(today);
+
+				const oCountEl = document.getElementById("dayEndOrdersCount");
+				if (oCountEl) oCountEl.textContent = `${todayOrdersCount} Orders`;
+				const oValEl = document.getElementById("dayEndOrdersVal");
+				if (oValEl) oValEl.textContent = fmtINR(todayOrdersVal);
+
+				const totColEl = document.getElementById("dayEndTotalCol");
+				if (totColEl) totColEl.textContent = fmtINR(totalCollectionToday);
+				const cCashEl = document.getElementById("dayEndCashCol");
+				if (cCashEl) cCashEl.textContent = fmtINR(todayCash);
+				const cOnlineEl = document.getElementById("dayEndOnlineCol");
+				if (cOnlineEl) cOnlineEl.textContent = fmtINR(todayOnline);
+				const cChqEl = document.getElementById("dayEndChequeCol");
+				if (cChqEl) cChqEl.textContent = `${todayChequesCount} (${fmtINR(todayChequesVal)})`;
+
+				const pCashEl = document.getElementById("dayEndPrashikCash");
+				if (pCashEl) pCashEl.textContent = fmtINR(cs.prashikInHand);
+				const gCashEl = document.getElementById("dayEndGopalCash");
+				if (gCashEl) gCashEl.textContent = fmtINR(cs.gopalPocket);
+				const bDepEl = document.getElementById("dayEndBankDeposit");
+				if (bDepEl) bDepEl.textContent = fmtINR(todayDepositsVal);
+				const oChqEl = document.getElementById("dayEndOfficeCheques");
+				if (oChqEl) oChqEl.textContent = `${(cs.chequesInOffice || []).length} Cheques`;
+
+				openModal("dayEndSummaryModal");
+			}
+
+			function shareDayEndSummaryWhatsApp() {
+				const today = new Date().toISOString().split("T")[0];
+				const coName = currentCompany === "SHIVOM" ? "Shivom Sales & Services" : "Madhav Enterprises";
+				const oCount = document.getElementById("dayEndOrdersCount")?.textContent || "0 Orders";
+				const oVal = document.getElementById("dayEndOrdersVal")?.textContent || "₹0.00";
+				const tCol = document.getElementById("dayEndTotalCol")?.textContent || "₹0.00";
+				const cCash = document.getElementById("dayEndCashCol")?.textContent || "₹0.00";
+				const cUpi = document.getElementById("dayEndOnlineCol")?.textContent || "₹0.00";
+				const cChq = document.getElementById("dayEndChequeCol")?.textContent || "0";
+				const pCash = document.getElementById("dayEndPrashikCash")?.textContent || "₹0.00";
+				const gCash = document.getElementById("dayEndGopalCash")?.textContent || "₹0.00";
+				const bDep = document.getElementById("dayEndBankDeposit")?.textContent || "₹0.00";
+
+				const msg = `📊 *${coName} — Daily Day-End Summary*\n📅 Date: ${fmtDate(today)}\n\n🛒 *Today's Orders:* ${oCount} (${oVal})\n💰 *Today's Collection:* ${tCol}\n   • 💵 Cash: ${cCash}\n   • 📱 UPI/Bank: ${cUpi}\n   • 📝 Cheques: ${cChq}\n\n🏢 *Closing Cash & Bank:*\n   • 💼 Prashik Cash Box: ${pCash}\n   • 🚶 Gopal Cash in Hand: ${gCash}\n   • 🏦 Today's Bank Deposit: ${bDep}\n\n_Generated via Madhav & Shivom ERP_`;
+
+				const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+				window.open(url, "_blank");
 			}
 
 			function openBankDepositModal(suggestedAmt) {
@@ -18687,6 +18915,25 @@ Thank you! Your payment has been received successfully.`;
 				document.getElementById("dispatchOrderId").value = orderId;
 				document.getElementById("dispatchModalInfo").textContent =
 					`Bill #${ord.orderNo} — ${ord.partyName} (Total Pending: ${pending} units)`;
+
+				const computedParties = typeof getComputedParties === "function" ? getComputedParties() : [];
+				const ordParty = computedParties.find(
+					(p) => p.id === ord.partyId || (p.name && ord.partyName && p.name.trim().toLowerCase() === ord.partyName.trim().toLowerCase())
+				);
+				const alertWrap = document.getElementById("dispatchOverdueAlertWrap");
+				if (alertWrap) {
+					if (ordParty && ordParty.netBalance > 0 && (ordParty.pendingDays >= 60 || (ordParty.creditLimit > 0 && ordParty.netBalance > ordParty.creditLimit))) {
+						alertWrap.style.display = "block";
+						alertWrap.innerHTML = `
+							<div style="background:#fef2f2;border:2px solid #ef4444;border-radius:8px;padding:10px 12px;color:#991b1b;font-size:0.83rem;margin-bottom:12px;">
+								<strong>🚨 Overdue Payment Alert:</strong> ${escapeHtml(ordParty.name)} has an outstanding balance of <strong>${fmtINR(ordParty.netBalance)}</strong> (${ordParty.pendingDays} days overdue${ordParty.creditLimit > 0 ? " | Limit: " + fmtINR(ordParty.creditLimit) : ""}). Please verify before dispatching goods.
+							</div>
+						`;
+					} else {
+						alertWrap.style.display = "none";
+						alertWrap.innerHTML = "";
+					}
+				}
 
 				const itemsContainer = document.getElementById("dispatchItemsContainer");
 				const singleWrap = document.getElementById("dispatchSingleWrap");

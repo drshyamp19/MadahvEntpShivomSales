@@ -66,6 +66,18 @@ export const BASE_STAFF_CREDENTIALS: StaffMember[] = [
 		simple: -1195221399,
 		active: true,
 	},
+	{
+		id: "SP05",
+		name: "DHANSHYAM",
+		mobile: "9960376719",
+		role: "Accountant",
+		area: "Accounts & Audit H.O.",
+		allowCash: false,
+		pin: "6719",
+		sha: "56e459e337593dfd3c40c9f5b21b2a45be9b8c2933de9a26d896c7f746637bc9",
+		simple: 1663145,
+		active: true,
+	},
 ];
 
 export function simpleHash(s: string): number {
@@ -191,9 +203,12 @@ export function mergeStaffDirectory(dynamicStaff: StaffMember[]): StaffMember[] 
 			s &&
 			(s.id === "SP00" ||
 				String(s.mobile || "").trim() === "9309543825" ||
-				String(s.name || "")
+				(String(s.name || "")
 					.toUpperCase()
-					.includes("SHYAM")),
+					.includes("SHYAM") &&
+					!String(s.name || "")
+						.toUpperCase()
+						.includes("DHANSHYAM"))),
 	);
 
 	const baseOwner = BASE_STAFF_CREDENTIALS[0];
@@ -219,7 +234,10 @@ export function mergeStaffDirectory(dynamicStaff: StaffMember[]): StaffMember[] 
 		if (!s || !s.mobile) continue;
 		const upName = String(s.name || "").toUpperCase();
 		const sMobile = String(s.mobile || "").trim();
-		const isOwnerOrMaster = s.id === "SP00" || sMobile === "9309543825" || upName.includes("SHYAM");
+		const isOwnerOrMaster =
+			s.id === "SP00" ||
+			sMobile === "9309543825" ||
+			(upName.includes("SHYAM") && !upName.includes("DHANSHYAM"));
 		if (isOwnerOrMaster) {
 			const master = map.get("MASTER_OWNER")!;
 			map.set("MASTER_OWNER", {
