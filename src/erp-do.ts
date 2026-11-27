@@ -516,6 +516,63 @@ export class ErpLedgerDO extends DurableObject<Env> {
 			}
 		}
 
+		// For parties, strictly protect creditLimit so only Owner / Admin can set or change it
+		if (collection === "parties") {
+			const existingRows = this.ctx.storage.sql
+				.exec<RecordRow>(
+					"SELECT data FROM records WHERE collection = 'parties' AND id = ?",
+					id,
+				)
+				.toArray();
+			const existing =
+				existingRows.length > 0 ? (JSON.parse(existingRows[0].data) as Record<string, unknown>) : null;
+			const upActor = String(actor || "").toUpperCase();
+			const isOwnerActor =
+				upActor.includes("SHYAM") ||
+				upActor.includes("ROSHAN") ||
+				upActor.includes("OWNER") ||
+				upActor.includes("ADMIN");
+			if (!isOwnerActor) {
+				if (existing && typeof existing.creditLimit !== "undefined") {
+					item.creditLimit = existing.creditLimit;
+				} else {
+					delete item.creditLimit;
+				}
+			}
+		}
+
+		// For collections, protect cheque clearance & bank deposit so only Owner or Accountant can verify
+		if (collection === "collections" && item.mode === "Cheque") {
+			const existingRows = this.ctx.storage.sql
+				.exec<RecordRow>(
+					"SELECT data FROM records WHERE collection = 'collections' AND id = ?",
+					id,
+				)
+				.toArray();
+			const existing =
+				existingRows.length > 0 ? (JSON.parse(existingRows[0].data) as Record<string, unknown>) : null;
+			const upActor = String(actor || "").toUpperCase();
+			const isOwnerOrAccountant =
+				upActor.includes("SHYAM") ||
+				upActor.includes("ROSHAN") ||
+				upActor.includes("DHANSHYAM") ||
+				upActor.includes("ACCOUNTANT") ||
+				upActor.includes("OWNER") ||
+				upActor.includes("ADMIN");
+			if (existing && !isOwnerOrAccountant) {
+				if (item.chequeStatus === "Cleared" && existing.chequeStatus !== "Cleared") {
+					item.chequeStatus = existing.chequeStatus;
+					item.chequeLocation = existing.chequeLocation;
+					delete item.clearedDate;
+				}
+				if (item.chequeLocation === "DEPOSITED_BANK" && existing.chequeLocation !== "DEPOSITED_BANK") {
+					item.chequeLocation = existing.chequeLocation;
+					delete item.chequeDepositedDate;
+					delete item.chequeDepositedBy;
+				}
+			}
+		}
+
 		const now = Date.now();
 		this.ctx.storage.sql.exec(
 			"INSERT OR REPLACE INTO records (collection, id, data, updated_at) VALUES (?, ?, ?, ?)",
