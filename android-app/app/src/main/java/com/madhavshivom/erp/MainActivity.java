@@ -1,12 +1,15 @@
 package com.madhavshivom.erp;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,6 +22,7 @@ import android.util.Base64;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -34,8 +38,10 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity {
@@ -44,12 +50,16 @@ public class MainActivity extends AppCompatActivity {
     private static final String ERP_HOST = "madhav-enterprises.mserp.workers.dev";
     private static final String ERP_HOST_ALT = "shivom-sales.mserp.workers.dev";
     private static final int FILE_CHOOSER_REQUEST_CODE = 1001;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 1002;
+    private static final int DIRECT_CAMERA_REQUEST_CODE = 1003;
 
     private WebView webView;
     private ProgressBar progressBar;
     private LinearLayout offlineView;
     private long lastBackPressTime = 0L;
     private ValueCallback<Uri[]> uploadMessage;
+    private Uri cameraImageUri;
+    private String directCameraTarget = "col";
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -67,6 +77,13 @@ public class MainActivity extends AppCompatActivity {
             webView.setVisibility(View.VISIBLE);
             webView.loadUrl(ERP_URL);
         });
+
+        // Request runtime Camera permission if not granted
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
+            }
+        }
 
         setupWebView();
         setupBackNavigation();
@@ -93,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        settings.setMediaPlaybackRequiresUserGesture(false);
 
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
@@ -112,6 +130,15 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                runOnUiThread(() -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        request.grant(request.getResources());
+                    }
+                });
+            }
+
+            @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
                 if (uploadMessage != null) {
                     uploadMessage.onReceiveValue(null);
@@ -119,15 +146,42 @@ public class MainActivity extends AppCompatActivity {
                 }
                 uploadMessage = filePathCallback;
 
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("image/*");
+                // 1. Camera Intent with pre-allocated safe content:// Uri
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                try {
+                    ContentValues values = new ContentValues();
+                    values.put(MediaStore.Images.Media.TITLE, "Receipt_" + System.currentTimeMillis() + ".jpg");
+                    values.put(MediaStore.Images.Media.DESCRIPTION, "Madhav ERP Payment Proof");
+                    cameraImageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                    if (cameraImageUri != null) {
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
+                    }
+                } catch (Exception e) {
+                    cameraImageUri = null;
+                }
+
+                // 2. Gallery / Document Intent
+                Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                contentSelectionIntent.setType("image/*");
+
+                Intent[] intentArray;
+                if (cameraImageUri != null) {
+                    intentArray = new Intent[]{takePictureIntent};
+                } else {
+                    intentArray = new Intent[0];
+                }
+
+                Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+                chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+                chooserIntent.putExtra(Intent.EXTRA_TITLE, "Select Receipt Photo or Open Camera");
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
 
                 try {
-                    startActivityForResult(Intent.createChooser(intent, "Select Payment Proof / Cheque Photo"), FILE_CHOOSER_REQUEST_CODE);
+                    startActivityForResult(chooserIntent, FILE_CHOOSER_REQUEST_CODE);
                 } catch (ActivityNotFoundException e) {
                     uploadMessage = null;
-                    Toast.makeText(MainActivity.this, "Cannot open file chooser", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Cannot open file/camera chooser", Toast.LENGTH_SHORT).show();
                     return false;
                 }
                 return true;
@@ -224,22 +278,68 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == FILE_CHOOSER_REQUEST_CODE) {
             if (uploadMessage != null) {
                 Uri[] results = null;
-                if (resultCode == RESULT_OK && data != null) {
-                    if (data.getData() != null) {
-                        results = new Uri[]{data.getData()};
-                    } else if (data.getClipData() != null) {
-                        int count = data.getClipData().getItemCount();
-                        results = new Uri[count];
-                        for (int i = 0; i < count; i++) {
-                            results[i] = data.getClipData().getItemAt(i).getUri();
+                if (resultCode == RESULT_OK) {
+                    if (data == null || data.getData() == null) {
+                        // Camera capture used EXTRA_OUTPUT
+                        if (cameraImageUri != null) {
+                            results = new Uri[]{cameraImageUri};
+                        }
+                    } else {
+                        if (data.getData() != null) {
+                            results = new Uri[]{data.getData()};
+                        } else if (data.getClipData() != null) {
+                            int count = data.getClipData().getItemCount();
+                            results = new Uri[count];
+                            for (int i = 0; i < count; i++) {
+                                results[i] = data.getClipData().getItemAt(i).getUri();
+                            }
                         }
                     }
                 }
                 uploadMessage.onReceiveValue(results);
                 uploadMessage = null;
             }
+        } else if (requestCode == DIRECT_CAMERA_REQUEST_CODE) {
+            if (resultCode == RESULT_OK && cameraImageUri != null) {
+                deliverCapturedPhotoToWebView(cameraImageUri, directCameraTarget);
+            }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void deliverCapturedPhotoToWebView(Uri imageUri, String target) {
+        new Thread(() -> {
+            try {
+                InputStream inputStream = getContentResolver().openInputStream(imageUri);
+                if (inputStream != null) {
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                    inputStream.close();
+                    if (bitmap != null) {
+                        int maxDim = 1280;
+                        int width = bitmap.getWidth();
+                        int height = bitmap.getHeight();
+                        if (width > maxDim || height > maxDim) {
+                            float ratio = Math.min((float) maxDim / width, (float) maxDim / height);
+                            width = Math.round(width * ratio);
+                            height = Math.round(height * ratio);
+                            bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+                        }
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 75, baos);
+                        byte[] imageBytes = baos.toByteArray();
+                        String base64Image = "data:image/jpeg;base64," + Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+
+                        runOnUiThread(() -> {
+                            String js = String.format("if (typeof window.onAndroidCameraPhotoCaptured === 'function') { window.onAndroidCameraPhotoCaptured('%s', '%s'); }",
+                                    base64Image, target);
+                            webView.evaluateJavascript(js, null);
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to process photo: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        }).start();
     }
 
     @Override
@@ -251,6 +351,45 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class AndroidBridge {
+        @JavascriptInterface
+        public void takeCameraPhoto(final String target) {
+            runOnUiThread(() -> {
+                directCameraTarget = (target != null && !target.trim().isEmpty()) ? target.trim() : "col";
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
+                        Toast.makeText(MainActivity.this, "Please allow Camera permission", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                try {
+                    ContentValues values = new ContentValues();
+                    values.put(MediaStore.Images.Media.TITLE, "DirectReceipt_" + System.currentTimeMillis() + ".jpg");
+                    cameraImageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                    if (cameraImageUri != null) {
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
+                    }
+                    startActivityForResult(takePictureIntent, DIRECT_CAMERA_REQUEST_CODE);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Could not launch camera: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void clearCacheAndReload() {
+            runOnUiThread(() -> {
+                if (webView != null) {
+                    webView.clearCache(true);
+                    webView.reload();
+                    Toast.makeText(MainActivity.this, "App refreshed with latest updates", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
         @JavascriptInterface
         public void printPage(final String title) {
             runOnUiThread(() -> {

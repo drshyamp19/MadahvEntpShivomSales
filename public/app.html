@@ -23224,6 +23224,11 @@ Thank you! Your payment has been received successfully.`;
 					btn.disabled = true;
 					btn.innerHTML = "⏳ Refreshing...";
 				}
+				if (window.AndroidApp && typeof window.AndroidApp.clearCacheAndReload === "function") {
+					showToast("⏳ Refreshing Android App cache...");
+					window.AndroidApp.clearCacheAndReload();
+					return;
+				}
 				showToast("⏳ Clearing cache & updating to latest version...");
 				try {
 					if ("caches" in window) {
@@ -24595,8 +24600,30 @@ Thank you! Your payment has been received successfully.`;
 				closeModal("liveCameraModal");
 			}
 
+			// Global callback when photo is captured natively via Android App bridge
+			window.onAndroidCameraPhotoCaptured = function (base64Data, target) {
+				if (!base64Data) return;
+				const tgt = target || currentCameraTarget || "col";
+				processImageDataUrl(base64Data, tgt);
+				closeLiveCameraModal();
+				if (typeof showToast === "function") {
+					showToast("✓ Photo attached from Android Camera! 📸");
+				}
+			};
+
 			function triggerNativeCamera(target = "col", event) {
 				currentCameraTarget = target;
+				// 1. Direct native camera trigger if running inside Android APK
+				if (window.AndroidApp && typeof window.AndroidApp.takeCameraPhoto === "function") {
+					try {
+						window.AndroidApp.takeCameraPhoto(target);
+						return;
+					} catch (e) {
+						console.warn("AndroidApp.takeCameraPhoto failed, falling back to input:", e);
+					}
+				}
+
+				// 2. Standard input trigger
 				const isRc = target === "rc";
 				const cam = isRc ? document.getElementById("rcProofCameraFile") : document.getElementById("colProofCameraFile");
 				if (cam) {
@@ -24623,10 +24650,18 @@ Thank you! Your payment has been received successfully.`;
 
 			function fallbackToDeviceCamera() {
 				const isRc = currentCameraTarget === "rc";
+				closeLiveCameraModal();
+				if (window.AndroidApp && typeof window.AndroidApp.takeCameraPhoto === "function") {
+					try {
+						window.AndroidApp.takeCameraPhoto(isRc ? "rc" : "col");
+						return;
+					} catch (e) {
+						console.warn("AndroidApp.takeCameraPhoto fallback failed:", e);
+					}
+				}
 				const cam = isRc
 					? (document.getElementById("rcProofCameraFile") || document.getElementById("rcProofFile"))
 					: (document.getElementById("colProofCameraFile") || document.getElementById("colProofFile"));
-				closeLiveCameraModal();
 				if (cam) {
 					try {
 						cam.click();
