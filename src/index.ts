@@ -63,7 +63,7 @@ function escapeHtmlAttr(s: string): string {
 }
 
 function buildServiceWorkerJs(brandKey: CompanyKey): string {
-	const cacheName = `madhav-shivom-cf-erp-${brandKey.toLowerCase()}-v3-nativecam`;
+	const cacheName = `madhav-shivom-cf-erp-${brandKey.toLowerCase()}-v4-cardview`;
 	return `const CACHE_NAME = '${cacheName}';
 const APP_SHELL = [
   '/',

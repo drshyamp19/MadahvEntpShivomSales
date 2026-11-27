@@ -734,1121 +734,1138 @@
 			}
 
 			/* Card Grid */
-			.field-card-grid {
-				display: grid;
-				grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-				gap: 14px;
-			}
-			@media (max-width: 480px) {
-				.field-card-grid {
-					grid-template-columns: 1fr;
-				}
-			}
+    .field-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 14px;
+    }
+    @media (max-width: 480px) {
+      .field-card-grid { grid-template-columns: 1fr; }
+    }
 
-			/* Dealer Outstanding Card */
-			.dealer-card {
-				background: #fff;
-				border-radius: 12px;
-				border: 1.5px solid var(--border);
-				padding: 16px;
-				box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-				display: flex;
-				flex-direction: column;
-				justify-content: space-between;
-				transition: 0.2s ease;
-				position: relative;
-			}
-			.dealer-card:hover {
-				transform: translateY(-2px);
-				box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-			}
+    /* Order Cards (Mobile Responsive Card View) */
+    .order-card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      padding: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: 0.2s ease;
+      position: relative;
+    }
+    .order-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.08); }
+    .order-card.order-card-pending-urgent {
+      border: 2px solid #ef4444 !important;
+      background: #fffafa !important;
+      box-shadow: 0 3px 12px rgba(239, 68, 68, 0.10) !important;
+    }
+    .order-card.order-card-partial {
+      border: 2px solid #f59e0b !important;
+      background: #fffdf5 !important;
+      box-shadow: 0 3px 12px rgba(245, 158, 11, 0.08) !important;
+    }
+    .order-card.order-card-completed {
+      border: 1.5px solid #86efac !important;
+      background: #fcfdfd !important;
+    }
+    .order-card-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 8px;
+      margin: 10px 0;
+      border: 1px solid #f1f5f9;
+      text-align: center;
+    }
+    .order-card-meta-cell .meta-lbl {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 2px;
+    }
+    .order-card-meta-cell .meta-val {
+      font-size: 0.90rem;
+      font-weight: 800;
+      color: #1e293b;
+    }
+    .order-card-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+    .order-card-actions .btn {
+      flex: 1 !important;
+      justify-content: center !important;
+      font-size: 0.82rem !important;
+      padding: 8px 6px !important;
+      font-weight: 700 !important;
+      white-space: nowrap !important;
+    }
+    .order-card-actions .order-more-btn {
+      flex: 0 0 38px !important;
+      padding: 6px 0 !important;
+      text-align: center !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    @media (max-width: 480px) {
+      .order-card { padding: 12px; }
+      .order-card-meta-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    }
 
-			/* Alert Level Borders & Visual Hierarchy */
-			.dealer-card.card-alert-red {
-				border: 2.5px solid #dc2626 !important;
-				background: #fff8f8 !important;
-				box-shadow: 0 4px 14px rgba(220, 38, 38, 0.12) !important;
-			}
-			.dealer-card.card-alert-red .dealer-bal-num {
-				color: #b91c1c !important;
-				font-size: 1.35rem;
-				font-weight: 900;
-			}
+    /* Orders Register Table: Guaranteed Zero-Clipping, Full Visibility & Sticky Actions */
+    #ordersTableWrap {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      width: 100% !important;
+      border-radius: 0 0 12px 12px;
+      scrollbar-width: thin;
+      scrollbar-color: #94a3b8 #f1f5f9;
+      position: relative;
+    }
+    #ordersTableWrap::-webkit-scrollbar {
+      height: 7px;
+    }
+    #ordersTableWrap::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    #ordersTableWrap::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 4px;
+    }
+    #ordersMainTable {
+      width: 100% !important;
+      min-width: 960px !important;
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
+      table-layout: auto !important;
+      margin: 0 !important;
+    }
+    #ordersMainTable th,
+    #ordersMainTable td {
+      vertical-align: middle !important;
+      padding: 6px 7px !important;
+      font-size: 0.77rem !important;
+      border-bottom: 1px solid #e2e8f0 !important;
+    }
+    #ordersMainTable th {
+      background: #f8fafc !important;
+      color: #64748b !important;
+      font-weight: 700 !important;
+    }
+    #ordersMainTable td {
+      background: #ffffff !important;
+      color: #1e293b !important;
+    }
+    #ordersMainTable tr:hover td {
+      background: #f8fafc !important;
+    }
+    #ordersMainTable th.order-actions-col,
+    #ordersMainTable td.order-actions-cell {
+      position: sticky !important;
+      right: 0 !important;
+      background: #ffffff !important;
+      z-index: 5 !important;
+      box-shadow: -4px 0 8px rgba(0, 0, 0, 0.08) !important;
+      min-width: 180px !important;
+      width: 180px !important;
+      text-align: center !important;
+      white-space: nowrap !important;
+      padding: 5px 8px !important;
+    }
+    #ordersMainTable th.order-actions-col {
+      background: #f8fafc !important;
+      z-index: 6 !important;
+      color: #64748b !important;
+    }
+    #ordersMainTable tr:hover td.order-actions-cell {
+      background: #f1f5f9 !important;
+    }
+    #ordersMainTable .order-action-btn-group {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 4px !important;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+    }
+    #ordersMainTable .order-action-btn-group .btn {
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      padding: 4px 7px !important;
+      font-size: 0.73rem !important;
+      font-weight: 700 !important;
+      border-radius: 5px !important;
+      line-height: 1.25 !important;
+    }
+    #ordersMainTable .order-action-btn-group .order-more-btn {
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      padding: 3px 7px !important;
+      font-size: 0.95rem !important;
+      line-height: 1 !important;
+      border-radius: 5px !important;
+    }
 
-			.dealer-card.card-alert-yellow {
-				border: 2.5px solid #f59e0b !important;
-				background: #fffdf5 !important;
-				box-shadow: 0 4px 14px rgba(245, 158, 11, 0.1) !important;
-			}
-			.dealer-card.card-alert-yellow .dealer-bal-num {
-				color: #b45309 !important;
-				font-size: 1.3rem;
-				font-weight: 800;
-			}
+    /* Dealer Outstanding Card */
+    .dealer-card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: 0.2s ease;
+      position: relative;
+    }
+    .dealer-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.08); }
 
-			.dealer-card.card-alert-green {
-				border: 2px solid #22c55e !important;
-				background: #fcfdfc !important;
-			}
-			.dealer-card.card-alert-green .dealer-bal-num {
-				color: #15803d !important;
-				font-size: 1.25rem;
-				font-weight: 800;
-			}
+    /* Alert Level Borders & Visual Hierarchy */
+    .dealer-card.card-alert-red {
+      border: 2.5px solid #dc2626 !important;
+      background: #fff8f8 !important;
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.12) !important;
+    }
+    .dealer-card.card-alert-red .dealer-bal-num {
+      color: #b91c1c !important;
+      font-size: 1.35rem;
+      font-weight: 900;
+    }
 
-			.dealer-card.card-settled {
-				border: 1px solid #cbd5e1 !important;
-				background: #ffffff !important;
-				opacity: 0.88;
-			}
-			.dealer-card.card-settled .dealer-bal-num {
-				color: #166534 !important;
-			}
-			.dealer-card-top {
-				display: flex;
-				justify-content: space-between;
-				align-items: flex-start;
-				margin-bottom: 10px;
-			}
-			.dealer-name {
-				font-size: 0.96rem;
-				font-weight: 800;
-				color: var(--primary);
-			}
-			.dealer-area {
-				font-size: 0.78rem;
-				color: var(--muted);
-				margin-top: 3px;
-			}
-			.dealer-bal-box {
-				text-align: right;
-			}
-			.dealer-bal-num {
-				font-size: 1.25rem;
-				font-weight: 800;
-				color: #dc2626;
-			}
-			.dealer-bal-zero {
-				color: #166534;
-			}
-			.dealer-meta-row {
-				display: flex;
-				justify-content: space-between;
-				font-size: 0.74rem;
-				color: var(--muted);
-				padding: 8px 0;
-				border-top: 1px dashed var(--border);
-				border-bottom: 1px dashed var(--border);
-				margin: 8px 0 12px;
-			}
-			.dealer-actions {
-				display: grid;
-				grid-template-columns: 1fr 1fr 1.1fr;
-				gap: 6px;
-			}
-			.dealer-actions .btn {
-				font-size: 0.78rem;
-				padding: 7px 4px;
-				justify-content: center;
-			}
-			.dealer-card-top {
-				display: flex;
-				justify-content: space-between;
-				align-items: flex-start;
-				gap: 8px;
-				margin-bottom: 10px;
-				width: 100%;
-			}
-			.dealer-name {
-				font-size: 0.96rem;
-				font-weight: 800;
-				color: var(--primary);
-				word-break: break-word;
-				flex: 1;
-			}
-			.dealer-bal-box {
-				text-align: right;
-				flex-shrink: 0;
-				min-width: fit-content;
-			}
-			.dealer-bal-num {
-				font-size: 1.22rem;
-				font-weight: 800;
-				color: #dc2626;
-				white-space: nowrap;
-			}
+    .dealer-card.card-alert-yellow {
+      border: 2.5px solid #f59e0b !important;
+      background: #fffdf5 !important;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.10) !important;
+    }
+    .dealer-card.card-alert-yellow .dealer-bal-num {
+      color: #b45309 !important;
+      font-size: 1.30rem;
+      font-weight: 800;
+    }
 
-			/* Sub-Tab Navigation Bar */
-			.subtab-bar {
-				display: flex;
-				gap: 8px;
-				margin-bottom: 14px;
-				background: #f8fafc;
-				padding: 6px;
-				border-radius: 10px;
-				border: 1px solid var(--border);
-			}
-			.subtab-btn {
-				flex: 1;
-				justify-content: center;
-				font-weight: 700;
-				padding: 9px 12px;
-				font-size: 0.85rem;
-				border-radius: 8px;
-				border: 1px solid transparent;
-				cursor: pointer;
-				display: inline-flex;
-				align-items: center;
-				gap: 6px;
-				transition: all 0.2s ease;
-			}
-			.subtab-btn.active {
-				background: var(--primary) !important;
-				color: #fff !important;
-				box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
-			}
-			.subtab-btn.inactive {
-				background: #fff !important;
-				color: #475569 !important;
-				border-color: #cbd5e1 !important;
-			}
+    .dealer-card.card-alert-green {
+      border: 2px solid #22c55e !important;
+      background: #fcfdfc !important;
+    }
+    .dealer-card.card-alert-green .dealer-bal-num {
+      color: #15803d !important;
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
 
-			@media (max-width: 640px) {
-				.form-grid {
-					grid-template-columns: 1fr !important;
-					padding: 12px !important;
-					gap: 12px !important;
-				}
-				.form-grid .form-group {
-					grid-column: 1 / -1 !important;
-				}
-				.form-control,
-				select.form-control,
-				input.form-control {
-					font-size: 0.95rem !important;
-					padding: 9px 10px !important;
-					box-sizing: border-box !important;
-				}
-				.field-card-grid {
-					grid-template-columns: 1fr !important;
-					gap: 10px !important;
-					width: 100% !important;
-					box-sizing: border-box !important;
-				}
-				.dealer-card {
-					padding: 12px !important;
-					width: 100% !important;
-					box-sizing: border-box !important;
-					overflow: hidden !important;
-				}
-				.dealer-card-top {
-					display: flex !important;
-					justify-content: space-between !important;
-					align-items: flex-start !important;
-					gap: 8px !important;
-					width: 100% !important;
-				}
-				.dealer-card.card-alert-red .dealer-bal-num,
-				.dealer-card.card-alert-yellow .dealer-bal-num,
-				.dealer-card.card-alert-green .dealer-bal-num,
-				.dealer-bal-num {
-					font-size: 1.15rem !important;
-					white-space: nowrap !important;
-				}
-				.dealer-meta-row {
-					display: flex !important;
-					flex-wrap: wrap !important;
-					justify-content: space-between !important;
-					gap: 4px 8px !important;
-					font-size: 0.72rem !important;
-				}
-				.dealer-actions {
-					display: grid !important;
-					grid-template-columns: 1fr 1fr 1.1fr !important;
-					gap: 6px !important;
-					width: 100% !important;
-					margin-bottom: 6px !important;
-				}
-				.dealer-actions .btn {
-					font-size: 0.75rem !important;
-					padding: 7px 3px !important;
-					justify-content: center !important;
-					white-space: nowrap !important;
-				}
-				.subtab-btn {
-					font-size: 0.78rem !important;
-					padding: 8px 6px !important;
-				}
-				#openDueFilter,
-				#openDealerSearch {
-					width: 100% !important;
-					max-width: 100% !important;
-				}
-				.modal {
-					padding: 14px 10px !important;
-					max-width: 96vw !important;
-					width: 96vw !important;
-					margin: 10px auto !important;
-					overflow-x: auto !important;
-					box-sizing: border-box !important;
-				}
-				.modal-lg {
-					max-width: 96vw !important;
-					width: 96vw !important;
-				}
-				.invoice-paper {
-					padding: 10px !important;
-					box-sizing: border-box !important;
-					width: 100% !important;
-					overflow-x: auto !important;
-				}
-				#receiptPrintArea,
-				#invoicePrintArea,
-				#statementPrintArea {
-					padding: 8px !important;
-					box-sizing: border-box !important;
-					width: 100% !important;
-					overflow-x: auto !important;
-				}
-				.inv-table {
-					min-width: 520px !important;
-				}
-			}
+    .dealer-card.card-settled {
+      border: 1px solid #cbd5e1 !important;
+      background: #ffffff !important;
+      opacity: 0.88;
+    }
+    .dealer-card.card-settled .dealer-bal-num {
+      color: #166534 !important;
+    }
+    .dealer-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .dealer-name { font-size: 0.96rem; font-weight: 800; color: var(--primary); }
+    .dealer-area { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+    .dealer-bal-box { text-align: right; }
+    .dealer-bal-num { font-size: 1.25rem; font-weight: 800; color: #dc2626; }
+    .dealer-bal-zero { color: #166534; }
+    .dealer-meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      color: var(--muted);
+      padding: 8px 0;
+      border-top: 1px dashed var(--border);
+      border-bottom: 1px dashed var(--border);
+      margin: 8px 0 12px;
+    }
+    .dealer-actions { display: grid; grid-template-columns: 1fr 1fr 1.1fr; gap: 6px; }
+    .dealer-actions .btn { font-size: 0.78rem; padding: 7px 4px; justify-content: center; }
+    .dealer-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; width: 100%; }
+    .dealer-name { font-size: 0.96rem; font-weight: 800; color: var(--primary); word-break: break-word; flex: 1; }
+    .dealer-bal-box { text-align: right; flex-shrink: 0; min-width: fit-content; }
+    .dealer-bal-num { font-size: 1.22rem; font-weight: 800; color: #dc2626; white-space: nowrap; }
 
-			/* Stock Card */
-			.stock-card {
-				background: #fff;
-				border-radius: 12px;
-				border: 1px solid var(--border);
-				padding: 16px;
-				box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-				display: flex;
-				flex-direction: column;
-				justify-content: space-between;
-			}
-			.stock-card-top {
-				display: flex;
-				justify-content: space-between;
-				margin-bottom: 8px;
-			}
-			.stock-name {
-				font-size: 0.92rem;
-				font-weight: 700;
-				color: var(--text);
-			}
-			.stock-code {
-				font-size: 0.74rem;
-				color: var(--muted);
-			}
-			.stock-avail-pill {
-				font-size: 0.88rem;
-				font-weight: 800;
-				padding: 4px 10px;
-				border-radius: 8px;
-				text-align: right;
-				white-space: nowrap !important;
-				flex-shrink: 0 !important;
-				align-self: flex-start !important;
-			}
-			/* Stock 3-Box Stats Grid */
-			.stock-stats-grid {
-				display: grid;
-				grid-template-columns: 1fr 1fr 1.2fr;
-				gap: 6px;
-				margin-top: 10px;
-				text-align: center;
-			}
-			.stock-stat-box {
-				padding: 7px 6px;
-				border-radius: 8px;
-				background: #f8fafc;
-				border: 1px solid var(--border);
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: center;
-			}
-			.stock-stat-label {
-				font-size: 0.67rem;
-				font-weight: 700;
-				color: var(--muted);
-				text-transform: uppercase;
-				letter-spacing: 0.3px;
-				margin-bottom: 2px;
-			}
-			.stock-stat-val {
-				font-size: 1.05rem;
-				font-weight: 800;
-				color: var(--text);
-			}
-			.stock-stat-box.booked {
-				background: #fffdf5;
-				border-color: #fde68a;
-			}
-			.stock-stat-box.booked .stock-stat-val {
-				color: #b45309;
-			}
-			.stock-stat-box.available {
-				background: #f0fdf4;
-				border-color: #bbf7d0;
-			}
-			.stock-stat-box.available .stock-stat-val {
-				color: #15803d;
-			}
-			.stock-stat-box.available.out-of-stock {
-				background: #fef2f2;
-				border-color: #fecaca;
-			}
-			.stock-stat-box.available.out-of-stock .stock-stat-val {
-				color: #dc2626;
-			}
+    /* Sub-Tab Navigation Bar */
+    .subtab-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      background: #f8fafc;
+      padding: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .subtab-btn {
+      flex: 1;
+      justify-content: center;
+      font-weight: 700;
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .subtab-btn.active {
+      background: var(--primary) !important;
+      color: #fff !important;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+    }
+    .subtab-btn.inactive {
+      background: #fff !important;
+      color: #475569 !important;
+      border-color: #cbd5e1 !important;
+    }
 
-			/* Modals */
-			.modal-backdrop {
-				position: fixed;
-				top: 0;
-				left: 0;
-				right: 0;
-				bottom: 0;
-				background: rgba(15, 23, 42, 0.6);
-				display: none;
-				align-items: center;
-				justify-content: center;
-				z-index: 100;
-				padding: 16px;
-			}
-			.modal-backdrop.open {
-				display: flex;
-			}
-			.modal {
-				background: #fff;
-				border-radius: 14px;
-				max-width: 580px;
-				width: 100%;
-				padding: 22px;
-				box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-				max-height: 90vh;
-				overflow-y: auto;
-			}
-			.modal-lg {
-				max-width: 900px;
-			}
-			.code-box {
-				width: 100%;
-				height: 140px;
-				font-family: monospace;
-				font-size: 0.78rem;
-				padding: 10px;
-				border: 1px solid var(--border);
-				border-radius: 8px;
-				background: #f8fafc;
-				margin: 12px 0;
-			}
+    @media (max-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr !important;
+        padding: 12px !important;
+        gap: 12px !important;
+      }
+      .form-grid .form-group {
+        grid-column: 1 / -1 !important;
+      }
+      .form-control, select.form-control, input.form-control {
+        font-size: 0.95rem !important;
+        padding: 9px 10px !important;
+        box-sizing: border-box !important;
+      }
+      .field-card-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .dealer-card {
+        padding: 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+      }
+      .dealer-card-top {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        width: 100% !important;
+      }
+      .dealer-card.card-alert-red .dealer-bal-num,
+      .dealer-card.card-alert-yellow .dealer-bal-num,
+      .dealer-card.card-alert-green .dealer-bal-num,
+      .dealer-bal-num {
+        font-size: 1.15rem !important;
+        white-space: nowrap !important;
+      }
+      .dealer-meta-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-between !important;
+        gap: 4px 8px !important;
+        font-size: 0.72rem !important;
+      }
+      .dealer-actions {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr 1.1fr !important;
+        gap: 6px !important;
+        width: 100% !important;
+        margin-bottom: 6px !important;
+      }
+      .dealer-actions .btn {
+        font-size: 0.75rem !important;
+        padding: 7px 3px !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+      }
+      .subtab-btn {
+        font-size: 0.78rem !important;
+        padding: 8px 6px !important;
+      }
+      #openDueFilter, #openDealerSearch {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      .modal {
+        padding: 14px 10px !important;
+        max-width: 96vw !important;
+        width: 96vw !important;
+        margin: 10px auto !important;
+        overflow-x: auto !important;
+        box-sizing: border-box !important;
+      }
+      .modal-lg {
+        max-width: 96vw !important;
+        width: 96vw !important;
+      }
+      .invoice-paper:not(.pdf-export-container) {
+        padding: 10px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+      }
+      #receiptPrintArea, #invoicePrintArea, #statementPrintArea {
+        padding: 8px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+      }
+      .invoice-paper:not(.pdf-export-container) .inv-table {
+        min-width: 520px !important;
+      }
+    }
 
-			.ledger-row {
-				display: flex;
-				justify-content: space-between;
-				padding: 8px 0;
-				border-bottom: 1px solid var(--border);
-				font-size: 0.8rem;
-			}
+    /* Dedicated PDF export wrapper to guarantee 100% full render without scroll cut-off or mobile compression */
+    .pdf-export-container {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      overflow: visible !important;
+      box-sizing: border-box !important;
+    }
+    .pdf-export-container * {
+      box-sizing: border-box !important;
+    }
+    .pdf-export-container .inv-table-wrap {
+      overflow: visible !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    .pdf-export-container .inv-table {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
 
-			/* Official Invoice Printing */
-			.invoice-paper {
-				border: 1px solid #94a3b8;
-				padding: 18px;
-				background: #fff;
-				color: #0f172a;
-				font-size: 12px;
-			}
-			.inv-top {
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				border-bottom: 2px solid #1e3a5f;
-				padding-bottom: 10px;
-				margin-bottom: 10px;
-				gap: 12px;
-			}
-			.inv-top img {
-				height: 60px;
-				width: auto;
-				object-fit: contain;
-			}
-			.inv-company {
-				text-align: right;
-			}
-			.inv-company h2 {
-				font-size: 18px;
-				font-weight: 800;
-				color: #1e3a5f;
-			}
-			.inv-company div {
-				font-size: 11px;
-				color: #334155;
-				line-height: 1.4;
-			}
-			.inv-title-bar {
-				text-align: center;
-				font-weight: 800;
-				font-size: 14px;
-				letter-spacing: 1px;
-				background: #f1f5f9;
-				padding: 5px;
-				border: 1px solid #cbd5e1;
-				margin-bottom: 10px;
-			}
-			.inv-meta-grid {
-				display: grid;
-				grid-template-columns: 1.3fr 1fr;
-				border: 1px solid #94a3b8;
-				margin-bottom: 10px;
-			}
-			.inv-meta-box {
-				padding: 8px 10px;
-				font-size: 11.5px;
-				line-height: 1.45;
-			}
-			.inv-meta-box:first-child {
-				border-right: 1px solid #94a3b8;
-			}
-			.inv-table {
-				width: 100%;
-				border-collapse: collapse;
-				margin-bottom: 10px;
-				font-size: 11.5px;
-			}
-			.inv-table th,
-			.inv-table td {
-				border: 1px solid #94a3b8;
-				padding: 6px 8px;
-				position: static;
-			}
-			.inv-table th {
-				background: #1e3a5f;
-				color: #fff;
-			}
-			.inv-footer-grid {
-				display: grid;
-				grid-template-columns: 1.3fr 1fr;
-				border: 1px solid #94a3b8;
-				margin-top: 8px;
-			}
-			.inv-footer-box {
-				padding: 8px 10px;
-				font-size: 11px;
-				line-height: 1.45;
-			}
-			.inv-footer-box:first-child {
-				border-right: 1px solid #94a3b8;
-			}
+    /* Stock Card */
+    .stock-card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .stock-card-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .stock-name { font-size: 0.92rem; font-weight: 700; color: var(--text); }
+    .stock-code { font-size: 0.74rem; color: var(--muted); }
+    .stock-avail-pill {
+      font-size: 0.88rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 8px;
+      text-align: right;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      align-self: flex-start !important;
+    }
+    /* Stock 3-Box Stats Grid */
+    .stock-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 6px;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .stock-stat-box {
+      padding: 7px 6px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .stock-stat-label {
+      font-size: 0.67rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 2px;
+    }
+    .stock-stat-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .stock-stat-box.booked {
+      background: #fffdf5;
+      border-color: #fde68a;
+    }
+    .stock-stat-box.booked .stock-stat-val {
+      color: #b45309;
+    }
+    .stock-stat-box.available {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+    .stock-stat-box.available .stock-stat-val {
+      color: #15803d;
+    }
+    .stock-stat-box.available.out-of-stock {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .stock-stat-box.available.out-of-stock .stock-stat-val {
+      color: #dc2626;
+    }
 
-			@media print {
-				body * {
-					visibility: hidden;
-				}
-				#invoicePrintArea,
-				#invoicePrintArea *,
-				#receiptPrintArea,
-				#receiptPrintArea *,
-				#statementPrintArea,
-				#statementPrintArea *,
-				#dailySummaryPrintArea,
-				#dailySummaryPrintArea * {
-					visibility: visible;
-				}
-				#invoicePrintArea,
-				#receiptPrintArea,
-				#statementPrintArea,
-				#dailySummaryPrintArea {
-					position: fixed;
-					left: 0;
-					top: 0;
-					width: 100%;
-					border: none;
-					padding: 0;
-				}
-				.no-print {
-					display: none !important;
-				}
-			}
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15,23,42,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 14px;
+      max-width: 580px;
+      width: 100%;
+      padding: 22px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-lg { max-width: 900px; }
+    .code-box {
+      width: 100%;
+      height: 140px;
+      font-family: monospace;
+      font-size: 0.78rem;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #f8fafc;
+      margin: 12px 0;
+    }
 
-			/* ==================== HTML2PDF EXPORT STYLING RULES ==================== */
-			.html2pdf__overlay {
-				overflow: visible !important;
-			}
-			.html2pdf__container {
-				box-sizing: border-box !important;
-				background: #ffffff !important;
-				margin: 0 !important;
-				padding: 0 !important;
-			}
-			.html2pdf__container > * {
-				width: 100% !important;
-				max-width: 100% !important;
-				min-width: 100% !important;
-				box-sizing: border-box !important;
-				margin: 0 auto !important;
-				overflow: visible !important;
-			}
-			.html2pdf__container .invoice-paper {
-				width: 100% !important;
-				max-width: 100% !important;
-				box-sizing: border-box !important;
-			}
-			.html2pdf__container #receiptPrintArea {
-				border: none !important;
-				padding: 0 !important;
-				box-shadow: none !important;
-				border-radius: 0 !important;
-				background: transparent !important;
-				width: 100% !important;
-				max-width: 100% !important;
-				box-sizing: border-box !important;
-			}
+    .ledger-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
 
-			.toast {
-				position: fixed;
-				bottom: 20px;
-				right: 20px;
-				background: #0f172a;
-				color: #fff;
-				padding: 11px 18px;
-				border-radius: 10px;
-				font-size: 0.84rem;
-				font-weight: 600;
-				box-shadow: 0 10px 25px rgba(0, 0, 0, 0.22);
-				transform: translateY(100px);
-				opacity: 0;
-				transition: 0.25s ease;
-				z-index: 200;
-			}
-			.toast.show {
-				transform: translateY(0);
-				opacity: 1;
-			}
-			@media (max-width: 640px) {
-				.toast {
-					left: 16px !important;
-					right: 16px !important;
-					bottom: 20px !important;
-					text-align: center !important;
-					max-width: calc(100vw - 32px) !important;
-					box-sizing: border-box !important;
-				}
-			}
+    /* Official Invoice Printing */
+    .invoice-paper {
+      border: 1px solid #94a3b8;
+      padding: 18px;
+      background: #fff;
+      color: #0f172a;
+      font-size: 12px;
+    }
+    .inv-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #1e3a5f;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+    .inv-top img { height: 60px; width: auto; object-fit: contain; }
+    .inv-company { text-align: right; }
+    .inv-company h2 { font-size: 18px; font-weight: 800; color: #1e3a5f; }
+    .inv-company div { font-size: 11px; color: #334155; line-height: 1.4; }
+    .inv-title-bar {
+      text-align: center;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 1px;
+      background: #f1f5f9;
+      padding: 5px;
+      border: 1px solid #cbd5e1;
+      margin-bottom: 10px;
+    }
+    .inv-meta-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      border: 1px solid #94a3b8;
+      margin-bottom: 10px;
+    }
+    .inv-meta-box { padding: 8px 10px; font-size: 11.5px; line-height: 1.45; }
+    .inv-meta-box:first-child { border-right: 1px solid #94a3b8; }
+    .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11.5px; }
+    .inv-table th, .inv-table td {
+      border: 1px solid #94a3b8;
+      padding: 6px 8px;
+      position: static;
+    }
+    .inv-table th { background: #1e3a5f; color: #fff; }
+    .inv-footer-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      border: 1px solid #94a3b8;
+      margin-top: 8px;
+    }
+    .inv-footer-box { padding: 8px 10px; font-size: 11px; line-height: 1.45; }
+    .inv-footer-box:first-child { border-right: 1px solid #94a3b8; }
 
-			/* Mobile-Friendly Order Booking Cart & Inputs */
-			@media (max-width: 768px) {
-				.form-control,
-				input,
-				select {
-					font-size: 16px !important;
-				}
-				.order-add-item-grid {
-					display: grid !important;
-					grid-template-columns: 1fr 1fr !important;
-					gap: 10px !important;
-				}
-				.order-add-item-grid .item-col-full {
-					grid-column: span 2 !important;
-				}
-				.order-add-item-grid .item-col-half {
-					grid-column: span 1 !important;
-				}
-				.order-add-item-grid .add-item-btn {
-					width: 100% !important;
-					padding: 12px 16px !important;
-					font-size: 0.95rem !important;
-					font-weight: 700 !important;
-				}
-				/* Mobile Cart Items as Touch Cards */
-				#memoCartTable thead {
-					display: none !important;
-				}
-				#memoCartTable,
-				#memoCartTable tbody,
-				#memoCartTable tr,
-				#memoCartTable td {
-					display: block !important;
-					width: 100% !important;
-				}
-				#memoCartTable tr {
-					background: #ffffff;
-					border: 1px solid #e2e8f0;
-					border-radius: 8px;
-					margin-bottom: 10px;
-					padding: 10px 12px;
-					box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-					position: relative;
-				}
-				#memoCartTable td {
-					padding: 2px 0 !important;
-					text-align: left !important;
-					border: none !important;
-				}
-				#memoCartTable td:last-child {
-					position: absolute;
-					top: 10px;
-					right: 10px;
-					width: auto !important;
-				}
-				#memoCartTable td:last-child button {
-					padding: 4px 10px !important;
-					font-size: 0.9rem !important;
-					font-weight: 700 !important;
-				}
-				.memo-footer-actions {
-					flex-direction: column !important;
-					gap: 12px !important;
-					align-items: stretch !important;
-				}
-				.memo-footer-actions button {
-					width: 100% !important;
-					justify-content: center !important;
-					padding: 12px !important;
-					font-size: 1rem !important;
-				}
-				.memo-total-badge {
-					width: 100%;
-					text-align: center;
-					background: #f0fdf4;
-					padding: 8px;
-					border-radius: 6px;
-					border: 1px solid #bbf7d0;
-				}
-			}
+    @media print {
+      body * { visibility: hidden; }
+      #invoicePrintArea, #invoicePrintArea *,
+      #receiptPrintArea, #receiptPrintArea *,
+      #statementPrintArea, #statementPrintArea *,
+      #dailySummaryPrintArea, #dailySummaryPrintArea * { visibility: visible; }
+      #invoicePrintArea, #receiptPrintArea, #statementPrintArea, #dailySummaryPrintArea {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        border: none;
+        padding: 0;
+      }
+      .no-print { display: none !important; }
+    }
 
-			@media (max-width: 768px) {
-				.memo-col-num,
-				.memo-col-qty,
-				.memo-col-rate,
-				.memo-col-total {
-					display: none !important;
-				}
-				.memo-mobile-breakdown {
-					display: block !important;
-					margin-top: 4px;
-				}
-			}
-			@media (min-width: 769px) {
-				.memo-mobile-breakdown {
-					display: none !important;
-				}
-			}
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0f172a;
+      color: #fff;
+      padding: 11px 18px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.22);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: 0.25s ease;
+      z-index: 200;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    @media (max-width: 640px) {
+      .toast {
+        left: 16px !important;
+        right: 16px !important;
+        bottom: 20px !important;
+        text-align: center !important;
+        max-width: calc(100vw - 32px) !important;
+        box-sizing: border-box !important;
+      }
+    }
+  
+    /* Mobile-Friendly Order Booking Cart & Inputs */
+    @media (max-width: 768px) {
+      .form-control, input, select {
+        font-size: 16px !important;
+      }
+      .order-add-item-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+      }
+      .order-add-item-grid .item-col-full {
+        grid-column: span 2 !important;
+      }
+      .order-add-item-grid .item-col-half {
+        grid-column: span 1 !important;
+      }
+      .order-add-item-grid .add-item-btn {
+        width: 100% !important;
+        padding: 12px 16px !important;
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
+      }
+      /* Mobile Cart Items as Touch Cards */
+      #memoCartTable thead {
+        display: none !important;
+      }
+      #memoCartTable, #memoCartTable tbody, #memoCartTable tr, #memoCartTable td {
+        display: block !important;
+        width: 100% !important;
+      }
+      #memoCartTable tr {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        padding: 10px 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        position: relative;
+      }
+      #memoCartTable td {
+        padding: 2px 0 !important;
+        text-align: left !important;
+        border: none !important;
+      }
+      #memoCartTable td:last-child {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: auto !important;
+      }
+      #memoCartTable td:last-child button {
+        padding: 4px 10px !important;
+        font-size: 0.9rem !important;
+        font-weight: 700 !important;
+      }
+      .memo-footer-actions {
+        flex-direction: column !important;
+        gap: 12px !important;
+        align-items: stretch !important;
+      }
+      .memo-footer-actions button {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 12px !important;
+        font-size: 1rem !important;
+      }
+      .memo-total-badge {
+        width: 100%;
+        text-align: center;
+        background: #f0fdf4;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #bbf7d0;
+      }
+    }
 
-			/* Anti-Overflow and Mobile-First Order Booking System */
-			html,
-			body {
-				overflow-x: hidden !important;
-				max-width: 100vw !important;
-				width: 100% !important;
-				box-sizing: border-box !important;
-			}
-			*,
-			*:before,
-			*:after {
-				box-sizing: inherit !important;
-			}
-			/* Custom Autocomplete Component - 100% Solid, Anti-Bleed, Mobile-Optimized */
-			.custom-autocomplete-wrap {
-				position: relative !important;
-			}
-			.custom-autocomplete-dropdown {
-				position: absolute !important;
-				top: calc(100% + 4px) !important;
-				left: 0 !important;
-				right: 0 !important;
-				background: #ffffff !important;
-				border: 2px solid #0f766e !important;
-				border-radius: 8px !important;
-				box-shadow: 0 14px 35px rgba(0, 0, 0, 0.28) !important;
-				max-height: 250px !important;
-				overflow-y: auto !important;
-				-webkit-overflow-scrolling: touch !important;
-				touch-action: pan-y !important;
-				z-index: 999999 !important;
-				margin: 0 !important;
-				padding: 0 !important;
-			}
-			.custom-autocomplete-item {
-				padding: 10px 12px !important;
-				cursor: pointer !important;
-				border-bottom: 1px solid #f1f5f9 !important;
-				display: flex !important;
-				justify-content: space-between !important;
-				align-items: center !important;
-				gap: 8px !important;
-				background: #ffffff !important;
-				transition: background 0.12s ease !important;
-			}
-			.custom-autocomplete-item:last-child {
-				border-bottom: none !important;
-			}
-			.custom-autocomplete-item:hover,
-			.custom-autocomplete-item:active,
-			.custom-autocomplete-item.active {
-				background: #f0fdf4 !important;
-			}
+  
+    @media (max-width: 768px) {
+      .memo-col-num, .memo-col-qty, .memo-col-rate, .memo-col-total {
+        display: none !important;
+      }
+      .memo-mobile-breakdown {
+        display: block !important;
+        margin-top: 4px;
+      }
+    }
+    @media (min-width: 769px) {
+      .memo-mobile-breakdown {
+        display: none !important;
+      }
+    }
 
-			.order-top-row {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 12px;
-				width: 100%;
-			}
-			.order-date-col {
-				flex: 1 1 180px;
-			}
-			.order-party-col {
-				flex: 2 1 280px;
-			}
-			.order-salesperson-col {
-				flex: 1 1 200px;
-			}
-			.order-qty-rate-row {
-				display: flex;
-				gap: 10px;
-				width: 100%;
-				margin-bottom: 10px;
-			}
-			.order-qty-rate-row .col-qty,
-			.order-qty-rate-row .col-rate {
-				flex: 1 1 50%;
-				min-width: 0;
-				margin-bottom: 0;
-			}
-			.add-item-btn {
-				width: 100%;
-				justify-content: center;
-				padding: 12px;
-				font-weight: 700;
-				font-size: 0.95rem;
-			}
+  
+    /* Anti-Overflow and Mobile-First Order Booking System */
+    html, body {
+      overflow-x: hidden !important;
+      max-width: 100vw !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    *, *:before, *:after {
+      box-sizing: inherit !important;
+    }
+    /* Custom Autocomplete Component - 100% Solid, Anti-Bleed, Mobile-Optimized */
+    .custom-autocomplete-wrap {
+      position: relative !important;
+    }
+    .custom-autocomplete-dropdown {
+      position: absolute !important;
+      top: calc(100% + 4px) !important;
+      left: 0 !important;
+      right: 0 !important;
+      background: #ffffff !important;
+      border: 2px solid #0f766e !important;
+      border-radius: 8px !important;
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.28) !important;
+      max-height: 250px !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y !important;
+      z-index: 999999 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .custom-autocomplete-item {
+      padding: 10px 12px !important;
+      cursor: pointer !important;
+      border-bottom: 1px solid #f1f5f9 !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 8px !important;
+      background: #ffffff !important;
+      transition: background 0.12s ease !important;
+    }
+    .custom-autocomplete-item:last-child {
+      border-bottom: none !important;
+    }
+    .custom-autocomplete-item:hover,
+    .custom-autocomplete-item:active,
+    .custom-autocomplete-item.active {
+      background: #f0fdf4 !important;
+    }
 
-			@media (max-width: 768px) {
-				body {
-					padding-bottom: 40px !important;
-				}
-				.container {
-					padding: 0 6px !important;
-					margin: 8px auto !important;
-					width: 100% !important;
-					max-width: 100vw !important;
-					overflow-x: hidden !important;
-				}
-				.topbar {
-					padding-top: max(10px, env(safe-area-inset-top, 10px)) !important;
-					padding-bottom: 8px !important;
-					padding-left: 10px !important;
-					padding-right: 10px !important;
-				}
-				#headerSub {
-					display: none !important;
-				}
-				#headerTitle {
-					font-size: 0.95rem !important;
-				}
-				.brand-logo-wrap {
-					width: 36px !important;
-					height: 36px !important;
-					padding: 2px !important;
-					display: flex !important;
-					align-items: center !important;
-					justify-content: center !important;
-				}
-				.brand-logo-wrap img {
-					max-height: 28px !important;
-					max-width: 100% !important;
-					width: auto !important;
-					height: auto !important;
-					display: block !important;
-					object-fit: contain !important;
-				}
-				.top-actions {
-					gap: 6px !important;
-				}
-				.company-switcher {
-					padding: 3px !important;
-					gap: 3px !important;
-				}
-				.co-tab-btn {
-					padding: 6px 12px !important;
-					font-size: 0.83rem !important;
-				}
-				.order-date-col,
-				.order-party-col,
-				.order-salesperson-col {
-					flex: 1 1 100% !important;
-					width: 100% !important;
-				}
-				.form-control,
-				input,
-				select {
-					font-size: 16px !important;
-					height: 44px !important;
-					box-sizing: border-box !important;
-					max-width: 100% !important;
-				}
-				.card-header {
-					padding: 10px 12px !important;
-				}
-				.card-title {
-					font-size: 0.88rem !important;
-				}
+    .order-top-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      width: 100%;
+    }
+    .order-date-col {
+      flex: 1 1 180px;
+    }
+    .order-party-col {
+      flex: 2 1 280px;
+    }
+    .order-salesperson-col {
+      flex: 1 1 200px;
+    }
+    .order-qty-rate-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .order-qty-rate-row .col-qty,
+    .order-qty-rate-row .col-rate {
+      flex: 1 1 50%;
+      min-width: 0;
+      margin-bottom: 0;
+    }
+    .add-item-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
 
-				/* Ensure cart table does not push page width on mobile */
-				#memoCartTable,
-				#memoCartTable tbody,
-				#memoCartTable tr,
-				#memoCartTable td {
-					display: block !important;
-					width: 100% !important;
-					box-sizing: border-box !important;
-				}
-				#memoCartTable thead {
-					display: none !important;
-				}
-				#memoCartTable tr {
-					background: #ffffff;
-					border: 1px solid #e2e8f0;
-					border-radius: 8px;
-					margin-bottom: 8px;
-					padding: 10px 12px;
-					box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-					position: relative;
-				}
-				#memoCartTable td {
-					padding: 2px 0 !important;
-					text-align: left !important;
-					border: none !important;
-				}
-				#memoCartTable td.memo-col-action {
-					position: absolute !important;
-					top: 10px !important;
-					right: 10px !important;
-					width: auto !important;
-				}
-			}
+    @media (max-width: 768px) {
+      body {
+        padding-bottom: 40px !important;
+      }
+      .container {
+        padding: 0 6px !important;
+        margin: 8px auto !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+      }
+      .topbar {
+        padding-top: max(10px, env(safe-area-inset-top, 10px)) !important;
+        padding-bottom: 8px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+      }
+      #headerSub {
+        display: none !important;
+      }
+      #headerTitle {
+        font-size: 0.95rem !important;
+      }
+      .brand-logo-wrap {
+        width: 36px !important;
+        height: 36px !important;
+        padding: 2px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      .brand-logo-wrap img {
+        max-height: 28px !important;
+        max-width: 100% !important;
+        width: auto !important;
+        height: auto !important;
+        display: block !important;
+        object-fit: contain !important;
+      }
+      .top-actions {
+        gap: 6px !important;
+      }
+      .company-switcher {
+        padding: 3px !important;
+        gap: 3px !important;
+      }
+      .co-tab-btn {
+        padding: 6px 12px !important;
+        font-size: 0.83rem !important;
+      }
+      .order-date-col, .order-party-col, .order-salesperson-col {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+      }
+      .form-control, input, select {
+        font-size: 16px !important;
+        height: 44px !important;
+        box-sizing: border-box !important;
+        max-width: 100% !important;
+      }
+      .card-header {
+        padding: 10px 12px !important;
+      }
+      .card-title {
+        font-size: 0.88rem !important;
+      }
 
-			/* Responsive Multi-Row Navigation Tabs for Mobile */
-			@media (max-width: 768px) {
-				.nav-bar {
-					display: flex !important;
-					flex-direction: column !important;
-					padding: 8px 6px !important;
-					gap: 8px !important;
-					background: #f8fafc !important;
-					border-bottom: 2px solid #e2e8f0 !important;
-				}
-				.nav-row {
-					display: flex;
-					flex-wrap: wrap !important;
-					gap: 6px !important;
-					width: 100% !important;
-				}
-				.nav-row[style*="display: none"],
-				.nav-row[style*="display:none"] {
-					display: none !important;
-				}
-				.nav-group-tag {
-					width: 100% !important;
-					justify-content: center !important;
-					margin-bottom: 2px !important;
-					padding: 5px 10px !important;
-				}
-				.nav-tab {
-					flex: 1 1 calc(50% - 6px) !important;
-					min-width: 130px !important;
-					text-align: center !important;
-					justify-content: center !important;
-					padding: 9px 8px !important;
-					font-size: 0.8rem !important;
-					font-weight: 600 !important;
-					white-space: normal !important;
-					border-radius: 8px !important;
-					border: 1px solid #cbd5e1 !important;
-					background: #ffffff !important;
-					color: #334155 !important;
-					box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-					line-height: 1.25 !important;
-				}
-				.nav-tab.active {
-					background: #0f766e !important;
-					color: #ffffff !important;
-					border-color: #0f766e !important;
-					font-weight: 700 !important;
-					box-shadow: 0 2px 4px rgba(15, 118, 110, 0.25) !important;
-				}
-				.admin-nav-item.nav-tab.active {
-					background: #1e3a5f !important;
-					color: #ffffff !important;
-					border-color: #1e3a5f !important;
-				}
-				.nav-tab[data-tab="staff-cash"],
-				.nav-tab[data-tab="admin-masters"] {
-					flex: 1 1 100% !important; /* 5th tab takes full width centered on mobile */
-				}
-			}
+    /* Ensure cart table does not push page width on mobile */
+      #memoCartTable, #memoCartTable tbody, #memoCartTable tr, #memoCartTable td {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      #memoCartTable thead {
+        display: none !important;
+      }
+      #memoCartTable tr {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        padding: 10px 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        position: relative;
+      }
+      #memoCartTable td {
+        padding: 2px 0 !important;
+        text-align: left !important;
+        border: none !important;
+      }
+      #memoCartTable td.memo-col-action {
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+        width: auto !important;
+      }
+    }
 
-			/* Prevent mobile cart components from leaking into desktop screens */
-			@media (min-width: 769px) {
-				.memo-mobile-summary-card,
-				#memoMobileSummaryCard,
-				.memo-cart-mobile-list,
-				#memoCartMobileList {
-					display: none !important;
-				}
-			}
+  
+    /* Responsive Multi-Row Navigation Tabs for Mobile */
+    @media (max-width: 768px) {
+      .nav-bar {
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 8px 6px !important;
+        gap: 8px !important;
+        background: #f8fafc !important;
+        border-bottom: 2px solid #e2e8f0 !important;
+      }
+      .nav-row {
+        display: flex;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        width: 100% !important;
+      }
+      .nav-row[style*="display: none"],
+      .nav-row[style*="display:none"] {
+        display: none !important;
+      }
+      .nav-group-tag {
+        width: 100% !important;
+        justify-content: center !important;
+        margin-bottom: 2px !important;
+        padding: 5px 10px !important;
+      }
+      .nav-tab {
+        flex: 1 1 calc(50% - 6px) !important;
+        min-width: 130px !important;
+        text-align: center !important;
+        justify-content: center !important;
+        padding: 9px 8px !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        white-space: normal !important;
+        border-radius: 8px !important;
+        border: 1px solid #cbd5e1 !important;
+        background: #ffffff !important;
+        color: #334155 !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+        line-height: 1.25 !important;
+      }
+      .nav-tab.active {
+        background: #0f766e !important;
+        color: #ffffff !important;
+        border-color: #0f766e !important;
+        font-weight: 700 !important;
+        box-shadow: 0 2px 4px rgba(15,118,110,0.25) !important;
+      }
+      .admin-nav-item.nav-tab.active {
+        background: #1e3a5f !important;
+        color: #ffffff !important;
+        border-color: #1e3a5f !important;
+      }
+      .nav-tab[data-tab="staff-cash"],
+      .nav-tab[data-tab="admin-masters"] {
+        flex: 1 1 100% !important; /* 5th tab takes full width centered on mobile */
+      }
+    }
 
-			/* Dedicated Mobile Cart Cards & Unified Summary */
-			.memo-cart-mobile-list {
-				display: none;
-			}
-			.memo-mobile-summary-card {
-				display: none;
-			}
+    /* Prevent mobile cart components from leaking into desktop screens */
+    @media (min-width: 769px) {
+      .memo-mobile-summary-card, #memoMobileSummaryCard, .memo-cart-mobile-list, #memoCartMobileList {
+        display: none !important;
+      }
+    }
 
-			@media (max-width: 768px) {
-				.memo-desktop-cart-wrap {
-					display: none !important;
-				}
-				.memo-cart-mobile-list {
-					display: block !important;
-					margin-bottom: 12px !important;
-				}
-				.memo-mobile-item-card {
-					background: #ffffff;
-					border: 1px solid #e2e8f0;
-					border-radius: 8px;
-					padding: 12px;
-					margin-bottom: 10px;
-					box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-					position: relative;
-				}
-				.memo-mobile-item-header {
-					display: flex;
-					justify-content: space-between;
-					align-items: flex-start;
-					gap: 8px;
-					margin-bottom: 4px;
-				}
-				.memo-mobile-item-title {
-					font-weight: 700;
-					font-size: 0.95rem;
-					color: #0f172a;
-					line-height: 1.3;
-				}
-				.memo-mobile-item-remove {
-					background: #fee2e2;
-					color: #b91c1c;
-					border: 1px solid #fca5a5;
-					border-radius: 6px;
-					width: 32px;
-					height: 32px;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					font-weight: 800;
-					font-size: 1rem;
-					cursor: pointer;
-					flex-shrink: 0;
-				}
-				.memo-mobile-item-sub {
-					font-size: 0.74rem;
-					color: #64748b;
-					margin-bottom: 8px;
-				}
-				.memo-mobile-item-badge {
-					display: inline-block;
-					background: #f0fdf4;
-					border: 1px solid #bbf7d0;
-					color: #166534;
-					padding: 5px 10px;
-					border-radius: 6px;
-					font-size: 0.86rem;
-					font-weight: 700;
-				}
-				.memo-mobile-empty {
-					text-align: center;
-					padding: 24px 12px;
-					color: #64748b;
-					background: #f8fafc;
-					border-radius: 8px;
-					border: 1px dashed #cbd5e1;
-					font-size: 0.85rem;
-				}
-				.memo-mobile-summary-card {
-					background: #f8fafc;
-					border: 1px solid #cbd5e1;
-					border-radius: 8px;
-					padding: 12px;
-					margin-bottom: 14px;
-				}
-				.memo-mobile-summary-row {
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-					font-size: 0.9rem;
-					padding: 3px 0;
-				}
-				.memo-mobile-summary-row.total-line {
-					border-top: 1px solid #e2e8f0;
-					margin-top: 6px;
-					padding-top: 8px;
-					font-size: 1.05rem;
-					font-weight: 800;
-					color: #0f766e;
-				}
-				.memo-mobile-summary-row .total-amount {
-					font-size: 1.15rem;
-					font-weight: 800;
-					color: #0f766e;
-				}
-			}
+    /* Dedicated Mobile Cart Cards & Unified Summary */
+    .memo-cart-mobile-list {
+      display: none;
+    }
+    .memo-mobile-summary-card {
+      display: none;
+    }
 
-			.cheque-details-grid {
-				display: grid;
-				grid-template-columns: 1fr 1fr;
-				gap: 10px;
-			}
-			@media (max-width: 640px) {
-				.cheque-details-grid {
-					grid-template-columns: 1fr !important;
-					gap: 8px !important;
-				}
-				.form-grid {
-					grid-template-columns: 1fr !important;
-					padding: 12px !important;
-					gap: 12px !important;
-					width: 100% !important;
-					box-sizing: border-box !important;
-					overflow: hidden !important;
-				}
-				.form-grid > div,
-				.form-grid .form-group {
-					grid-column: 1 / -1 !important;
-					width: 100% !important;
-					max-width: 100% !important;
-					box-sizing: border-box !important;
-				}
-				.form-control,
-				select.form-control,
-				input.form-control {
-					width: 100% !important;
-					max-width: 100% !important;
-					box-sizing: border-box !important;
-				}
-				#colDepositAccountGroup,
-				#colChequeFieldsGroup {
-					width: 100% !important;
-					max-width: 100% !important;
-					box-sizing: border-box !important;
-					overflow: hidden !important;
-				}
-			}
+    @media (max-width: 768px) {
+      .memo-desktop-cart-wrap {
+        display: none !important;
+      }
+      .memo-cart-mobile-list {
+        display: block !important;
+        margin-bottom: 12px !important;
+      }
+      .memo-mobile-item-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        position: relative;
+      }
+      .memo-mobile-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+      .memo-mobile-item-title {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #0f172a;
+        line-height: 1.3;
+      }
+      .memo-mobile-item-remove {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fca5a5;
+        border-radius: 6px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .memo-mobile-item-sub {
+        font-size: 0.74rem;
+        color: #64748b;
+        margin-bottom: 8px;
+      }
+      .memo-mobile-item-badge {
+        display: inline-block;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 0.86rem;
+        font-weight: 700;
+      }
+      .memo-mobile-empty {
+        text-align: center;
+        padding: 24px 12px;
+        color: #64748b;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px dashed #cbd5e1;
+        font-size: 0.85rem;
+      }
+      .memo-mobile-summary-card {
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 14px;
+      }
+      .memo-mobile-summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+        padding: 3px 0;
+      }
+      .memo-mobile-summary-row.total-line {
+        border-top: 1px solid #e2e8f0;
+        margin-top: 6px;
+        padding-top: 8px;
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #0f766e;
+      }
+      .memo-mobile-summary-row .total-amount {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #0f766e;
+      }
+    }
 
-			/* Compact Orders Register view for Salespersons */
+  
+    .cheque-details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 640px) {
+      .cheque-details-grid {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+      }
+      .form-grid {
+        grid-template-columns: 1fr !important;
+        padding: 12px !important;
+        gap: 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+      }
+      .form-grid > div,
+      .form-grid .form-group {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .form-control, select.form-control, input.form-control {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      #colDepositAccountGroup, #colChequeFieldsGroup {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+      }
+    }
+
+    /* Compact Orders Register view for Salespersons */
 			.salesperson-orders-view .order-admin-col,
 			.salesperson-orders-view .order-disp-col {
 				display: none !important;
@@ -3922,204 +3939,66 @@
 								</div>
 
 								<!-- Smart Filter Tabs for Orders (Default: Pending Only) & View Switcher -->
-								<div
-									style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between"
-									id="orderFilterTabsBar"
-								>
-									<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center" id="orderFilterTabs">
-										<button
-											type="button"
-											class="btn btn-sm order-tab-btn active"
-											id="orderTabPending"
-											onclick="setOrderRegisterTab('Pending')"
-											style="
-												font-weight: 700;
-												border-radius: 20px;
-												padding: 6px 16px;
-												background: #fff7ed;
-												color: #c2410c;
-												border: 1.5px solid #f97316;
-												box-shadow: 0 1px 3px rgba(249, 115, 22, 0.15);
-											"
-										>
-											📦 Active Pending Orders (<span id="countPendingOrders">0</span>)
-										</button>
-										<button
-											type="button"
-											class="btn btn-sm order-tab-btn"
-											id="orderTabCompleted"
-											onclick="setOrderRegisterTab('Completed')"
-											style="
-												font-weight: 700;
-												border-radius: 20px;
-												padding: 6px 14px;
-												background: #f1f5f9;
-												color: #475569;
-												border: 1px solid #e2e8f0;
-											"
-										>
-											✓ Dispatched Archive (<span id="countCompletedOrders">0</span>)
-										</button>
-										<button
-											type="button"
-											class="btn btn-sm order-tab-btn"
-											id="orderTabAll"
-											onclick="setOrderRegisterTab('All')"
-											style="
-												font-weight: 700;
-												border-radius: 20px;
-												padding: 6px 14px;
-												background: #f1f5f9;
-												color: #475569;
-												border: 1px solid #e2e8f0;
-											"
-										>
-											📁 All Orders History (<span id="countAllOrders">0</span>)
-										</button>
-									</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;" id="orderFilterTabs">
+                <button type="button" class="btn btn-sm order-tab-btn active" id="orderTabPending" onclick="setOrderRegisterTab('Pending')" style="font-weight:700;border-radius:20px;padding:6px 16px;background:#fff7ed;color:#c2410c;border:1.5px solid #f97316;box-shadow:0 1px 3px rgba(249,115,22,0.15);">
+                  📦 Active Pending Orders (<span id="countPendingOrders">0</span>)
+                </button>
+                <button type="button" class="btn btn-sm order-tab-btn" id="orderTabCompleted" onclick="setOrderRegisterTab('Completed')" style="font-weight:700;border-radius:20px;padding:6px 14px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;">
+                  ✓ Dispatched Archive (<span id="countCompletedOrders">0</span>)
+                </button>
+                <button type="button" class="btn btn-sm order-tab-btn" id="orderTabAll" onclick="setOrderRegisterTab('All')" style="font-weight:700;border-radius:20px;padding:6px 14px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;">
+                  📁 All Orders History (<span id="countAllOrders">0</span>)
+                </button>
+              </div>
 
-									<!-- View Switcher (Cards vs Table) -->
-									<div style="display: inline-flex; align-items: center; gap: 8px; margin-left: auto">
-										<div
-											style="
-												display: inline-flex;
-												border-radius: 8px;
-												border: 1.5px solid #cbd5e1;
-												overflow: hidden;
-												background: #fff;
-												box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-											"
-										>
-											<button
-												type="button"
-												id="btnOrderViewCards"
-												class="btn btn-sm"
-												onclick="setOrderViewMode('cards')"
-												style="
-													padding: 5px 14px;
-													font-weight: 700;
-													font-size: 0.8rem;
-													border-radius: 0;
-													background: #15803d;
-													color: #fff;
-													border: none;
-													cursor: pointer;
-													display: inline-flex;
-													align-items: center;
-													gap: 5px;
-												"
-												title="Cards Grid View"
-											>
-												<span>🗂️</span> Cards
-											</button>
-											<button
-												type="button"
-												id="btnOrderViewTable"
-												class="btn btn-sm"
-												onclick="setOrderViewMode('table')"
-												style="
-													padding: 5px 14px;
-													font-weight: 700;
-													font-size: 0.8rem;
-													border-radius: 0;
-													background: #fff;
-													color: #475569;
-													border: none;
-													cursor: pointer;
-													display: inline-flex;
-													align-items: center;
-													gap: 5px;
-												"
-												title="Classic Table View"
-											>
-												<span>📋</span> Table
-											</button>
-										</div>
-									</div>
-								</div>
-							</div>
+              <!-- View Switcher: Cards vs Table -->
+              <div style="display:inline-flex;align-items:center;gap:8px;">
+                <button type="button" class="btn btn-xs btn-outline order-admin-col" id="btnOrderCardSelectAll" onclick="toggleSelectAllCardOrders()" style="font-weight:700;padding:5px 9px;border-radius:8px;background:#fff;border:1px solid #cbd5e1;display:none;align-items:center;gap:4px;" title="Select/Deselect All Visible Orders">
+                  <span>☑️</span> Select All
+                </button>
+                <div id="orderViewModeToggle" style="display:inline-flex;align-items:center;background:#f1f5f9;padding:3px;border-radius:8px;border:1px solid #cbd5e1;">
+                  <button type="button" id="btnOrderViewCards" class="btn btn-xs" onclick="setOrderViewMode('cards')" style="padding:5px 12px;font-weight:700;border-radius:6px;border:none;background:#0f766e;color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Switch to Mobile Responsive Card View">
+                    🗂️ Cards
+                  </button>
+                  <button type="button" id="btnOrderViewTable" class="btn btn-xs" onclick="setOrderViewMode('table')" style="padding:5px 12px;font-weight:600;border-radius:6px;border:none;background:transparent;color:#475569;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Switch to Spreadsheet Table View">
+                    📋 Table
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
 
-							<!-- Multi-Select / Batch Action Toolbar -->
-							<div
-								id="orderBatchActionToolbar"
-								style="
-									display: none;
-									background: #f0f9ff;
-									border: 1.5px solid #0284c7;
-									border-radius: 10px;
-									padding: 10px 14px;
-									margin: 0 14px 10px 14px;
-									align-items: center;
-									justify-content: space-between;
-									flex-wrap: wrap;
-									gap: 10px;
-								"
-							>
-								<div style="display: flex; align-items: center; gap: 8px">
-									<span style="font-size: 1.1rem">☑️</span>
-									<span
-										id="orderBatchSelectedInfo"
-										style="font-weight: 700; color: #0369a1; font-size: 0.88rem"
-										>0 orders selected</span
-									>
-								</div>
-								<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
-									<button
-										type="button"
-										class="btn btn-sm"
-										id="btnBatchCombinedSlip"
-										onclick="generateBatchWarehouseSlip()"
-										style="
-											background: #0284c7;
-											color: #fff;
-											font-weight: 700;
-											padding: 5px 12px;
-											border-radius: 6px;
-										"
-									>
-										📦 Selected Picking Slip
-									</button>
-									<button
-										type="button"
-										class="btn btn-sm btn-amber"
-										id="btnBatchCombineDispatch"
-										onclick="openCombinedDispatchModal()"
-										style="font-weight: 700; padding: 5px 12px; border-radius: 6px; display: none"
-									>
-										🚚 Combine Dispatch for Same Dealer
-									</button>
-									<button
-										type="button"
-										class="btn btn-sm btn-outline"
-										onclick="clearSelectedOrders()"
-										style="
-											font-weight: 600;
-											padding: 5px 10px;
-											border-radius: 6px;
-											background: #fff;
-										"
-									>
-										✕ Deselect All
-									</button>
-								</div>
-							</div>
+          <!-- Multi-Select / Batch Action Toolbar -->
+          <div id="orderBatchActionToolbar" style="display:none;background:#f0f9ff;border:1.5px solid #0284c7;border-radius:10px;padding:10px 14px;margin:0 14px 10px 14px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:1.1rem;">☑️</span>
+              <span id="orderBatchSelectedInfo" style="font-weight:700;color:#0369a1;font-size:0.88rem;">0 orders selected</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="btn btn-sm" id="btnBatchCombinedSlip" onclick="generateBatchWarehouseSlip()" style="background:#0284c7;color:#fff;font-weight:700;padding:5px 12px;border-radius:6px;">
+                📦 Selected Picking Slip
+              </button>
+              <button type="button" class="btn btn-sm btn-amber" id="btnBatchCombineDispatch" onclick="openCombinedDispatchModal()" style="font-weight:700;padding:5px 12px;border-radius:6px;display:none;">
+                🚚 Combine Dispatch for Same Dealer
+              </button>
+              <button type="button" class="btn btn-sm btn-outline" onclick="clearSelectedOrders()" style="font-weight:600;padding:5px 10px;border-radius:6px;background:#fff;">
+                ✕ Deselect All
+              </button>
+            </div>
+          </div>
 
-							<!-- Cards Grid View Container -->
-							<div
-								id="ordersCardsGrid"
-								class="orders-card-grid"
-								style="
-									display: grid;
-									grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
-									gap: 14px;
-									margin-top: 10px;
-									padding: 0 14px 14px 14px;
-								"
-							></div>
+          <!-- Card View Container (Default & Mobile Responsive) -->
+          <div id="ordersCardsWrap" style="padding:10px 14px 18px 14px;">
+            <div class="field-card-grid" id="ordersCardsContainer"></div>
+          </div>
 
-							<!-- Table View Container -->
-							<div class="table-wrap" id="ordersTableWrap" style="display: none">
-								<table id="ordersMainTable">
+          <!-- Table View Container -->
+          <div class="table-wrap" id="ordersTableWrap" style="display:none;overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;">
+            <div id="ordersTableScrollHint" style="display:none;background:#fef3c7;border:1px solid #fde68a;color:#92400e;padding:7px 12px;border-radius:6px;font-size:0.75rem;font-weight:700;margin-bottom:8px;text-align:center;align-items:center;justify-content:center;gap:6px;">
+              👉 Swipe horizontally on table to view all columns &amp; actions 👈
+            </div>
+            <table id="ordersMainTable">
 									<thead>
 										<tr>
 											<th class="order-admin-col" style="width: 36px; text-align: center">
@@ -13996,1031 +13875,875 @@ Thank you!`;
 				openModal("orderMemoModal");
 			}
 
-			let currentOrderRegisterTab = "Pending";
-			function setOrderRegisterTab(tab) {
-				currentOrderRegisterTab = tab;
-				const penBtn = document.getElementById("orderTabPending");
-				const compBtn = document.getElementById("orderTabCompleted");
-				const allBtn = document.getElementById("orderTabAll");
+			// ==================== ORDERS REGISTER VIEW MODE (CARDS VS TABLE) ====================
+    let currentOrderViewMode = localStorage.getItem("orderViewMode") || "cards";
 
-				[penBtn, compBtn, allBtn].forEach((b) => {
-					if (b) {
-						b.classList.remove("active");
-						b.style.background = "#f1f5f9";
-						b.style.color = "#475569";
-						b.style.border = "1px solid #e2e8f0";
-						b.style.boxShadow = "none";
-					}
-				});
+    function setOrderViewMode(mode) {
+      currentOrderViewMode = mode;
+      try {
+        localStorage.setItem("orderViewMode", mode);
+      } catch (e) {}
+      updateOrderViewModeUI();
+    }
 
-				const activeEl = tab === "Pending" ? penBtn : tab === "Completed" ? compBtn : allBtn;
-				if (activeEl) {
-					activeEl.classList.add("active");
-					if (tab === "Pending") {
-						activeEl.style.background = "#fff7ed";
-						activeEl.style.color = "#c2410c";
-						activeEl.style.border = "1.5px solid #f97316";
-						activeEl.style.boxShadow = "0 1px 3px rgba(249,115,22,0.15)";
-					} else if (tab === "Completed") {
-						activeEl.style.background = "#f0fdf4";
-						activeEl.style.color = "#15803d";
-						activeEl.style.border = "1.5px solid #22c55e";
-						activeEl.style.boxShadow = "0 1px 3px rgba(34,197,94,0.15)";
-					} else {
-						activeEl.style.background = "#eff6ff";
-						activeEl.style.color = "#1d4ed8";
-						activeEl.style.border = "1.5px solid #3b82f6";
-						activeEl.style.boxShadow = "0 1px 3px rgba(59,130,246,0.15)";
-					}
-				}
-				renderOrdersTable();
-			}
+    function updateOrderViewModeUI() {
+      const cardsWrap = document.getElementById("ordersCardsWrap");
+      const tableWrap = document.getElementById("ordersTableWrap");
+      const btnCards = document.getElementById("btnOrderViewCards");
+      const btnTable = document.getElementById("btnOrderViewTable");
+      const scrollHint = document.getElementById("ordersTableScrollHint");
+      const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
+      const btnCardSelectAll = document.getElementById("btnOrderCardSelectAll");
 
-			// ==================== FLOATING PORTAL ACTION DROPDOWN FOR ORDERS ====================
-			let activeFloatingOrderMenu = null;
+      if (btnCardSelectAll) {
+        btnCardSelectAll.style.display = (currentOrderViewMode === "cards" && currentOrderRegisterTab === "Pending" && !isSalesperson) ? "inline-flex" : "none";
+      }
 
-			function toggleOrderActionMenu(e, ordId) {
-				if (e) {
-					e.stopPropagation();
-					e.preventDefault();
-				}
-				const btn = e.currentTarget;
-				const menu = document.getElementById("orderFloatingActionMenu");
-				if (!menu) return;
+      if (currentOrderViewMode === "cards") {
+        if (cardsWrap) cardsWrap.style.display = "block";
+        if (tableWrap) tableWrap.style.display = "none";
+        if (scrollHint) scrollHint.style.display = "none";
+        if (btnCards) {
+          btnCards.style.background = "#0f766e";
+          btnCards.style.color = "#ffffff";
+          btnCards.style.fontWeight = "700";
+        }
+        if (btnTable) {
+          btnTable.style.background = "transparent";
+          btnTable.style.color = "#475569";
+          btnTable.style.fontWeight = "600";
+        }
+      } else {
+        if (cardsWrap) cardsWrap.style.display = "none";
+        if (tableWrap) tableWrap.style.display = "block";
+        if (scrollHint) scrollHint.style.display = (window.innerWidth <= 1024 ? "flex" : "none");
+        if (btnCards) {
+          btnCards.style.background = "transparent";
+          btnCards.style.color = "#475569";
+          btnCards.style.fontWeight = "600";
+        }
+        if (btnTable) {
+          btnTable.style.background = "#0f766e";
+          btnTable.style.color = "#ffffff";
+          btnTable.style.fontWeight = "700";
+        }
+      }
+    }
 
-				if (activeFloatingOrderMenu === ordId && menu.style.display === "block") {
-					closeAllOrderMenus();
-					return;
-				}
+    function toggleSelectAllCardOrders() {
+      const masterChk = document.getElementById("orderSelectAllChk");
+      const newState = masterChk ? !masterChk.checked : (selectedOrderIds.size === 0);
+      if (masterChk) masterChk.checked = newState;
+      toggleSelectAllOrders({ checked: newState });
+    }
 
-				renderFloatingOrderMenu(ordId);
+    let currentOrderRegisterTab = "Pending";
+    function setOrderRegisterTab(tab) {
+      currentOrderRegisterTab = tab;
+      const penBtn = document.getElementById("orderTabPending");
+      const compBtn = document.getElementById("orderTabCompleted");
+      const allBtn = document.getElementById("orderTabAll");
+      
+      [penBtn, compBtn, allBtn].forEach(b => {
+        if (b) {
+          b.classList.remove("active");
+          b.style.background = "#f1f5f9";
+          b.style.color = "#475569";
+          b.style.border = "1px solid #e2e8f0";
+          b.style.boxShadow = "none";
+        }
+      });
+      
+      const activeEl = tab === "Pending" ? penBtn : (tab === "Completed" ? compBtn : allBtn);
+      if (activeEl) {
+        activeEl.classList.add("active");
+        if (tab === "Pending") {
+          activeEl.style.background = "#fff7ed";
+          activeEl.style.color = "#c2410c";
+          activeEl.style.border = "1.5px solid #f97316";
+          activeEl.style.boxShadow = "0 1px 3px rgba(249,115,22,0.15)";
+        } else if (tab === "Completed") {
+          activeEl.style.background = "#f0fdf4";
+          activeEl.style.color = "#15803d";
+          activeEl.style.border = "1.5px solid #22c55e";
+          activeEl.style.boxShadow = "0 1px 3px rgba(34,197,94,0.15)";
+        } else {
+          activeEl.style.background = "#eff6ff";
+          activeEl.style.color = "#1d4ed8";
+          activeEl.style.border = "1.5px solid #3b82f6";
+          activeEl.style.boxShadow = "0 1px 3px rgba(59,130,246,0.15)";
+        }
+      }
+      if (tab !== "Pending" && typeof clearSelectedOrders === "function") {
+        clearSelectedOrders();
+      }
+      renderOrdersTable();
+    }
 
-				const rect = btn.getBoundingClientRect();
-				menu.style.display = "block";
-				menu.style.position = "fixed";
-				menu.style.zIndex = "999999";
+    // ==================== FLOATING PORTAL ACTION DROPDOWN FOR ORDERS ====================
+    let activeFloatingOrderMenu = null;
 
-				const menuWidth = 215;
-				let left = rect.right - menuWidth;
-				if (left + menuWidth > window.innerWidth - 10) {
-					left = Math.max(10, window.innerWidth - menuWidth - 10);
-				}
-				if (left < 10) left = 10;
+    function toggleOrderActionMenu(e, ordId) {
+      if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+      const btn = e.currentTarget;
+      const menu = document.getElementById("orderFloatingActionMenu");
+      if (!menu) return;
 
-				const menuHeight = menu.offsetHeight || 220;
-				let top = rect.bottom + 4;
-				if (top + menuHeight > window.innerHeight) {
-					top = Math.max(10, rect.top - menuHeight - 4);
-				}
+      if (activeFloatingOrderMenu === ordId && menu.style.display === "block") {
+        closeAllOrderMenus();
+        return;
+      }
 
-				menu.style.top = top + "px";
-				menu.style.left = left + "px";
-				activeFloatingOrderMenu = ordId;
-			}
+      renderFloatingOrderMenu(ordId);
 
-			function closeAllOrderMenus() {
-				const menu = document.getElementById("orderFloatingActionMenu");
-				if (menu) menu.style.display = "none";
-				activeFloatingOrderMenu = null;
-			}
+      const rect = btn.getBoundingClientRect();
+      menu.style.display = "block";
+      menu.style.position = "fixed";
+      menu.style.zIndex = "999999";
 
-			document.addEventListener("click", (e) => {
-				if (!e.target.closest("#orderFloatingActionMenu") && !e.target.closest(".order-more-btn")) {
-					closeAllOrderMenus();
-				}
-			});
+      const menuWidth = 215;
+      let left = rect.right - menuWidth;
+      if (left + menuWidth > window.innerWidth - 10) {
+        left = Math.max(10, window.innerWidth - menuWidth - 10);
+      }
+      if (left < 10) left = 10;
 
-			window.addEventListener(
-				"scroll",
-				() => {
-					if (activeFloatingOrderMenu) {
-						closeAllOrderMenus();
-					}
-				},
-				true,
-			);
+      const menuHeight = menu.offsetHeight || 220;
+      let top = rect.bottom + 4;
+      if (top + menuHeight > window.innerHeight) {
+        top = Math.max(10, rect.top - menuHeight - 4);
+      }
 
-			function renderFloatingOrderMenu(orderId) {
-				const menu = document.getElementById("orderFloatingActionMenu");
-				if (!menu) return;
-				const o = (state.orders || []).find((x) => x.id === orderId);
-				if (!o) return;
+      menu.style.top = top + "px";
+      menu.style.left = left + "px";
+      activeFloatingOrderMenu = ordId;
+    }
 
-				const isDispatched = Number(o.dispatchedQty || 0) > 0;
-				const canEditOrder = isDispatched ? isAdminLoggedIn : true;
-				const driveLink = o.driveUrl || o.invoiceDriveUrl;
+    function closeAllOrderMenus() {
+      const menu = document.getElementById("orderFloatingActionMenu");
+      if (menu) menu.style.display = "none";
+      activeFloatingOrderMenu = null;
+    }
 
-				let items = [];
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest("#orderFloatingActionMenu") && !e.target.closest(".order-more-btn")) {
+        closeAllOrderMenus();
+      }
+    });
 
-				// 0. Quick Order Preview
-				items.push(`
+    window.addEventListener("scroll", () => {
+      if (activeFloatingOrderMenu) {
+        closeAllOrderMenus();
+      }
+    }, true);
+
+    function renderFloatingOrderMenu(orderId) {
+      const menu = document.getElementById("orderFloatingActionMenu");
+      if (!menu) return;
+      const o = (state.orders || []).find(x => x.id === orderId);
+      if (!o) return;
+
+      const isDispatched = Number(o.dispatchedQty || 0) > 0;
+      const canEditOrder = isDispatched ? isAdminLoggedIn : true;
+      const driveLink = o.driveUrl || o.invoiceDriveUrl;
+
+      let items = [];
+
+      // 0. Quick Order Preview
+      items.push(`
         <a href="javascript:void(0)" onclick="openQuickOrderPreviewModal('${o.id}');closeAllOrderMenus();" class="order-menu-item">
           <span>👁️</span> <span>Quick Order Preview</span>
         </a>
       `);
 
-				// 1. Download Order Memo PDF
-				items.push(`
-        <a href="javascript:void(0)" onclick="openOrderBookingMemo('${o.id}');closeAllOrderMenus();" class="order-menu-item">
-          <span>📝</span> <span>Order Memo / Download PDF</span>
+      // WhatsApp Share Direct
+      items.push(`
+        <a href="javascript:void(0)" onclick="shareOrderTextOnWhatsApp('${o.id}');closeAllOrderMenus();" class="order-menu-item" style="color:#15803d;font-weight:600;">
+          <span>💬</span> <span>Share on WhatsApp</span>
         </a>
       `);
 
-				// 2. Delivery Challan (DC)
-				if (isDispatched) {
-					items.push(`
+      // 1. View PDF (Direct Google Drive with 20s Auto-Wait)
+      items.push(`
+        <a href="javascript:void(0)" onclick="viewOrderDrivePdf('${o.id}', false);closeAllOrderMenus();" class="order-menu-item">
+          <span>📄</span> <span>View PDF (Google Drive)</span>
+        </a>
+      `);
+
+      // 2. Delivery Challan (DC)
+      if (isDispatched) {
+        items.push(`
           <a href="javascript:void(0)" onclick="openDeliveryChallan('${o.id}');closeAllOrderMenus();" class="order-menu-item">
             <span>🚚</span> <span>Delivery Challan (DC)</span>
           </a>
         `);
-				} else {
-					items.push(`
+      } else {
+        items.push(`
           <a href="javascript:void(0)" onclick="alert('Delivery Challan (DC) will be generated after goods are dispatched.');closeAllOrderMenus();" class="order-menu-item" style="opacity:0.5;cursor:not-allowed;">
             <span>🔒</span> <span>DC (After Dispatch)</span>
           </a>
         `);
-				}
+      }
 
-				// 3. Tax Invoice Bill (if dispatched)
-				if (isDispatched) {
-					items.push(`
-          <a href="javascript:void(0)" onclick="openTaxInvoice('${o.id}');closeAllOrderMenus();" class="order-menu-item">
-            <span>🧾</span> <span>Tax Invoice / Download PDF</span>
+      // 3. Tax Invoice Bill (if dispatched)
+      if (isDispatched) {
+        items.push(`
+          <a href="javascript:void(0)" onclick="viewOrderDrivePdf('${o.id}', true);closeAllOrderMenus();" class="order-menu-item">
+            <span>🧾</span> <span>View Tax Invoice (Google Drive)</span>
           </a>
         `);
-				} else {
-					items.push(`
+      } else {
+        items.push(`
           <a href="javascript:void(0)" onclick="alert('Tax Invoice Bill will be generated after goods are dispatched.');closeAllOrderMenus();" class="order-menu-item" style="opacity:0.5;cursor:not-allowed;">
             <span>🔒</span> <span>Bill (After Dispatch)</span>
           </a>
         `);
-				}
+      }
 
-				// Divider
-				items.push(`<div style="border-top:1px solid #e2e8f0;margin:3px 0;"></div>`);
+      // Divider
+      items.push(`<div style="border-top:1px solid #e2e8f0;margin:3px 0;"></div>`);
 
-				// 6. Edit Details
-				if (canEditOrder) {
-					items.push(`
+      // 6. Edit Details
+      if (canEditOrder) {
+        items.push(`
           <a href="javascript:void(0)" onclick="openEditOrderModal('${o.id}');closeAllOrderMenus();" class="order-menu-item">
             <span>✏️</span> <span>Edit Order Details</span>
           </a>
         `);
-				} else {
-					items.push(`
+      } else {
+        items.push(`
           <a href="javascript:void(0)" onclick="alert('🔒 Dispatched Bill Locked: Only Owner Admin can edit dispatched orders.');closeAllOrderMenus();" class="order-menu-item" style="opacity:0.5;cursor:not-allowed;">
             <span>🔒</span> <span>Edit Locked</span>
           </a>
         `);
-				}
+      }
 
-				// 7. Delete Order (Owner Admin only)
-				if (isAdminLoggedIn) {
-					items.push(`
+      // 7. Delete Order (Owner Admin only)
+      if (isAdminLoggedIn) {
+        items.push(`
           <a href="javascript:void(0)" onclick="deleteOrderMemo('${o.id}');closeAllOrderMenus();" class="order-menu-item order-menu-item-danger">
             <span>🗑️</span> <span>Delete Order</span>
           </a>
         `);
-				}
-
-				menu.innerHTML = items.join("");
-			}
-
-			// ==================== ENHANCED ORDER REGISTER CONTROLS ====================
-			let orderSortCol = "date";
-			let orderSortDir = "desc";
-			let selectedOrderIds = new Set();
-			let orderDatePreset = "all";
-
-			function handleOrderDateFilterChange() {
-				const presetEl = document.getElementById("orderDateRangeFilter");
-				orderDatePreset = presetEl ? presetEl.value : "all";
-				const customWrap = document.getElementById("orderCustomDateWrap");
-				if (customWrap) {
-					customWrap.style.display = orderDatePreset === "custom" ? "inline-flex" : "none";
-				}
-				renderOrdersTable();
-			}
-
-			function populateOrderSalespersonFilter() {
-				const selectEl = document.getElementById("orderSalespersonFilter");
-				if (!selectEl) return;
-				const currentVal = selectEl.value || "all";
-				const spSet = new Set();
-				(state.orders || []).forEach((o) => {
-					if (o.salespersonName && o.salespersonName.trim()) spSet.add(o.salespersonName.trim());
-				});
-				(state.staff || []).forEach((s) => {
-					if (s.name && s.name.trim()) spSet.add(s.name.trim());
-				});
-				(state.salespersons || []).forEach((s) => {
-					if (s.name && s.name.trim()) spSet.add(s.name.trim());
-				});
-				const sortedSp = Array.from(spSet).sort();
-				let html = `<option value="all">👤 All Salespersons</option>`;
-				sortedSp.forEach((sp) => {
-					const sel = sp === currentVal ? "selected" : "";
-					html += `<option value="${escapeHtml(sp)}" ${sel}>${escapeHtml(sp)}</option>`;
-				});
-				selectEl.innerHTML = html;
-				if (Array.from(spSet).includes(currentVal)) {
-					selectEl.value = currentVal;
-				}
-			}
-
-			function resetOrderFilters() {
-				const searchEl = document.getElementById("orderSearch");
-				if (searchEl) searchEl.value = "";
-				const dateEl = document.getElementById("orderDateRangeFilter");
-				if (dateEl) dateEl.value = "all";
-				const customWrap = document.getElementById("orderCustomDateWrap");
-				if (customWrap) customWrap.style.display = "none";
-				const dFrom = document.getElementById("orderDateFrom");
-				if (dFrom) dFrom.value = "";
-				const dTo = document.getElementById("orderDateTo");
-				if (dTo) dTo.value = "";
-				const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
-				const spEl = document.getElementById("orderSalespersonFilter");
-				if (spEl && !isSalesperson) spEl.value = "all";
-				orderDatePreset = "all";
-				renderOrdersTable();
-			}
-
-			function toggleOrderSort(col) {
-				if (orderSortCol === col) {
-					orderSortDir = orderSortDir === "asc" ? "desc" : "asc";
-				} else {
-					orderSortCol = col;
-					orderSortDir = col === "date" || col === "memoNo" || col === "totalAmt" ? "desc" : "asc";
-				}
-				updateOrderSortHeaders();
-				renderOrdersTable();
-			}
-
-			function updateOrderSortHeaders() {
-				const cols = ["memoNo", "date", "partyName", "ordQty", "dispQty", "pendingQty", "totalAmt"];
-				cols.forEach((c) => {
-					const el = document.getElementById(`sortIcon_${c}`);
-					if (el) {
-						if (orderSortCol === c) {
-							el.textContent = orderSortDir === "asc" ? "▲" : "▼";
-							el.style.color = "var(--primary)";
-							el.style.fontWeight = "800";
-						} else {
-							el.textContent = "⇅";
-							el.style.color = "#94a3b8";
-							el.style.fontWeight = "normal";
-						}
-					}
-				});
-			}
-
-			function toggleSelectAllOrders(masterChk) {
-				const isChecked = masterChk.checked;
-				const checkboxes = document.querySelectorAll(".order-select-chk");
-				checkboxes.forEach((chk) => {
-					chk.checked = isChecked;
-					if (isChecked) {
-						selectedOrderIds.add(chk.value);
-					} else {
-						selectedOrderIds.delete(chk.value);
-					}
-				});
-				updateSelectedOrdersBar();
-			}
-
-			function toggleSelectOrder(chk, orderId) {
-				if (chk.checked) {
-					selectedOrderIds.add(orderId);
-				} else {
-					selectedOrderIds.delete(orderId);
-				}
-				updateSelectedOrdersBar();
-			}
-
-			function clearSelectedOrders() {
-				selectedOrderIds.clear();
-				const masterChk = document.getElementById("orderSelectAllChk");
-				if (masterChk) masterChk.checked = false;
-				const checkboxes = document.querySelectorAll(".order-select-chk");
-				checkboxes.forEach((chk) => (chk.checked = false));
-				updateSelectedOrdersBar();
-			}
-
-			function updateSelectedOrdersBar() {
-				const bar = document.getElementById("orderBatchActionToolbar");
-				const info = document.getElementById("orderBatchSelectedInfo");
-				const btnCombine = document.getElementById("btnBatchCombineDispatch");
-				if (!bar || !info) return;
-
-				const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
-				if (isSalesperson) {
-					bar.style.display = "none";
-					return;
-				}
-
-				const count = selectedOrderIds.size;
-				if (count === 0) {
-					bar.style.display = "none";
-					const masterChk = document.getElementById("orderSelectAllChk");
-					if (masterChk) masterChk.checked = false;
-					return;
-				}
-
-				bar.style.display = "flex";
-				const selectedOrders = (state.orders || []).filter((o) => selectedOrderIds.has(o.id));
-				let totUnits = 0;
-				let totVal = 0;
-				const partiesSet = new Set();
-
-				selectedOrders.forEach((o) => {
-					const ordQ = Number(o.orderQty || 0);
-					const dispQ = Number(o.dispatchedQty || 0);
-					const remQ = Math.max(0, ordQ - dispQ);
-					totUnits += remQ;
-					const lineTotal = Number(o.totalAmt || ordQ * Number(o.rate || 0) || 0);
-					totVal += ordQ > 0 ? (remQ / ordQ) * lineTotal : 0;
-					if (o.partyName) partiesSet.add(o.partyName.trim().toLowerCase());
-				});
-
-				info.textContent = `${count} order(s) selected | Pending: ${totUnits} units | Value: ${fmtINR(totVal)}`;
-
-				const canDispatch = isAdminLoggedIn || (currentStaff && currentStaff.role === "Manager");
-				if (btnCombine) {
-					if (count >= 2 && partiesSet.size === 1 && canDispatch) {
-						const partyDisplayName = selectedOrders[0].partyName;
-						btnCombine.style.display = "inline-flex";
-						btnCombine.textContent = `🚚 Combine Dispatch (${count} for ${partyDisplayName})`;
-					} else {
-						btnCombine.style.display = "none";
-					}
-				}
-			}
-
-			function isOrderInSelectedDateRange(orderDateStr) {
-				if (!orderDateStr) return true;
-				if (!orderDatePreset || orderDatePreset === "all") return true;
-
-				const now = new Date();
-				const todayStr = getDashLocalDateStr(now);
-
-				if (orderDatePreset === "today") {
-					return orderDateStr === todayStr;
-				}
-				if (orderDatePreset === "yesterday") {
-					const y = new Date(now);
-					y.setDate(y.getDate() - 1);
-					const yStr = getDashLocalDateStr(y);
-					return orderDateStr === yStr;
-				}
-				if (orderDatePreset === "thisWeek") {
-					const day = now.getDay();
-					const diffToMon = now.getDate() - day + (day === 0 ? -6 : 1);
-					const mon = new Date(now.getFullYear(), now.getMonth(), diffToMon);
-					const sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
-					const monStr = getDashLocalDateStr(mon);
-					const sunStr = getDashLocalDateStr(sun);
-					return orderDateStr >= monStr && orderDateStr <= sunStr;
-				}
-				if (orderDatePreset === "thisMonth") {
-					const mStr = todayStr.substring(0, 7);
-					return orderDateStr.startsWith(mStr);
-				}
-				if (orderDatePreset === "custom") {
-					const fromVal = document.getElementById("orderDateFrom")
-						? document.getElementById("orderDateFrom").value
-						: "";
-					const toVal = document.getElementById("orderDateTo")
-						? document.getElementById("orderDateTo").value
-						: "";
-					if (fromVal && orderDateStr < fromVal) return false;
-					if (toVal && orderDateStr > toVal) return false;
-					return true;
-				}
-				return true;
-			}
-
-			function getFilteredAndSortedOrdersList() {
-				const allOrders = state.orders || [];
-				const q = (
-					document.getElementById("orderSearch") ? document.getElementById("orderSearch").value : ""
-				).toLowerCase();
-				const spFilterEl = document.getElementById("orderSalespersonFilter");
-				const selectedSp = spFilterEl && spFilterEl.value ? spFilterEl.value : "all";
-
-				// 1. Filter by active smart tab
-				let list = allOrders;
-				if (currentOrderRegisterTab === "Pending") {
-					list = allOrders.filter(
-						(o) => Number(o.orderQty || 0) - Number(o.dispatchedQty || 0) > 0,
-					);
-				} else if (currentOrderRegisterTab === "Completed") {
-					list = allOrders.filter(
-						(o) => Number(o.orderQty || 0) - Number(o.dispatchedQty || 0) === 0,
-					);
-				}
-
-				// 2. Filter by search query
-				if (q) {
-					list = list.filter(
-						(o) =>
-							(o.orderNo || "").toLowerCase().includes(q) ||
-							(o.memoNo || "").toLowerCase().includes(q) ||
-							(o.partyName || "").toLowerCase().includes(q) ||
-							(o.productName || "").toLowerCase().includes(q) ||
-							(o.salespersonName || "").toLowerCase().includes(q) ||
-							(Array.isArray(o.items) &&
-								o.items.some((it) => (it.productName || "").toLowerCase().includes(q))),
-					);
-				}
-
-				// 3. Filter by Date range
-				list = list.filter((o) => isOrderInSelectedDateRange(o.date));
-
-				// 4. Filter by Salesperson (Salespersons always see only their own orders across all register views; Admin/Manager can filter by selected salesperson)
-				const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
-				if (isSalesperson && currentStaff && currentStaff.name) {
-					const myName = currentStaff.name.toUpperCase();
-					const isGopal = myName.includes("GOPAL");
-					const isVikram = myName.includes("VIKARAM") || myName.includes("VIKRAM");
-					list = list.filter((o) => {
-						const sp = (o.salespersonName || "").toUpperCase();
-						if (isGopal) return sp.includes("GOPAL");
-						if (isVikram) return sp.includes("VIKARAM") || sp.includes("VIKRAM");
-						const firstName = myName.split(" ")[0];
-						return sp === myName || (firstName.length >= 3 && sp.includes(firstName));
-					});
-				} else if (selectedSp !== "all") {
-					list = list.filter(
-						(o) =>
-							(o.salespersonName || "").trim().toLowerCase() === selectedSp.trim().toLowerCase(),
-					);
-				}
-
-				// 5. Sorting
-				list.sort((a, b) => {
-					let valA, valB;
-					if (orderSortCol === "memoNo") {
-						valA = parseInt((a.memoNo || a.orderNo || "0").replace(/\D/g, ""), 10) || 0;
-						valB = parseInt((b.memoNo || b.orderNo || "0").replace(/\D/g, ""), 10) || 0;
-					} else if (orderSortCol === "date") {
-						valA = a.date || "";
-						valB = b.date || "";
-					} else if (orderSortCol === "partyName") {
-						valA = (a.partyName || "").toLowerCase();
-						valB = (b.partyName || "").toLowerCase();
-					} else if (orderSortCol === "ordQty") {
-						valA = Number(a.orderQty || 0);
-						valB = Number(b.orderQty || 0);
-					} else if (orderSortCol === "dispQty") {
-						valA = Number(a.dispatchedQty || 0);
-						valB = Number(b.dispatchedQty || 0);
-					} else if (orderSortCol === "pendingQty") {
-						valA = Number(a.orderQty || 0) - Number(a.dispatchedQty || 0);
-						valB = Number(b.orderQty || 0) - Number(b.dispatchedQty || 0);
-					} else if (orderSortCol === "totalAmt") {
-						valA = Number(a.totalAmt || Number(a.orderQty || 0) * Number(a.rate || 0) || 0);
-						valB = Number(b.totalAmt || Number(b.orderQty || 0) * Number(b.rate || 0) || 0);
-					} else {
-						valA = a.date || "";
-						valB = b.date || "";
-					}
-
-					if (valA < valB) return orderSortDir === "asc" ? -1 : 1;
-					if (valA > valB) return orderSortDir === "asc" ? 1 : -1;
-					return 0;
-				});
-
-				return list;
-			}
-
-			
-			let orderViewMode = localStorage.getItem("erp_order_view_mode") || "cards";
-
-			function setOrderViewMode(mode) {
-				orderViewMode = mode;
-				localStorage.setItem("erp_order_view_mode", mode);
-				const btnCards = document.getElementById("btnOrderViewCards");
-				const btnTable = document.getElementById("btnOrderViewTable");
-				if (btnCards && btnTable) {
-					if (mode === "cards") {
-						btnCards.style.background = "#15803d";
-						btnCards.style.color = "#fff";
-						btnTable.style.background = "#fff";
-						btnTable.style.color = "#475569";
-					} else {
-						btnCards.style.background = "#fff";
-						btnCards.style.color = "#475569";
-						btnTable.style.background = "#15803d";
-						btnTable.style.color = "#fff";
-					}
-				}
-				renderOrdersTable();
-			}
-
-function renderOrdersTable() {
-				const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
-				const canDispatch = isAdminLoggedIn || (currentStaff && currentStaff.role === "Manager");
-				const allOrders = state.orders || [];
-				const computedParties =
-					typeof computePartiesForState === "function"
-						? computePartiesForState(state)
-						: state.parties || [];
-
-				// Toggle Admin Actions Bar & Salesperson Filter for Salespersons
-				const adminBar = document.getElementById("orderRegAdminBar");
-				if (adminBar) adminBar.style.display = isSalesperson ? "none" : "flex";
-
-				const spFilterEl = document.getElementById("orderSalespersonFilter");
-				if (spFilterEl) {
-					spFilterEl.style.display = isSalesperson ? "none" : "inline-block";
-					if (!isSalesperson && spFilterEl.options.length <= 1) {
-						populateOrderSalespersonFilter();
-					}
-				}
-
-				// Toggle KPI Strip: Keep visible for everyone (personalized for Salespersons, team-wide for Admin/Manager)
-				const kpiStrip = document.getElementById("ordersKpiStrip");
-				if (kpiStrip) kpiStrip.style.display = "grid";
-
-				const kpiPendLblEl = document.getElementById("kpiPendingLabel");
-				const kpiDispLblEl = document.getElementById("kpiDispatchedLabel");
-				const kpiTotLblEl = document.getElementById("kpiTotalOrdersLabel");
-				if (kpiPendLblEl)
-					kpiPendLblEl.textContent = isSalesperson ? "My Pending Dispatch" : "Pending Dispatch";
-				if (kpiDispLblEl)
-					kpiDispLblEl.textContent = isSalesperson ? "My Dispatched Value" : "Dispatched Value";
-				if (kpiTotLblEl)
-					kpiTotLblEl.textContent = isSalesperson ? "My Orders Booked" : "Total Orders Booked";
-
-				// Toggle Compact View Classes & Headers on Main Orders Table
-				const tableEl = document.getElementById("ordersMainTable");
-				if (tableEl) {
-					if (isSalesperson) {
-						tableEl.classList.add("salesperson-orders-view");
-						// Hide salesperson column in Active Pending Orders (since all are own); show in Completed & All Orders History
-						if (currentOrderRegisterTab === "Pending") {
-							tableEl.classList.add("hide-sp-col");
-						} else {
-							tableEl.classList.remove("hide-sp-col");
-						}
-					} else {
-						tableEl.classList.remove("salesperson-orders-view");
-						tableEl.classList.remove("hide-sp-col");
-					}
-				}
-				const colOrdQtyHeader = document.getElementById("colHeaderOrdQty");
-				if (colOrdQtyHeader) {
-					colOrdQtyHeader.textContent = isSalesperson ? "Total Qty" : "Ord Qty";
-				}
-
-				// Hide batch selection toolbar for salespersons
-				if (isSalesperson) {
-					const batchToolbar = document.getElementById("orderBatchActionToolbar");
-					if (batchToolbar) batchToolbar.style.display = "none";
-				}
-
-				// Determine visible orders for stats & tab counts (personal for Salesperson, company-wide or selected salesperson for Admin/Manager)
-				let visibleOrdersForStats = allOrders;
-				if (isSalesperson && currentStaff && currentStaff.name) {
-					const myName = currentStaff.name.toUpperCase();
-					const isGopal = myName.includes("GOPAL");
-					const isVikram = myName.includes("VIKARAM") || myName.includes("VIKRAM");
-					visibleOrdersForStats = allOrders.filter((o) => {
-						const sp = (o.salespersonName || "").toUpperCase();
-						if (isGopal) return sp.includes("GOPAL");
-						if (isVikram) return sp.includes("VIKARAM") || sp.includes("VIKRAM");
-						const firstName = myName.split(" ")[0];
-						return sp === myName || (firstName.length >= 3 && sp.includes(firstName));
-					});
-				} else if (spFilterEl && spFilterEl.value && spFilterEl.value !== "all") {
-					const sel = spFilterEl.value.trim().toLowerCase();
-					visibleOrdersForStats = allOrders.filter(
-						(o) => (o.salespersonName || "").trim().toLowerCase() === sel,
-					);
-				}
-
-				// Respect active date range in KPI counters too!
-				visibleOrdersForStats = visibleOrdersForStats.filter((o) =>
-					isOrderInSelectedDateRange(o.date),
-				);
-
-				// Compute KPI totals across visible orders
-				let pendingVal = 0;
-				let dispatchedVal = 0;
-				let totalBookedVal = 0;
-				let totalPendingCount = 0;
-				let totalCompletedCount = 0;
-
-				visibleOrdersForStats.forEach((o) => {
-					const ordQ = Number(o.orderQty || 0);
-					const dispQ = Number(o.dispatchedQty || 0);
-					const lineTotal = Number(o.totalAmt || ordQ * Number(o.rate || 0) || 0);
-					totalBookedVal += lineTotal;
-
-					const remQ = ordQ - dispQ;
-					if (remQ > 0) {
-						totalPendingCount++;
-						pendingVal += ordQ > 0 ? (remQ / ordQ) * lineTotal : 0;
-					} else {
-						totalCompletedCount++;
-					}
-					if (dispQ > 0) {
-						dispatchedVal += ordQ > 0 ? (dispQ / ordQ) * lineTotal : 0;
-					}
-				});
-
-				// Update KPI counters in UI
-				const kpiPendValEl = document.getElementById("kpiPendingValue");
-				const kpiPendCntEl = document.getElementById("kpiPendingCount");
-				const kpiDispValEl = document.getElementById("kpiDispatchedValue");
-				const kpiDispCntEl = document.getElementById("kpiDispatchedCount");
-				const kpiTotValEl = document.getElementById("kpiTotalOrdersValue");
-				const kpiTotCntEl = document.getElementById("kpiTotalOrdersCount");
-
-				if (kpiPendValEl) kpiPendValEl.textContent = fmtINR(pendingVal);
-				if (kpiPendCntEl) kpiPendCntEl.textContent = totalPendingCount;
-				if (kpiDispValEl) kpiDispValEl.textContent = fmtINR(dispatchedVal);
-				if (kpiDispCntEl) kpiDispCntEl.textContent = totalCompletedCount;
-				if (kpiTotValEl) kpiTotValEl.textContent = fmtINR(totalBookedVal);
-				if (kpiTotCntEl) kpiTotCntEl.textContent = visibleOrdersForStats.length;
-
-				// Update Tab Counter Badges (Pending reflects personal for Salesperson; All & Dispatched reflect full history)
-				let myPendingCount = 0;
-				allOrders.forEach((o) => {
-					const remQ = Number(o.orderQty || 0) - Number(o.dispatchedQty || 0);
-					if (remQ > 0) {
-						if (isSalesperson && currentStaff && currentStaff.name) {
-							const myName = currentStaff.name.toUpperCase();
-							const isGopal = myName.includes("GOPAL");
-							const isVikram = myName.includes("VIKARAM") || myName.includes("VIKRAM");
-							const sp = (o.salespersonName || "").toUpperCase();
-							if (
-								(isGopal && sp.includes("GOPAL")) ||
-								(isVikram && (sp.includes("VIKARAM") || sp.includes("VIKRAM")))
-							) {
-								myPendingCount++;
-							}
-						} else {
-							myPendingCount++;
-						}
-					}
-				});
-				const totalCompletedOrdersCount = allOrders.filter(
-					(o) => Number(o.orderQty || 0) - Number(o.dispatchedQty || 0) === 0,
-				).length;
-
-				const cAllEl = document.getElementById("countAllOrders");
-				const cPenEl = document.getElementById("countPendingOrders");
-				const cCompEl = document.getElementById("countCompletedOrders");
-				if (cAllEl) cAllEl.textContent = allOrders.length;
-				if (cPenEl) cPenEl.textContent = myPendingCount;
-				if (cCompEl) cCompEl.textContent = totalCompletedOrdersCount;
-
-				updateOrderSortHeaders();
-
-				// Get filtered and sorted list
-				const list = getFilteredAndSortedOrdersList();
-				const tbody = document.getElementById("ordersTableBody");
-				if (!tbody) return;
-
-				if (list.length === 0) {
-					const colSpan = isSalesperson ? (currentOrderRegisterTab === "Pending" ? 8 : 9) : 12;
-					tbody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center" style="padding:24px;color:var(--muted);font-weight:600;">No orders found matching selected filters.</td></tr>`;
-					updateSelectedOrdersBar();
-					return;
-				}
-
-				// Handle View Switcher Visibility
-				const cardsGridEl = document.getElementById("ordersCardsGrid");
-				const tableWrapEl = document.getElementById("ordersTableWrap");
-				const btnCardsEl = document.getElementById("btnOrderViewCards");
-				const btnTableEl = document.getElementById("btnOrderViewTable");
-
-				if (btnCardsEl && btnTableEl) {
-					if (orderViewMode === "cards") {
-						btnCardsEl.style.background = "#15803d";
-						btnCardsEl.style.color = "#fff";
-						btnTableEl.style.background = "#fff";
-						btnTableEl.style.color = "#475569";
-						if (cardsGridEl) cardsGridEl.style.display = "grid";
-						if (tableWrapEl) tableWrapEl.style.display = "none";
-					} else {
-						btnCardsEl.style.background = "#fff";
-						btnCardsEl.style.color = "#475569";
-						btnTableEl.style.background = "#15803d";
-						btnTableEl.style.color = "#fff";
-						if (cardsGridEl) cardsGridEl.style.display = "none";
-						if (tableWrapEl) tableWrapEl.style.display = "block";
-					}
-				}
-
-				if (list.length === 0) {
-					const colSpan = isSalesperson ? (currentOrderRegisterTab === "Pending" ? 8 : 9) : 12;
-					if (tbody) tbody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center" style="padding:24px;color:var(--muted);font-weight:600;">No orders found matching selected filters.</td></tr>`;
-					if (cardsGridEl) cardsGridEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:36px 20px;background:#fff;border-radius:12px;border:1.5px dashed #cbd5e1;color:var(--muted);font-weight:600;">No orders found matching selected filters.</div>`;
-					updateSelectedOrdersBar();
-					return;
-				}
-
-				// Render Cards Grid View
-				if (cardsGridEl) {
-					cardsGridEl.innerHTML = list.map((o) => {
-						const pending = Number(o.orderQty || 0) - Number(o.dispatchedQty || 0);
-						const ordQ = Number(o.orderQty || 0);
-						const dispQ = Number(o.dispatchedQty || 0);
-						const isDispatched = dispQ > 0;
-						const isCompleted = pending === 0 && ordQ > 0;
-						const isPartial = pending > 0 && isDispatched;
-						const lineTotal = Number(o.totalAmt || ordQ * Number(o.rate || 0) || 0);
-						const progressPct = ordQ > 0 ? Math.round((dispQ / ordQ) * 100) : 0;
-
-						let statusBadge = '';
-						if (isCompleted) {
-							statusBadge = `<span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:6px;font-size:0.72rem;font-weight:700;">✓ Dispatched</span>`;
-						} else if (isPartial) {
-							statusBadge = `<span style="background:#fef3c7;color:#b45309;padding:2px 8px;border-radius:6px;font-size:0.72rem;font-weight:700;">🟡 Partial</span>`;
-						} else {
-							statusBadge = `<span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:6px;font-size:0.72rem;font-weight:700;">Pending</span>`;
-						}
-
-						let ageingBadge = '';
-						let diffDays = 0;
-						if (o.date) {
-							const parts = o.date.split("-");
-							if (parts.length === 3) {
-								const oDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-								const now = new Date();
-								const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-								diffDays = Math.round((todayZero - oDate) / (1000 * 60 * 60 * 24));
-								if (diffDays <= 0) {
-									ageingBadge = `<span style="font-size:0.68rem;padding:2px 6px;border-radius:4px;background:#f0fdf4;color:#166534;font-weight:700;">Today</span>`;
-								} else if (diffDays === 1) {
-									ageingBadge = `<span style="font-size:0.68rem;padding:2px 6px;border-radius:4px;background:#f8fafc;color:#475569;font-weight:600;">1d ago</span>`;
-								} else {
-									if (pending > 0 && diffDays >= 2) {
-										ageingBadge = `<span style="font-size:0.68rem;padding:2px 6px;border-radius:4px;background:#fff1f2;color:#be123c;font-weight:700;">⚠️ ${diffDays}d Pending</span>`;
-									} else {
-										ageingBadge = `<span style="font-size:0.68rem;padding:2px 6px;border-radius:4px;background:#f1f5f9;color:#64748b;font-weight:600;">${diffDays}d ago</span>`;
-									}
-								}
-							}
-						}
-
-						const partyInfo = computedParties.find(p => p.name && p.name.trim().toLowerCase() === (o.partyName || "").trim().toLowerCase());
-						let partyDueHtml = '';
-						if (partyInfo) {
-							const bal = Number(partyInfo.netBalance || 0);
-							if (bal > 0) {
-								partyDueHtml = `
-								<div style="font-size:0.75rem;color:#dc2626;font-weight:700;display:inline-flex;align-items:center;gap:5px;">
-									<span>🔴 Due: ${fmtINR(bal)}</span>
-									<button type="button" class="btn btn-xs" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;font-size:0.66rem;padding:1px 6px;border-radius:4px;font-weight:700;cursor:pointer;" onclick="quickCollectFromDue('${escapeHtml(partyInfo.id || o.partyName)}')">💵 Collect</button>
-								</div>`;
-							} else if (bal === 0) {
-								partyDueHtml = `<div style="font-size:0.72rem;color:#15803d;font-weight:600;">🟢 Nil Due</div>`;
-							} else {
-								partyDueHtml = `<div style="font-size:0.72rem;color:#0284c7;font-weight:600;">🔵 Adv: ${fmtINR(Math.abs(bal))}</div>`;
-							}
-						}
-
-						let itemsSummary = '';
-						if (Array.isArray(o.items) && o.items.length > 0) {
-							const itemNames = o.items.map(it => `${it.productName || it.name || 'Item'} (${it.qty || it.orderQty || 1})`);
-							itemsSummary = itemNames.slice(0, 2).join(', ') + (itemNames.length > 2 ? ` (+${itemNames.length - 2} more)` : '');
-						} else {
-							itemsSummary = `${escapeHtml(o.productName || 'General Goods')} (${ordQ})`;
-						}
-
-						let actionBtn1 = '';
-						let actionBtn2 = '';
-						if (isCompleted) {
-							actionBtn1 = `<button type="button" class="btn btn-primary btn-sm" onclick="openTaxInvoice('${o.id}')" style="font-weight:700;padding:6px 12px;border-radius:6px;flex:1.2;display:inline-flex;align-items:center;justify-content:center;gap:4px;" title="View Final Tax Invoice Bill">🧾 Bill PDF</button>`;
-							actionBtn2 = `<button type="button" class="btn btn-whatsapp btn-sm" onclick="sendInvoiceWhatsAppDirect('${o.id}')" style="padding:6px 12px;border-radius:6px;flex:1.2;display:inline-flex;align-items:center;justify-content:center;gap:4px;" title="Send Bill to Party">💬 Send Bill</button>`;
-						} else {
-							actionBtn1 = canDispatch
-								? `<button type="button" class="btn btn-amber btn-sm" onclick="openDispatchModal('${o.id}')" style="font-weight:700;padding:6px 12px;border-radius:6px;flex:1.2;background:#ea580c;color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:4px;" title="Dispatch order">🚚 Dispatch</button>`
-								: `<button type="button" class="btn btn-sm" style="background:#0284c7;color:#fff;font-weight:700;padding:6px 12px;border-radius:6px;flex:1.2;" onclick="openOrderBookingMemo('${o.id}')" title="View Memo PDF">📄 Memo</button>`;
-							actionBtn2 = `<button type="button" class="btn btn-whatsapp btn-sm" onclick="sendOrderWhatsApp('${o.id}')" style="font-weight:700;padding:6px 12px;border-radius:6px;flex:1.2;display:inline-flex;align-items:center;justify-content:center;gap:4px;" title="Send Order on WhatsApp">💬 WhatsApp</button>`;
-						}
-
-						const memoDisplay = o.memoNo || ('OB-' + (o.id ? o.id.slice(-3) : ''));
-						const isChecked = selectedOrderIds.has(o.id) ? "checked" : "";
-						const cardBorderColor = isCompleted ? '#bbf7d0' : (pending > 0 && diffDays >= 2 ? '#fecaca' : '#fed7aa');
-
-						return `
-						<div class="order-card-item" style="background:#fff;border:1.5px solid ${cardBorderColor};border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;justify-content:space-between;gap:8px;transition:all 0.15s ease;">
-							<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;padding-bottom:6px;border-bottom:1px solid #f1f5f9;">
-								<div style="display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;">
-									${statusBadge}
-									<span style="font-size:0.73rem;color:#64748b;font-weight:600;">📅 ${fmtDate(o.date)}</span>
-									${ageingBadge}
-								</div>
-								<div style="display:inline-flex;align-items:center;gap:6px;">
-									<input type="checkbox" class="order-select-chk" value="${o.id}" data-party="${escapeHtml(o.partyName || '')}" ${isChecked} onchange="toggleSelectOrder(this, '${o.id}')" style="width:16px;height:16px;cursor:pointer;" />
-									<span style="background:#f8fafc;border:1px solid #cbd5e1;padding:2px 8px;border-radius:6px;font-weight:800;font-size:0.76rem;color:#1e293b;display:inline-flex;align-items:center;gap:4px;">
-										${memoDisplay}
-										<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;"></span>
-									</span>
-								</div>
-							</div>
-
-							<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-								<div style="font-weight:800;font-size:0.95rem;color:#0f172a;line-height:1.25;text-transform:uppercase;">
-									${escapeHtml(o.partyName)}
-								</div>
-								<div style="text-align:right;white-space:nowrap;">
-									<div style="font-weight:800;font-size:1.05rem;color:#0f172a;">${fmtINR(lineTotal)}</div>
-									<div style="font-size:0.62rem;color:#64748b;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">ORDER TOTAL</div>
-								</div>
-							</div>
-
-							<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;font-size:0.75rem;">
-								<div>${partyDueHtml}</div>
-								<div style="color:#64748b;font-weight:600;">👤 Booked by: <strong style="color:#334155;">${escapeHtml(o.salespersonName || 'Admin')}</strong></div>
-							</div>
-
-							<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 10px;">
-								<div style="font-size:0.63rem;color:#64748b;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">ORDERED ITEMS:</div>
-								<div style="font-size:0.8rem;color:#1e293b;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(itemsSummary)}">
-									${escapeHtml(itemsSummary)}
-								</div>
-							</div>
-
-							<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 4px;display:grid;grid-template-columns:repeat(4, 1fr);text-align:center;">
-								<div>
-									<div style="font-size:0.62rem;color:#64748b;font-weight:700;">ORDERED</div>
-									<div style="font-size:0.88rem;font-weight:800;color:#0f172a;">${ordQ}</div>
-								</div>
-								<div>
-									<div style="font-size:0.62rem;color:#64748b;font-weight:700;">DISPATCHED</div>
-									<div style="font-size:0.88rem;font-weight:800;color:#15803d;">${dispQ}</div>
-								</div>
-								<div>
-									<div style="font-size:0.62rem;color:#64748b;font-weight:700;">PENDING</div>
-									<div style="font-size:0.88rem;font-weight:800;color:#ea580c;">${pending}</div>
-								</div>
-								<div>
-									<div style="font-size:0.62rem;color:#64748b;font-weight:700;">PROGRESS</div>
-									<div style="font-size:0.88rem;font-weight:800;color:${progressPct === 100 ? '#15803d' : '#0284c7'};">${progressPct}%</div>
-								</div>
-							</div>
-
-							<div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
-								${actionBtn1}
-								${actionBtn2}
-								<button type="button" class="btn btn-sm btn-outline order-more-btn" onclick="toggleOrderActionMenu(event, '${o.id}')" style="background:#f8fafc;color:#334155;border:1px solid #cbd5e1;font-weight:800;font-size:1.1rem;padding:6px 10px;border-radius:6px;line-height:1;cursor:pointer;" title="More Options">
-									⋮
-								</button>
-							</div>
-						</div>
-						`;
-					}).join("");
-				}
-
-				// Render Table View
-				tbody.innerHTML = list
-					.map((o) => {
-						const pending = Number(o.orderQty || 0) - Number(o.dispatchedQty || 0);
-						const st =
-							Number(o.dispatchedQty || 0) === 0
-								? ["Pending", "pill-red"]
-								: pending > 0
-									? ["Partial", "pill-yellow"]
-									: ["Completed", "pill-green"];
-						const isDispatched = Number(o.dispatchedQty || 0) > 0;
-						const isCompleted = pending === 0 && Number(o.orderQty || 0) > 0;
-						const isPartial = pending > 0 && isDispatched;
-						const lineTotal = Number(
-							o.totalAmt || Number(o.orderQty || 0) * Number(o.rate || 0) || 0,
-						);
-
-						// Party Live Due Calculation with Quick Collect Payment Shortcut
-						const partyInfo = computedParties.find(
-							(p) =>
-								p.name && p.name.trim().toLowerCase() === (o.partyName || "").trim().toLowerCase(),
-						);
-						let partyDueHtml = "";
-						if (partyInfo) {
-							const bal = Number(partyInfo.netBalance || 0);
-							if (bal > 0) {
-								partyDueHtml = `
+      }
+
+      menu.innerHTML = items.join("");
+    }
+
+    // ==================== ENHANCED ORDER REGISTER CONTROLS ====================
+    let orderSortCol = "date";
+    let orderSortDir = "desc";
+    let selectedOrderIds = new Set();
+    let orderDatePreset = "all";
+
+    function handleOrderDateFilterChange() {
+      const presetEl = document.getElementById("orderDateRangeFilter");
+      orderDatePreset = presetEl ? presetEl.value : "all";
+      const customWrap = document.getElementById("orderCustomDateWrap");
+      if (customWrap) {
+        customWrap.style.display = orderDatePreset === "custom" ? "inline-flex" : "none";
+      }
+      renderOrdersTable();
+    }
+
+    function populateOrderSalespersonFilter() {
+      const selectEl = document.getElementById("orderSalespersonFilter");
+      if (!selectEl) return;
+      const currentVal = selectEl.value || "all";
+      const spSet = new Set();
+      (state.orders || []).forEach(o => {
+        if (o.salespersonName && o.salespersonName.trim()) spSet.add(o.salespersonName.trim());
+      });
+      (state.staff || []).forEach(s => {
+        if (s.name && s.name.trim()) spSet.add(s.name.trim());
+      });
+      (state.salespersons || []).forEach(s => {
+        if (s.name && s.name.trim()) spSet.add(s.name.trim());
+      });
+      const sortedSp = Array.from(spSet).sort();
+      let html = `<option value="all">👤 All Salespersons</option>`;
+      sortedSp.forEach(sp => {
+        const sel = (sp === currentVal) ? "selected" : "";
+        html += `<option value="${escapeHtml(sp)}" ${sel}>${escapeHtml(sp)}</option>`;
+      });
+      selectEl.innerHTML = html;
+      if (Array.from(spSet).includes(currentVal)) {
+        selectEl.value = currentVal;
+      }
+    }
+
+    function resetOrderFilters() {
+      const searchEl = document.getElementById("orderSearch");
+      if (searchEl) searchEl.value = "";
+      const dateEl = document.getElementById("orderDateRangeFilter");
+      if (dateEl) dateEl.value = "all";
+      const customWrap = document.getElementById("orderCustomDateWrap");
+      if (customWrap) customWrap.style.display = "none";
+      const dFrom = document.getElementById("orderDateFrom");
+      if (dFrom) dFrom.value = "";
+      const dTo = document.getElementById("orderDateTo");
+      if (dTo) dTo.value = "";
+      const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
+      const spEl = document.getElementById("orderSalespersonFilter");
+      if (spEl && !isSalesperson) spEl.value = "all";
+      orderDatePreset = "all";
+      renderOrdersTable();
+    }
+
+    function toggleOrderSort(col) {
+      if (orderSortCol === col) {
+        orderSortDir = orderSortDir === "asc" ? "desc" : "asc";
+      } else {
+        orderSortCol = col;
+        orderSortDir = (col === "date" || col === "memoNo" || col === "totalAmt") ? "desc" : "asc";
+      }
+      updateOrderSortHeaders();
+      renderOrdersTable();
+    }
+
+    function updateOrderSortHeaders() {
+      const cols = ["memoNo", "date", "partyName", "ordQty", "dispQty", "pendingQty", "totalAmt"];
+      cols.forEach(c => {
+        const el = document.getElementById(`sortIcon_${c}`);
+        if (el) {
+          if (orderSortCol === c) {
+            el.textContent = orderSortDir === "asc" ? "▲" : "▼";
+            el.style.color = "var(--primary)";
+            el.style.fontWeight = "800";
+          } else {
+            el.textContent = "⇅";
+            el.style.color = "#94a3b8";
+            el.style.fontWeight = "normal";
+          }
+        }
+      });
+    }
+
+    function toggleSelectAllOrders(masterChk) {
+      const isChecked = masterChk.checked;
+      const checkboxes = document.querySelectorAll(".order-select-chk");
+      checkboxes.forEach(chk => {
+        chk.checked = isChecked;
+        if (isChecked) {
+          selectedOrderIds.add(chk.value);
+        } else {
+          selectedOrderIds.delete(chk.value);
+        }
+      });
+      updateSelectedOrdersBar();
+    }
+
+    function toggleSelectOrder(chk, orderId) {
+      if (chk.checked) {
+        selectedOrderIds.add(orderId);
+      } else {
+        selectedOrderIds.delete(orderId);
+      }
+      updateSelectedOrdersBar();
+    }
+
+    function clearSelectedOrders() {
+      selectedOrderIds.clear();
+      const masterChk = document.getElementById("orderSelectAllChk");
+      if (masterChk) masterChk.checked = false;
+      const checkboxes = document.querySelectorAll(".order-select-chk");
+      checkboxes.forEach(chk => chk.checked = false);
+      updateSelectedOrdersBar();
+    }
+
+    function updateSelectedOrdersBar() {
+      const bar = document.getElementById("orderBatchActionToolbar");
+      const info = document.getElementById("orderBatchSelectedInfo");
+      const btnCombine = document.getElementById("btnBatchCombineDispatch");
+      if (!bar || !info) return;
+
+      const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
+      if (isSalesperson) {
+        bar.style.display = "none";
+        return;
+      }
+
+      const count = selectedOrderIds.size;
+      if (count === 0) {
+        bar.style.display = "none";
+        const masterChk = document.getElementById("orderSelectAllChk");
+        if (masterChk) masterChk.checked = false;
+        return;
+      }
+
+      bar.style.display = "flex";
+      const selectedOrders = (state.orders || []).filter(o => selectedOrderIds.has(o.id));
+      let totUnits = 0;
+      let totVal = 0;
+      const partiesSet = new Set();
+
+      selectedOrders.forEach(o => {
+        const ordQ = Number(o.orderQty || 0);
+        const dispQ = Number(o.dispatchedQty || 0);
+        const remQ = Math.max(0, ordQ - dispQ);
+        totUnits += remQ;
+        const lineTotal = Number(o.totalAmt || (ordQ * Number(o.rate || 0)) || 0);
+        totVal += (ordQ > 0 ? (remQ / ordQ) * lineTotal : 0);
+        if (o.partyName) partiesSet.add(o.partyName.trim().toLowerCase());
+      });
+
+      info.textContent = `${count} order(s) selected | Pending: ${totUnits} units | Value: ${fmtINR(totVal)}`;
+
+      const canDispatch = isAdminLoggedIn || (currentStaff && currentStaff.role === "Manager");
+      if (btnCombine) {
+        const pendingSelected = selectedOrders.filter(o => (Number(o.orderQty || 0) - Number(o.dispatchedQty || 0)) > 0);
+        if (pendingSelected.length >= 2 && partiesSet.size === 1 && canDispatch) {
+          const partyDisplayName = pendingSelected[0].partyName;
+          btnCombine.style.display = "inline-flex";
+          btnCombine.textContent = `🚚 Combine Dispatch (${pendingSelected.length} for ${partyDisplayName})`;
+        } else {
+          btnCombine.style.display = "none";
+        }
+      }
+    }
+
+    function isOrderInSelectedDateRange(orderDateStr) {
+      if (!orderDateStr) return true;
+      if (!orderDatePreset || orderDatePreset === "all") return true;
+
+      const now = new Date();
+      const todayStr = getDashLocalDateStr(now);
+
+      if (orderDatePreset === "today") {
+        return orderDateStr === todayStr;
+      }
+      if (orderDatePreset === "yesterday") {
+        const y = new Date(now);
+        y.setDate(y.getDate() - 1);
+        const yStr = getDashLocalDateStr(y);
+        return orderDateStr === yStr;
+      }
+      if (orderDatePreset === "thisWeek") {
+        const day = now.getDay();
+        const diffToMon = now.getDate() - day + (day === 0 ? -6 : 1);
+        const mon = new Date(now.getFullYear(), now.getMonth(), diffToMon);
+        const sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
+        const monStr = getDashLocalDateStr(mon);
+        const sunStr = getDashLocalDateStr(sun);
+        return orderDateStr >= monStr && orderDateStr <= sunStr;
+      }
+      if (orderDatePreset === "thisMonth") {
+        const mStr = todayStr.substring(0, 7);
+        return orderDateStr.startsWith(mStr);
+      }
+      if (orderDatePreset === "custom") {
+        const fromVal = document.getElementById("orderDateFrom") ? document.getElementById("orderDateFrom").value : "";
+        const toVal = document.getElementById("orderDateTo") ? document.getElementById("orderDateTo").value : "";
+        if (fromVal && orderDateStr < fromVal) return false;
+        if (toVal && orderDateStr > toVal) return false;
+        return true;
+      }
+      return true;
+    }
+
+    function getFilteredAndSortedOrdersList() {
+      const allOrders = state.orders || [];
+      const q = (document.getElementById("orderSearch") ? document.getElementById("orderSearch").value : "").toLowerCase();
+      const spFilterEl = document.getElementById("orderSalespersonFilter");
+      const selectedSp = (spFilterEl && spFilterEl.value) ? spFilterEl.value : "all";
+
+      // 1. Filter by active smart tab
+      let list = allOrders;
+      if (currentOrderRegisterTab === "Pending") {
+        list = allOrders.filter(o => (Number(o.orderQty || 0) - Number(o.dispatchedQty || 0)) > 0);
+      } else if (currentOrderRegisterTab === "Completed") {
+        list = allOrders.filter(o => (Number(o.orderQty || 0) - Number(o.dispatchedQty || 0)) === 0);
+      }
+
+      // 2. Filter by search query
+      if (q) {
+        list = list.filter(o =>
+          (o.orderNo || "").toLowerCase().includes(q) ||
+          (o.memoNo || "").toLowerCase().includes(q) ||
+          (o.partyName || "").toLowerCase().includes(q) ||
+          (o.productName || "").toLowerCase().includes(q) ||
+          (o.salespersonName || "").toLowerCase().includes(q) ||
+          (Array.isArray(o.items) && o.items.some(it => (it.productName || "").toLowerCase().includes(q)))
+        );
+      }
+
+      // 3. Filter by Date range
+      list = list.filter(o => isOrderInSelectedDateRange(o.date));
+
+      // 4. Filter by Salesperson (Salespersons always see only their own orders across all register views; Admin/Manager can filter by selected salesperson)
+      const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
+      if (isSalesperson && currentStaff && currentStaff.name) {
+        const myName = currentStaff.name.toUpperCase();
+        const isGopal = myName.includes("GOPAL");
+        const isVikram = myName.includes("VIKARAM") || myName.includes("VIKRAM");
+        list = list.filter(o => {
+          const sp = (o.salespersonName || "").toUpperCase();
+          if (isGopal) return sp.includes("GOPAL");
+          if (isVikram) return sp.includes("VIKARAM") || sp.includes("VIKRAM");
+          const firstName = myName.split(" ")[0];
+          return sp === myName || (firstName.length >= 3 && sp.includes(firstName));
+        });
+      } else if (selectedSp !== "all") {
+        list = list.filter(o => (o.salespersonName || "").trim().toLowerCase() === selectedSp.trim().toLowerCase());
+      }
+
+      // 5. Sorting
+      list.sort((a, b) => {
+        let valA, valB;
+        if (orderSortCol === "memoNo") {
+          valA = parseInt((a.memoNo || a.orderNo || "0").replace(/\D/g, ""), 10) || 0;
+          valB = parseInt((b.memoNo || b.orderNo || "0").replace(/\D/g, ""), 10) || 0;
+        } else if (orderSortCol === "date") {
+          valA = a.date || "";
+          valB = b.date || "";
+        } else if (orderSortCol === "partyName") {
+          valA = (a.partyName || "").toLowerCase();
+          valB = (b.partyName || "").toLowerCase();
+        } else if (orderSortCol === "ordQty") {
+          valA = Number(a.orderQty || 0);
+          valB = Number(b.orderQty || 0);
+        } else if (orderSortCol === "dispQty") {
+          valA = Number(a.dispatchedQty || 0);
+          valB = Number(b.dispatchedQty || 0);
+        } else if (orderSortCol === "pendingQty") {
+          valA = Number(a.orderQty || 0) - Number(a.dispatchedQty || 0);
+          valB = Number(b.orderQty || 0) - Number(b.dispatchedQty || 0);
+        } else if (orderSortCol === "totalAmt") {
+          valA = Number(a.totalAmt || (Number(a.orderQty || 0) * Number(a.rate || 0)) || 0);
+          valB = Number(b.totalAmt || (Number(b.orderQty || 0) * Number(b.rate || 0)) || 0);
+        } else {
+          valA = a.date || "";
+          valB = b.date || "";
+        }
+
+        if (valA < valB) return orderSortDir === "asc" ? -1 : 1;
+        if (valA > valB) return orderSortDir === "asc" ? 1 : -1;
+        return 0;
+      });
+
+      return list;
+    }
+
+    function renderOrdersTable() {
+      const isSalesperson = currentStaff && currentStaff.role === "Salesperson";
+      const canDispatch = isAdminLoggedIn || (currentStaff && currentStaff.role === "Manager");
+      const allOrders = state.orders || [];
+      const computedParties = (typeof computePartiesForState === "function") ? computePartiesForState(state) : (state.parties || []);
+
+      // Toggle Admin Actions Bar & Salesperson Filter for Salespersons
+      const adminBar = document.getElementById("orderRegAdminBar");
+      if (adminBar) adminBar.style.display = isSalesperson ? "none" : "flex";
+
+      const spFilterEl = document.getElementById("orderSalespersonFilter");
+      if (spFilterEl) {
+        spFilterEl.style.display = isSalesperson ? "none" : "inline-block";
+        if (!isSalesperson && spFilterEl.options.length <= 1) {
+          populateOrderSalespersonFilter();
+        }
+      }
+
+      // Toggle KPI Strip: Keep visible for everyone (personalized for Salespersons, team-wide for Admin/Manager)
+      const kpiStrip = document.getElementById("ordersKpiStrip");
+      if (kpiStrip) kpiStrip.style.display = "grid";
+
+      const kpiPendLblEl = document.getElementById("kpiPendingLabel");
+      const kpiDispLblEl = document.getElementById("kpiDispatchedLabel");
+      const kpiTotLblEl = document.getElementById("kpiTotalOrdersLabel");
+      if (kpiPendLblEl) kpiPendLblEl.textContent = isSalesperson ? "My Pending Dispatch" : "Pending Dispatch";
+      if (kpiDispLblEl) kpiDispLblEl.textContent = isSalesperson ? "My Dispatched Value" : "Dispatched Value";
+      if (kpiTotLblEl) kpiTotLblEl.textContent = isSalesperson ? "My Orders Booked" : "Total Orders Booked";
+
+      // Check whether to show batch select checkboxes (Only on Active Pending Orders for Admin/Manager)
+      const showBatchSelect = !isSalesperson && (currentOrderRegisterTab === "Pending");
+
+      // Toggle Compact View Classes & Headers on Main Orders Table
+      const tableEl = document.getElementById("ordersMainTable");
+      if (tableEl) {
+        if (!showBatchSelect) {
+          tableEl.classList.add("hide-order-select");
+        } else {
+          tableEl.classList.remove("hide-order-select");
+        }
+
+        if (isSalesperson) {
+          tableEl.classList.add("salesperson-orders-view");
+          // Hide salesperson column in Active Pending Orders (since all are own); show in Completed & All Orders History
+          if (currentOrderRegisterTab === "Pending") {
+            tableEl.classList.add("hide-sp-col");
+          } else {
+            tableEl.classList.remove("hide-sp-col");
+          }
+        } else {
+          tableEl.classList.remove("salesperson-orders-view");
+          tableEl.classList.remove("hide-sp-col");
+        }
+      }
+      const colOrdQtyHeader = document.getElementById("colHeaderOrdQty");
+      if (colOrdQtyHeader) {
+        colOrdQtyHeader.textContent = isSalesperson ? "Total Qty" : "Ord Qty";
+      }
+
+      // Hide or show batch selection controls based on showBatchSelect (only visible in Card view, not Table view)
+      const btnCardSelectAll = document.getElementById("btnOrderCardSelectAll");
+      if (btnCardSelectAll) {
+        btnCardSelectAll.style.display = (showBatchSelect && currentOrderViewMode === "cards") ? "inline-flex" : "none";
+      }
+      if (!showBatchSelect) {
+        const batchToolbar = document.getElementById("orderBatchActionToolbar");
+        if (batchToolbar) batchToolbar.style.display = "none";
+      }
+
+      // Determine visible orders for stats & tab counts (personal for Salesperson, company-wide or selected salesperson for Admin/Manager)
+      let visibleOrdersForStats = allOrders;
+      if (isSalesperson && currentStaff && currentStaff.name) {
+        const myName = currentStaff.name.toUpperCase();
+        const isGopal = myName.includes("GOPAL");
+        const isVikram = myName.includes("VIKARAM") || myName.includes("VIKRAM");
+        visibleOrdersForStats = allOrders.filter(o => {
+          const sp = (o.salespersonName || "").toUpperCase();
+          if (isGopal) return sp.includes("GOPAL");
+          if (isVikram) return sp.includes("VIKARAM") || sp.includes("VIKRAM");
+          const firstName = myName.split(" ")[0];
+          return sp === myName || (firstName.length >= 3 && sp.includes(firstName));
+        });
+      } else if (spFilterEl && spFilterEl.value && spFilterEl.value !== "all") {
+        const sel = spFilterEl.value.trim().toLowerCase();
+        visibleOrdersForStats = allOrders.filter(o => (o.salespersonName || "").trim().toLowerCase() === sel);
+      }
+
+      // Respect active date range in KPI counters too!
+      visibleOrdersForStats = visibleOrdersForStats.filter(o => isOrderInSelectedDateRange(o.date));
+
+      // Compute KPI totals across visible orders
+      let pendingVal = 0;
+      let dispatchedVal = 0;
+      let totalBookedVal = 0;
+      let totalPendingCount = 0;
+      let totalCompletedCount = 0;
+
+      visibleOrdersForStats.forEach(o => {
+        const ordQ = Number(o.orderQty || 0);
+        const dispQ = Number(o.dispatchedQty || 0);
+        const lineTotal = Number(o.totalAmt || (ordQ * Number(o.rate || 0)) || 0);
+        totalBookedVal += lineTotal;
+
+        const remQ = ordQ - dispQ;
+        if (remQ > 0) {
+          totalPendingCount++;
+          pendingVal += (ordQ > 0 ? (remQ / ordQ) * lineTotal : 0);
+        } else {
+          totalCompletedCount++;
+        }
+        if (dispQ > 0) {
+          dispatchedVal += (ordQ > 0 ? (dispQ / ordQ) * lineTotal : 0);
+        }
+      });
+
+      // Update KPI counters in UI
+      const kpiPendValEl = document.getElementById("kpiPendingValue");
+      const kpiPendCntEl = document.getElementById("kpiPendingCount");
+      const kpiDispValEl = document.getElementById("kpiDispatchedValue");
+      const kpiDispCntEl = document.getElementById("kpiDispatchedCount");
+      const kpiTotValEl = document.getElementById("kpiTotalOrdersValue");
+      const kpiTotCntEl = document.getElementById("kpiTotalOrdersCount");
+
+      if (kpiPendValEl) kpiPendValEl.textContent = fmtINR(pendingVal);
+      if (kpiPendCntEl) kpiPendCntEl.textContent = totalPendingCount;
+      if (kpiDispValEl) kpiDispValEl.textContent = fmtINR(dispatchedVal);
+      if (kpiDispCntEl) kpiDispCntEl.textContent = totalCompletedCount;
+      if (kpiTotValEl) kpiTotValEl.textContent = fmtINR(totalBookedVal);
+      if (kpiTotCntEl) kpiTotCntEl.textContent = visibleOrdersForStats.length;
+
+      // Update Tab Counter Badges (Pending reflects personal for Salesperson; All & Dispatched reflect full history)
+      let myPendingCount = 0;
+      allOrders.forEach(o => {
+        const remQ = Number(o.orderQty || 0) - Number(o.dispatchedQty || 0);
+        if (remQ > 0) {
+          if (isSalesperson && currentStaff && currentStaff.name) {
+            const myName = currentStaff.name.toUpperCase();
+            const isGopal = myName.includes("GOPAL");
+            const isVikram = myName.includes("VIKARAM") || myName.includes("VIKRAM");
+            const sp = (o.salespersonName || "").toUpperCase();
+            if ((isGopal && sp.includes("GOPAL")) || (isVikram && (sp.includes("VIKARAM") || sp.includes("VIKRAM")))) {
+              myPendingCount++;
+            }
+          } else {
+            myPendingCount++;
+          }
+        }
+      });
+      const totalCompletedOrdersCount = allOrders.filter(o => (Number(o.orderQty || 0) - Number(o.dispatchedQty || 0)) === 0).length;
+
+      const cAllEl = document.getElementById("countAllOrders");
+      const cPenEl = document.getElementById("countPendingOrders");
+      const cCompEl = document.getElementById("countCompletedOrders");
+      if (cAllEl) cAllEl.textContent = allOrders.length;
+      if (cPenEl) cPenEl.textContent = myPendingCount;
+      if (cCompEl) cCompEl.textContent = totalCompletedOrdersCount;
+
+      updateOrderSortHeaders();
+
+      // Get filtered and sorted list
+      const list = getFilteredAndSortedOrdersList();
+      const tbody = document.getElementById("ordersTableBody");
+      const cardsCont = document.getElementById("ordersCardsContainer");
+      if (!tbody && !cardsCont) return;
+
+      if (list.length === 0) {
+        const colSpan = isSalesperson ? (currentOrderRegisterTab === "Pending" ? 8 : 9) : 12;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center" style="padding:24px;color:var(--muted);font-weight:600;">No orders found matching selected filters.</td></tr>`;
+        if (cardsCont) cardsCont.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted);font-weight:600;">No orders found matching selected filters.</div>`;
+        updateSelectedOrdersBar();
+        updateOrderViewModeUI();
+        return;
+      }
+
+      let tableRowsHtml = "";
+      let cardsHtml = "";
+
+      list.forEach(o => {
+        const pending = Number(o.orderQty || 0) - Number(o.dispatchedQty || 0);
+        const st = Number(o.dispatchedQty || 0) === 0 ? ["Pending", "pill-red"] : (pending > 0 ? ["Partial", "pill-yellow"] : ["Completed", "pill-green"]);
+        const isDispatched = Number(o.dispatchedQty || 0) > 0;
+        const isCompleted = (pending === 0 && Number(o.orderQty || 0) > 0);
+        const isPartial = (pending > 0 && isDispatched);
+        const lineTotal = Number(o.totalAmt || (Number(o.orderQty || 0) * Number(o.rate || 0)) || 0);
+
+        // Party Live Due Calculation with Quick Collect Payment Shortcut
+        const partyInfo = computedParties.find(p => p.name && p.name.trim().toLowerCase() === (o.partyName || "").trim().toLowerCase());
+        let partyDueHtml = "";
+        let partyDueCardHtml = "";
+        if (partyInfo) {
+          const bal = Number(partyInfo.netBalance || 0);
+          if (bal > 0) {
+            partyDueHtml = `
               <div style="font-size:0.71rem;color:#b45309;font-weight:700;margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
                 <span>🔴 Due: ${fmtINR(bal)}</span>
                 <button type="button" class="btn btn-xs" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;font-size:0.65rem;padding:1px 5px;border-radius:4px;font-weight:700;cursor:pointer;line-height:1.2;" onclick="quickCollectFromDue('${escapeHtml(partyInfo.id || o.partyName)}')" title="Record collection for ${escapeHtml(o.partyName)}">💵 Collect</button>
               </div>`;
-							} else if (bal === 0) {
-								partyDueHtml = `<div style="font-size:0.71rem;color:#15803d;font-weight:600;margin-top:2px;">🟢 Nil Due</div>`;
-							} else {
-								partyDueHtml = `<div style="font-size:0.71rem;color:#0284c7;font-weight:600;margin-top:2px;">🔵 Adv: ${fmtINR(Math.abs(bal))}</div>`;
-							}
-						}
+            partyDueCardHtml = `
+              <div style="font-size:0.75rem;color:#b45309;font-weight:700;margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span>🔴 Due: ${fmtINR(bal)}</span>
+                <button type="button" class="btn btn-xs" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;font-size:0.68rem;padding:2px 6px;border-radius:4px;font-weight:700;cursor:pointer;line-height:1.2;" onclick="quickCollectFromDue('${escapeHtml(partyInfo.id || o.partyName)}')" title="Record collection for ${escapeHtml(o.partyName)}">💵 Collect</button>
+              </div>`;
+          } else if (bal === 0) {
+            partyDueHtml = `<div style="font-size:0.71rem;color:#15803d;font-weight:600;margin-top:2px;">🟢 Nil Due</div>`;
+            partyDueCardHtml = `<div style="font-size:0.75rem;color:#15803d;font-weight:600;margin-top:3px;">🟢 Nil Due</div>`;
+          } else {
+            partyDueHtml = `<div style="font-size:0.71rem;color:#0284c7;font-weight:600;margin-top:2px;">🔵 Adv: ${fmtINR(Math.abs(bal))}</div>`;
+            partyDueCardHtml = `<div style="font-size:0.75rem;color:#0284c7;font-weight:600;margin-top:3px;">🔵 Adv: ${fmtINR(Math.abs(bal))}</div>`;
+          }
+        }
 
-						// Date Ageing / Days Pending Calculation
-						let ageingHtml = "";
-						if (o.date) {
-							const parts = o.date.split("-");
-							if (parts.length === 3) {
-								const oDate = new Date(
-									parseInt(parts[0], 10),
-									parseInt(parts[1], 10) - 1,
-									parseInt(parts[2], 10),
-								);
-								const now = new Date();
-								const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-								const diffDays = Math.round((todayZero - oDate) / (1000 * 60 * 60 * 24));
+        // Date Ageing / Days Pending Calculation
+        let ageingHtml = "";
+        let diffDays = 0;
+        if (o.date) {
+          const parts = o.date.split("-");
+          if (parts.length === 3) {
+            const oDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+            const now = new Date();
+            const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            diffDays = Math.round((todayZero - oDate) / (1000 * 60 * 60 * 24));
 
-								if (diffDays <= 0) {
-									ageingHtml = `<span style="font-size:0.66rem;padding:1px 5px;border-radius:4px;background:#f0fdf4;color:#166534;font-weight:700;display:inline-block;margin-top:2px;">Today</span>`;
-								} else if (diffDays === 1) {
-									ageingHtml = `<span style="font-size:0.66rem;padding:1px 5px;border-radius:4px;background:#f8fafc;color:#475569;font-weight:600;display:inline-block;margin-top:2px;">1d ago</span>`;
-								} else {
-									if (pending > 0 && diffDays >= 3) {
-										ageingHtml = `<span style="font-size:0.66rem;padding:1px 5px;border-radius:4px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;font-weight:700;display:inline-block;margin-top:2px;" title="${diffDays} days pending since order booking">⚠️ ${diffDays}d Pending</span>`;
-									} else {
-										ageingHtml = `<span style="font-size:0.66rem;padding:1px 5px;border-radius:4px;background:#f1f5f9;color:#64748b;font-weight:600;display:inline-block;margin-top:2px;">${diffDays}d ago</span>`;
-									}
-								}
-							}
-						}
+            if (diffDays <= 0) {
+              ageingHtml = `<span style="font-size:0.66rem;padding:1px 5px;border-radius:4px;background:#f0fdf4;color:#166534;font-weight:700;display:inline-block;margin-top:2px;">Today</span>`;
+            } else if (diffDays === 1) {
+              ageingHtml = `<span style="font-size:0.66rem;padding:1px 5px;border-radius:4px;background:#f8fafc;color:#475569;font-weight:600;display:inline-block;margin-top:2px;">1d ago</span>`;
+            } else {
+              if (pending > 0 && diffDays >= 3) {
+                ageingHtml = `<span style="font-size:0.66rem;padding:1px 5px;border-radius:4px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;font-weight:700;display:inline-block;margin-top:2px;" title="${diffDays} days pending since order booking">⚠️ ${diffDays}d Pending</span>`;
+              } else {
+                ageingHtml = `<span style="font-size:0.66rem;padding:1px 5px;border-radius:4px;background:#f1f5f9;color:#64748b;font-weight:600;display:inline-block;margin-top:2px;">${diffDays}d ago</span>`;
+              }
+            }
+          }
+        }
 
-						// Formatted Item Details with Badges
-						let itemsHtml = "";
-						if (Array.isArray(o.items) && o.items.length > 0) {
-							const badgeItems = o.items
-								.slice(0, 2)
-								.map(
-									(it) =>
-										`<span style="display:inline-block;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:1px 5px;font-size:0.73rem;margin:1px 2px;white-space:nowrap;"><strong>${escapeHtml(it.productName)}</strong> (${it.qty})</span>`,
-								)
-								.join("");
-							const extraCount = o.items.length - 2;
-							const morePill =
-								extraCount > 0
-									? `<a href="javascript:void(0)" onclick="openQuickOrderPreviewModal('${o.id}')" style="font-size:0.7rem;color:#0284c7;font-weight:700;text-decoration:none;margin-left:2px;">+${extraCount} more</a>`
-									: "";
-							itemsHtml = `<div style="max-width:220px;line-height:1.3;">${badgeItems}${morePill}</div>`;
-						} else {
-							itemsHtml = `<div style="max-width:220px;font-size:0.78rem;font-weight:600;color:#334155;">${escapeHtml(o.productName || "General Goods")}</div>`;
-						}
+        // Formatted Item Details with Badges
+        let itemsHtml = "";
+        let cardItemsHtml = "";
+        if (Array.isArray(o.items) && o.items.length > 0) {
+          const badgeItems = o.items.slice(0, 2).map(it => `<span style="display:inline-block;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:1px 5px;font-size:0.73rem;margin:1px 2px;white-space:nowrap;"><strong>${escapeHtml(it.productName)}</strong> (${it.qty})</span>`).join("");
+          const extraCount = o.items.length - 2;
+          const morePill = extraCount > 0 ? `<a href="javascript:void(0)" onclick="openQuickOrderPreviewModal('${o.id}')" style="font-size:0.7rem;color:#0284c7;font-weight:700;text-decoration:none;margin-left:2px;">+${extraCount} more</a>` : "";
+          itemsHtml = `<div style="max-width:220px;line-height:1.3;">${badgeItems}${morePill}</div>`;
+          cardItemsHtml = `<div style="line-height:1.4;margin-top:2px;">${badgeItems}${morePill}</div>`;
+        } else {
+          itemsHtml = `<div style="max-width:220px;font-size:0.78rem;font-weight:600;color:#334155;">${escapeHtml(o.productName || "General Goods")}</div>`;
+          cardItemsHtml = `<div style="font-size:0.80rem;font-weight:600;color:#334155;margin-top:2px;">${escapeHtml(o.productName || "General Goods")}</div>`;
+        }
 
-						// Smart Primary Actions
-						let primaryBtn1 = "";
-						let primaryBtn2 = "";
+        // Smart Primary Actions
+        let primaryBtn1 = "";
+        let primaryBtn2 = "";
 
-						if (isCompleted) {
-							primaryBtn1 = `<button class="btn btn-primary btn-sm" onclick="openTaxInvoice('${o.id}')" style="font-weight:700;padding:5px 9px;" title="View Final Tax Invoice Bill">🧾 Bill PDF</button>`;
-							primaryBtn2 = `<button class="btn btn-whatsapp btn-sm" onclick="sendInvoiceWhatsAppDirect('${o.id}')" style="padding:5px 9px;" title="Send Bill to Party">💬 Send Bill</button>`;
-						} else if (isPartial) {
-							primaryBtn1 = canDispatch
-								? `<button class="btn btn-amber btn-sm" onclick="openDispatchModal('${o.id}')" style="font-weight:700;padding:5px 9px;" title="Dispatch remaining items">🚚 Dispatch</button>`
-								: `<button class="btn btn-sm" style="background:#0284c7;color:#fff;font-weight:700;padding:5px 9px;" onclick="openOrderBookingMemo('${o.id}')" title="View Memo PDF">📄 Memo</button>`;
-							primaryBtn2 = `<button class="btn btn-whatsapp btn-sm" onclick="sendOrderWhatsApp('${o.id}')" style="padding:5px 9px;" title="Send WhatsApp">💬 WhatsApp</button>`;
-						} else {
-							// Pending
-							primaryBtn1 = canDispatch
-								? `<button class="btn btn-amber btn-sm" onclick="openDispatchModal('${o.id}')" style="font-weight:700;padding:5px 9px;" title="Dispatch order">🚚 Dispatch</button>`
-								: `<button class="btn btn-sm" style="background:#0284c7;color:#fff;font-weight:700;padding:5px 9px;" onclick="openOrderBookingMemo('${o.id}')" title="View Memo PDF">📄 Memo</button>`;
-							primaryBtn2 = `<button class="btn btn-whatsapp btn-sm" onclick="sendOrderWhatsApp('${o.id}')" style="padding:5px 9px;" title="Send Order Memo to Party">💬 WhatsApp</button>`;
-						}
+        if (isCompleted) {
+          primaryBtn1 = `<button class="btn btn-primary btn-sm" onclick="openTaxInvoice('${o.id}')" title="View Final Tax Invoice Bill">🧾 Bill PDF</button>`;
+          primaryBtn2 = `<button class="btn btn-whatsapp btn-sm" onclick="sendInvoiceWhatsAppDirect('${o.id}')" title="Send Bill to Party">💬 Send Bill</button>`;
+        } else if (isPartial) {
+          primaryBtn1 = canDispatch ? `<button class="btn btn-amber btn-sm" onclick="openDispatchModal('${o.id}')" title="Dispatch remaining items">🚚 Dispatch</button>` : `<button class="btn btn-sm" style="background:#0284c7;color:#fff;" onclick="openOrderBookingMemo('${o.id}')" title="View Memo PDF">📄 Memo</button>`;
+          primaryBtn2 = `<button class="btn btn-whatsapp btn-sm" onclick="sendOrderWhatsApp('${o.id}')" title="Send WhatsApp">💬 WhatsApp</button>`;
+        } else {
+          // Pending
+          primaryBtn1 = canDispatch ? `<button class="btn btn-amber btn-sm" onclick="openDispatchModal('${o.id}')" title="Dispatch order">🚚 Dispatch</button>` : `<button class="btn btn-sm" style="background:#0284c7;color:#fff;" onclick="openOrderBookingMemo('${o.id}')" title="View Memo PDF">📄 Memo</button>`;
+          primaryBtn2 = `<button class="btn btn-whatsapp btn-sm" onclick="sendOrderWhatsApp('${o.id}')" title="Send Order Memo to Party">💬 WhatsApp</button>`;
+        }
 
-						const moreBtn = `
-          <button type="button" class="btn btn-sm order-more-btn" onclick="toggleOrderActionMenu(event, '${o.id}')" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;font-weight:800;font-size:1.1rem;padding:3px 9px;border-radius:6px;line-height:1;cursor:pointer;" title="More Options">
+        const moreBtn = `
+          <button type="button" class="btn btn-sm order-more-btn" onclick="toggleOrderActionMenu(event, '${o.id}')" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;cursor:pointer;" title="More Options">
             ⋮
           </button>
         `;
 
-						const memoDisplay = o.memoNo ? o.memoNo : `#${o.orderNo}`;
-						const isChecked = selectedOrderIds.has(o.id) ? "checked" : "";
+        const memoDisplay = o.memoNo ? o.memoNo : `#${o.orderNo}`;
+        const isChecked = selectedOrderIds.has(o.id) ? "checked" : "";
 
-						return `
+        // Card Alert Class
+        let cardAlertClass = "";
+        if (pending > 0 && diffDays >= 3) {
+          cardAlertClass = "order-card-pending-urgent";
+        } else if (isPartial) {
+          cardAlertClass = "order-card-partial";
+        } else if (isCompleted) {
+          cardAlertClass = "order-card-completed";
+        }
+
+        const ordQ = Number(o.orderQty || 0);
+        const dispQ = Number(o.dispatchedQty || 0);
+        const progressPct = ordQ > 0 ? Math.min(100, Math.round((dispQ / ordQ) * 100)) : (isCompleted ? 100 : 0);
+
+        tableRowsHtml += `
           <tr>
-            <td class="order-admin-col" style="text-align:center;vertical-align:middle;">
-              <input type="checkbox" class="order-select-chk" value="${o.id}" data-party="${escapeHtml(o.partyName || "")}" ${isChecked} onchange="toggleSelectOrder(this, '${o.id}')" />
+            <td class="order-admin-col" style="text-align:center;vertical-align:middle;width:34px;padding:6px 2px;">
+              <input type="checkbox" class="order-select-chk" value="${o.id}" data-party="${escapeHtml(o.partyName || '')}" ${isChecked} onchange="toggleSelectOrder(this, '${o.id}')" />
             </td>
-            <td class="font-bold" style="white-space:nowrap;">
-              <a href="javascript:void(0)" onclick="openQuickOrderPreviewModal('${o.id}')" style="color:var(--primary);font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:4px;" title="Click for Quick Preview">
+            <td class="font-bold" style="white-space:nowrap;padding:6px 8px;">
+              <a href="javascript:void(0)" onclick="openQuickOrderPreviewModal('${o.id}')" style="color:var(--primary);font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:3px;" title="Click for Quick Preview">
                 <span>${memoDisplay}</span>
-                <span style="font-size:0.75rem;opacity:0.75;">👁️</span>
+                <span style="font-size:0.72rem;opacity:0.75;">👁️</span>
               </a>
             </td>
-            <td style="white-space:nowrap;">
-              <div style="font-weight:600;">${fmtDate(o.date)}</div>
+            <td style="white-space:nowrap;padding:6px 8px;">
+              <div style="font-weight:600;font-size:0.76rem;">${fmtDate(o.date)}</div>
               ${ageingHtml}
             </td>
-            <td>
-              <div class="font-bold" style="color:#0f172a;">${escapeHtml(o.partyName)}</div>
+            <td class="order-party-cell" style="min-width:140px;max-width:210px;padding:6px 8px;">
+              <div class="font-bold" style="color:#0f172a;line-height:1.25;font-size:0.80rem;">${escapeHtml(o.partyName)}</div>
               ${partyDueHtml}
             </td>
-            <td class="order-sp-col" style="font-size:0.78rem;font-weight:600;color:#475569;">${escapeHtml(o.salespersonName || "-")}</td>
-            <td>${itemsHtml}</td>
-            <td class="text-right font-bold">${o.orderQty}</td>
-            <td class="text-right order-disp-col" style="color:#15803d;font-weight:600;">${o.dispatchedQty || 0}</td>
-            <td class="text-right font-bold order-disp-col" style="color:#ea580c;">${pending}</td>
-            <td class="text-right font-bold" style="color:#0f172a;">${fmtINR(lineTotal)}</td>
-            <td class="text-center"><span class="pill ${st[1]}">${st[0]}</span></td>
-            <td class="text-center" style="white-space:nowrap;vertical-align:middle;">
-              <div style="display:inline-flex;align-items:center;gap:5px;">
+            <td class="order-sp-col" style="font-size:0.74rem;font-weight:600;color:#475569;white-space:nowrap;padding:6px 8px;">${escapeHtml(o.salespersonName || "-")}</td>
+            <td class="order-items-cell" style="min-width:130px;max-width:200px;padding:6px 8px;">${itemsHtml}</td>
+            <td class="text-right font-bold" style="padding:6px 8px;font-size:0.80rem;">${o.orderQty}</td>
+            <td class="text-right order-disp-col" style="color:#15803d;font-weight:600;padding:6px 8px;font-size:0.80rem;">${o.dispatchedQty || 0}</td>
+            <td class="text-right font-bold order-disp-col" style="color:#ea580c;padding:6px 8px;font-size:0.80rem;">${pending}</td>
+            <td class="text-right font-bold" style="color:#0f172a;white-space:nowrap;padding:6px 8px;font-size:0.80rem;">${fmtINR(lineTotal)}</td>
+            <td class="text-center" style="white-space:nowrap;padding:6px 6px;"><span class="pill ${st[1]}" style="font-size:0.70rem;padding:2px 6px;">${st[0]}</span></td>
+            <td class="text-center order-actions-cell" style="white-space:nowrap;vertical-align:middle;">
+              <div class="order-action-btn-group">
                 ${primaryBtn1}
                 ${primaryBtn2}
                 ${moreBtn}
@@ -15028,78 +14751,141 @@ function renderOrdersTable() {
             </td>
           </tr>
         `;
-					})
-					.join("");
 
-				updateSelectedOrdersBar();
-			}
+        cardsHtml += `
+          <div class="order-card ${cardAlertClass}">
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #f1f5f9;">
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                  <span class="pill ${st[1]}" style="font-size:0.72rem;padding:2px 8px;font-weight:700;">${st[0]}</span>
+                  <span style="font-size:0.75rem;font-weight:600;color:#64748b;">📅 ${fmtDate(o.date)}</span>
+                  ${ageingHtml}
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  ${showBatchSelect ? `
+                    <input type="checkbox" class="order-select-chk" value="${o.id}" data-party="${escapeHtml(o.partyName || '')}" ${isChecked} onchange="toggleSelectOrder(this, '${o.id}')" title="Select for Warehouse Slip" style="width:16px;height:16px;cursor:pointer;" />
+                  ` : ''}
+                  <a href="javascript:void(0)" onclick="openQuickOrderPreviewModal('${o.id}')" style="color:var(--primary);font-weight:800;font-size:0.86rem;text-decoration:none;display:inline-flex;align-items:center;gap:3px;background:#f8fafc;padding:3px 8px;border-radius:6px;border:1px solid #e2e8f0;" title="Click for Quick Preview">
+                    <span>${memoDisplay}</span>
+                    <span style="font-size:0.75rem;opacity:0.75;">👁️</span>
+                  </a>
+                </div>
+              </div>
 
-			// ==================== QUICK ORDER PREVIEW MODAL ====================
-			function openQuickOrderPreviewModal(orderId) {
-				const ord = (state.orders || []).find((o) => o.id === orderId);
-				if (!ord) return;
+              <div style="margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                  <div style="flex:1;">
+                    <div style="font-size:1.02rem;font-weight:800;color:#0f172a;line-height:1.25;">${escapeHtml(o.partyName)}</div>
+                    ${partyDueCardHtml}
+                  </div>
+                  <div style="text-align:right;flex-shrink:0;">
+                    <div style="font-size:1.18rem;font-weight:900;color:#0f172a;">${fmtINR(lineTotal)}</div>
+                    <div style="font-size:0.65rem;color:var(--muted);font-weight:700;text-transform:uppercase;">Order Total</div>
+                  </div>
+                </div>
+                <div style="margin-top:6px;font-size:0.76rem;color:#475569;display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+                  <span style="color:#64748b;">👤 Booked by:</span>
+                  <strong style="color:#1e293b;">${escapeHtml(o.salespersonName || "-")}</strong>
+                </div>
+                <div style="margin-top:8px;padding-top:6px;border-top:1px dashed #e2e8f0;">
+                  <div style="font-size:0.68rem;text-transform:uppercase;font-weight:700;color:#64748b;margin-bottom:3px;">Ordered Items:</div>
+                  ${cardItemsHtml}
+                </div>
+              </div>
 
-				const modal = document.getElementById("quickOrderPreviewModal");
-				const titleEl = document.getElementById("quickPreviewMemoTitle");
-				const subEl = document.getElementById("quickPreviewSubtitle");
-				const badgeEl = document.getElementById("quickPreviewStatusBadge");
-				const contentEl = document.getElementById("quickOrderPreviewContent");
-				const leftActs = document.getElementById("quickPreviewActionLeft");
-				if (!modal || !contentEl) return;
+              <div class="order-card-meta-grid">
+                <div class="order-card-meta-cell">
+                  <div class="meta-lbl">Ordered</div>
+                  <div class="meta-val">${ordQ}</div>
+                </div>
+                <div class="order-card-meta-cell">
+                  <div class="meta-lbl">Dispatched</div>
+                  <div class="meta-val" style="color:#15803d;">${dispQ}</div>
+                </div>
+                <div class="order-card-meta-cell">
+                  <div class="meta-lbl">Pending</div>
+                  <div class="meta-val" style="color:${pending > 0 ? '#ea580c' : '#15803d'};">${pending}</div>
+                </div>
+                <div class="order-card-meta-cell">
+                  <div class="meta-lbl">Progress</div>
+                  <div class="meta-val" style="font-size:0.80rem;">${progressPct}%</div>
+                </div>
+              </div>
+            </div>
 
-				const memoDisplay = ord.memoNo ? ord.memoNo : `OB-${ord.orderNo}`;
-				const pending = Number(ord.orderQty || 0) - Number(ord.dispatchedQty || 0);
-				const isDispatched = Number(ord.dispatchedQty || 0) > 0;
-				const isCompleted = pending === 0 && Number(ord.orderQty || 0) > 0;
-				const lineTotal = Number(
-					ord.totalAmt || Number(ord.orderQty || 0) * Number(ord.rate || 0) || 0,
-				);
+            <div class="order-card-actions">
+              ${primaryBtn1}
+              ${primaryBtn2}
+              ${moreBtn}
+            </div>
+          </div>
+        `;
+      });
 
-				if (titleEl) titleEl.textContent = `Order Memo #${memoDisplay}`;
-				if (subEl)
-					subEl.textContent = `Booked on ${fmtDate(ord.date)} by ${ord.salespersonName || "Salesperson"}`;
+      if (tbody) tbody.innerHTML = tableRowsHtml;
+      if (cardsCont) cardsCont.innerHTML = cardsHtml;
 
-				if (badgeEl) {
-					if (isCompleted) {
-						badgeEl.className = "pill pill-green";
-						badgeEl.textContent = "Fully Dispatched";
-					} else if (isDispatched) {
-						badgeEl.className = "pill pill-yellow";
-						badgeEl.textContent = `Partially Dispatched (${ord.dispatchedQty}/${ord.orderQty})`;
-					} else {
-						badgeEl.className = "pill pill-red";
-						badgeEl.textContent = "Pending Dispatch";
-					}
-				}
+      updateSelectedOrdersBar();
+      updateOrderViewModeUI();
+    }
 
-				const parties =
-					typeof getComputedParties === "function" ? getComputedParties() : state.parties || [];
-				const party = parties.find(
-					(p) =>
-						p.id === ord.partyId ||
-						(p.name && p.name.trim().toLowerCase() === (ord.partyName || "").trim().toLowerCase()),
-				) || { name: ord.partyName, area: "Nagpur", mobile: "-" };
-				const bal = Number(party.netBalance || 0);
+    // ==================== QUICK ORDER PREVIEW MODAL ====================
+    function openQuickOrderPreviewModal(orderId) {
+      const ord = (state.orders || []).find(o => o.id === orderId);
+      if (!ord) return;
 
-				let partyDueHtml = "";
-				if (bal > 0) {
-					partyDueHtml = `<span style="color:#b45309;font-weight:700;">🔴 Current Due: ${fmtINR(bal)}</span>`;
-				} else if (bal === 0) {
-					partyDueHtml = `<span style="color:#15803d;font-weight:600;">🟢 Nil Due</span>`;
-				} else {
-					partyDueHtml = `<span style="color:#0284c7;font-weight:600;">🔵 Advance: ${fmtINR(Math.abs(bal))}</span>`;
-				}
+      const modal = document.getElementById("quickOrderPreviewModal");
+      const titleEl = document.getElementById("quickPreviewMemoTitle");
+      const subEl = document.getElementById("quickPreviewSubtitle");
+      const badgeEl = document.getElementById("quickPreviewStatusBadge");
+      const contentEl = document.getElementById("quickOrderPreviewContent");
+      const leftActs = document.getElementById("quickPreviewActionLeft");
+      if (!modal || !contentEl) return;
 
-				let itemsTableRows = "";
-				if (Array.isArray(ord.items) && ord.items.length > 0) {
-					itemsTableRows = ord.items
-						.map((it, idx) => {
-							const itQty = Number(it.qty || 0);
-							const itDisp = Number(it.dispatchedQty || 0);
-							const itPend = Math.max(0, itQty - itDisp);
-							const itRate = Number(it.rate || 0);
-							const itAmt = itQty * itRate;
-							return `
+      const memoDisplay = ord.memoNo ? ord.memoNo : `OB-${ord.orderNo}`;
+      const pending = Number(ord.orderQty || 0) - Number(ord.dispatchedQty || 0);
+      const isDispatched = Number(ord.dispatchedQty || 0) > 0;
+      const isCompleted = (pending === 0 && Number(ord.orderQty || 0) > 0);
+      const lineTotal = Number(ord.totalAmt || (Number(ord.orderQty || 0) * Number(ord.rate || 0)) || 0);
+
+      if (titleEl) titleEl.textContent = `Order Memo #${memoDisplay}`;
+      if (subEl) subEl.textContent = `Booked on ${fmtDate(ord.date)} by ${ord.salespersonName || "Salesperson"}`;
+      
+      if (badgeEl) {
+        if (isCompleted) {
+          badgeEl.className = "pill pill-green";
+          badgeEl.textContent = "Fully Dispatched";
+        } else if (isDispatched) {
+          badgeEl.className = "pill pill-yellow";
+          badgeEl.textContent = `Partially Dispatched (${ord.dispatchedQty}/${ord.orderQty})`;
+        } else {
+          badgeEl.className = "pill pill-red";
+          badgeEl.textContent = "Pending Dispatch";
+        }
+      }
+
+      const parties = (typeof getComputedParties === "function") ? getComputedParties() : (state.parties || []);
+      const party = parties.find(p => (p.id === ord.partyId) || (p.name && p.name.trim().toLowerCase() === (ord.partyName || "").trim().toLowerCase())) || { name: ord.partyName, area: "Nagpur", mobile: "-" };
+      const bal = Number(party.netBalance || 0);
+
+      let partyDueHtml = "";
+      if (bal > 0) {
+        partyDueHtml = `<span style="color:#b45309;font-weight:700;">🔴 Current Due: ${fmtINR(bal)}</span>`;
+      } else if (bal === 0) {
+        partyDueHtml = `<span style="color:#15803d;font-weight:600;">🟢 Nil Due</span>`;
+      } else {
+        partyDueHtml = `<span style="color:#0284c7;font-weight:600;">🔵 Advance: ${fmtINR(Math.abs(bal))}</span>`;
+      }
+
+      let itemsTableRows = "";
+      if (Array.isArray(ord.items) && ord.items.length > 0) {
+        itemsTableRows = ord.items.map((it, idx) => {
+          const itQty = Number(it.qty || 0);
+          const itDisp = Number(it.dispatchedQty || 0);
+          const itPend = Math.max(0, itQty - itDisp);
+          const itRate = Number(it.rate || 0);
+          const itAmt = itQty * itRate;
+          return `
             <tr>
               <td style="padding:8px 10px;font-weight:600;">${idx + 1}. ${escapeHtml(it.productName)}</td>
               <td class="text-right" style="padding:8px 10px;">${fmtINR(itRate)}</td>
@@ -15109,10 +14895,9 @@ function renderOrdersTable() {
               <td class="text-right font-bold" style="padding:8px 10px;">${fmtINR(itAmt)}</td>
             </tr>
           `;
-						})
-						.join("");
-				} else {
-					itemsTableRows = `
+        }).join("");
+      } else {
+        itemsTableRows = `
           <tr>
             <td style="padding:8px 10px;font-weight:600;">1. ${escapeHtml(ord.productName || "General Goods")}</td>
             <td class="text-right" style="padding:8px 10px;">${fmtINR(Number(ord.rate || 0))}</td>
@@ -15122,9 +14907,9 @@ function renderOrdersTable() {
             <td class="text-right font-bold" style="padding:8px 10px;">${fmtINR(lineTotal)}</td>
           </tr>
         `;
-				}
+      }
 
-				contentEl.innerHTML = `
+      contentEl.innerHTML = `
         <div style="background:#f8fafc;padding:12px 14px;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:14px;display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:10px;">
           <div>
             <div style="font-size:0.7rem;text-transform:uppercase;color:#64748b;font-weight:700;">Party / Dealer</div>
@@ -15132,15 +14917,15 @@ function renderOrdersTable() {
             <div style="font-size:0.8rem;color:#475569;margin-top:2px;">📍 ${escapeHtml(party.area || "Nagpur")} | 📞 ${escapeHtml(party.mobile || "-")}</div>
             <div style="margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
               ${partyDueHtml}
-              ${bal > 0 ? `<button type="button" class="btn btn-xs" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;font-size:0.68rem;padding:2px 8px;border-radius:4px;font-weight:700;cursor:pointer;" onclick="closeModal('quickOrderPreviewModal');quickCollectFromDue('${escapeHtml(party.id || ord.partyName)}')">💵 Collect Payment</button>` : ""}
+              ${bal > 0 ? `<button type="button" class="btn btn-xs" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;font-size:0.68rem;padding:2px 8px;border-radius:4px;font-weight:700;cursor:pointer;" onclick="closeModal('quickOrderPreviewModal');quickCollectFromDue('${escapeHtml(party.id || ord.partyName)}')">💵 Collect Payment</button>` : ''}
             </div>
           </div>
           <div>
             <div style="font-size:0.7rem;text-transform:uppercase;color:#64748b;font-weight:700;">Order Info</div>
             <div style="font-size:0.85rem;font-weight:600;color:#334155;"><strong>Date:</strong> ${fmtDate(ord.date)}</div>
             <div style="font-size:0.85rem;font-weight:600;color:#334155;"><strong>Salesperson:</strong> ${escapeHtml(ord.salespersonName || "-")}</div>
-            ${ord.dispatchDate ? `<div style="font-size:0.85rem;font-weight:600;color:#15803d;"><strong>Dispatched On:</strong> ${fmtDate(ord.dispatchDate)}</div>` : ""}
-            ${ord.gstInvoiceNo ? `<div style="font-size:0.85rem;font-weight:600;color:#0284c7;"><strong>Invoice No:</strong> ${escapeHtml(ord.gstInvoiceNo)}</div>` : ""}
+            ${ord.dispatchDate ? `<div style="font-size:0.85rem;font-weight:600;color:#15803d;"><strong>Dispatched On:</strong> ${fmtDate(ord.dispatchDate)}</div>` : ''}
+            ${ord.gstInvoiceNo ? `<div style="font-size:0.85rem;font-weight:600;color:#0284c7;"><strong>Invoice No:</strong> ${escapeHtml(ord.gstInvoiceNo)}</div>` : ''}
           </div>
         </div>
 
@@ -15172,32 +14957,30 @@ function renderOrdersTable() {
         </div>
       `;
 
-				const canDispatch = isAdminLoggedIn || (currentStaff && currentStaff.role === "Manager");
-				if (leftActs) {
-					leftActs.innerHTML = `
+      const canDispatch = isAdminLoggedIn || (currentStaff && currentStaff.role === "Manager");
+      if (leftActs) {
+        leftActs.innerHTML = `
           <button type="button" class="btn btn-sm" style="background:#0284c7;color:#fff;font-weight:700;padding:6px 14px;" onclick="closeModal('quickOrderPreviewModal');openOrderBookingMemo('${ord.id}')">
             📄 View Full PDF Memo
           </button>
-          <button type="button" class="btn btn-whatsapp btn-sm" style="font-weight:700;padding:6px 14px;" onclick="sendOrderWhatsApp('${ord.id}')">
+          <button type="button" class="btn btn-whatsapp btn-sm" style="font-weight:700;padding:6px 14px;" onclick="closeModal('quickOrderPreviewModal');sendOrderWhatsApp('${ord.id}')">
             💬 WhatsApp Memo
           </button>
-          ${
-						pending > 0 && canDispatch
-							? `
+          ${(pending > 0 && canDispatch) ? `
             <button type="button" class="btn btn-amber btn-sm" style="font-weight:700;padding:6px 14px;" onclick="closeModal('quickOrderPreviewModal');openDispatchModal('${ord.id}')">
               🚚 Dispatch Order
             </button>
-          `
-							: ""
-					}
+          ` : ''}
         `;
-				}
+      }
 
-				openModal("quickOrderPreviewModal");
-			}
+      openModal("quickOrderPreviewModal");
+    }
 
-			// ==================== WAREHOUSE PICKING & PACKING SLIP ====================
-			function openWarehousePickingSlipModal(specificOrderIds) {
+    // ==================== WAREHOUSE PICKING & PACKING SLIP ====================
+    
+
+    function openWarehousePickingSlipModal(specificOrderIds) {
 				const modal = document.getElementById("warehousePickingSlipModal");
 				const printArea = document.getElementById("warehousePickingSlipPrintArea");
 				const subEl = document.getElementById("warehouseSlipSubtitle");
