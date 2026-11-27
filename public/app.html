@@ -4460,12 +4460,12 @@
 
 									<div id="colPickProofBtn" style="display: flex; flex-direction: column; gap: 8px">
 										<div style="display: flex; gap: 10px; flex-wrap: wrap;">
-											<!-- Direct Native Phone Camera (Works 100% on Mobile without Browser Permissions Block) -->
-											<label
-												for="colProofCameraFile"
+											<!-- Live In-App Camera Viewfinder Button -->
+											<button
+												type="button"
 												class="btn btn-sm"
 												id="colCameraBtn"
-												onclick="triggerNativeCamera('col', event)"
+												onclick="startCameraCapture('col')"
 												style="
 													background: #ecfdf5;
 													border: 1.5px solid #10b981;
@@ -4485,8 +4485,8 @@
 													user-select: none;
 												"
 											>
-												<span id="colCameraBtnText">📸 Take Photo (Camera)</span>
-											</label>
+												<span id="colCameraBtnText">📸 Open In-App Camera</span>
+											</button>
 											<!-- Direct Gallery / Screenshot Selection -->
 											<label
 												for="colProofFile"
@@ -4519,7 +4519,7 @@
 											id="colProofHint"
 											style="font-size: 0.75rem; color: #64748b; font-style: italic"
 										>
-											💡 Tap 'Take Photo' to open your phone camera directly, or 'Choose from Gallery' for payment screenshot.
+											💡 Tap 'Open In-App Camera' to scan/capture receipt directly in app, or 'Choose from Gallery'.
 										</div>
 									</div>
 
@@ -7506,10 +7506,10 @@
 							style="position: fixed; top: -1000px; left: -1000px; width: 1px; height: 1px; opacity: 0;"
 						/>
 						<div style="display: flex; gap: 8px; flex-wrap: wrap;">
-							<label
-								for="rcProofCameraFile"
+							<button
+								type="button"
 								class="btn btn-sm"
-								onclick="triggerNativeCamera('rc', event)"
+								onclick="startCameraCapture('rc')"
 								style="
 									background: #ecfdf5;
 									border: 1.5px solid #10b981;
@@ -7526,8 +7526,8 @@
 									user-select: none;
 								"
 							>
-								<span>📸 Open Camera</span>
-							</label>
+								<span>📸 Open In-App Camera</span>
+							</button>
 							<label
 								for="rcProofFile"
 								class="btn btn-sm"
