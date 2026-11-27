@@ -1,3 +1,4 @@
+// Cloudflare Workers dual-brand ERP deployment configuration (Madhav Enterprises & Shivom Sales)
 import { bindings, defineConfig, defineWorker, exports } from "cf/config";
 import * as entrypoint from "./src/index.ts" with { type: "cf-worker" };
 
