@@ -8315,16 +8315,16 @@
 						"
 					>
 						<div style="font-size: 1.8rem; margin-bottom: 4px">📷❌</div>
-						<div id="cameraErrorText" style="margin-bottom: 10px; max-width: 90%; line-height: 1.4">Camera permission denied. Please allow camera access in browser, or use device camera below.</div>
+						<div id="cameraErrorText" style="margin-bottom: 12px; max-width: 90%; line-height: 1.4">Camera permission is required. Please allow camera access in App permissions or tap Retry.</div>
 						
-						<div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px">
+						<div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 8px">
 							<button
 								type="button"
 								class="btn btn-sm"
 								style="font-weight: 700; background: #16a34a; color: #fff; padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.92rem; display: inline-flex; align-items: center; gap: 6px;"
-								onclick="fallbackToDeviceCamera()"
+								onclick="initLiveCameraStream()"
 							>
-								📱 Open Phone Camera App (Direct)
+								🔄 Retry In-App Camera
 							</button>
 							<button
 								type="button"
@@ -8334,11 +8334,6 @@
 							>
 								🖼️ Pick from Gallery
 							</button>
-						</div>
-
-						<div style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 10px 12px; font-size: 0.75rem; color: #cbd5e1; text-align: left; max-width: 94%; line-height: 1.45">
-							<strong style="color: #4ade80; display: block; margin-bottom: 4px">✅ No Browser Permissions Needed:</strong>
-							Tapping <strong>"Open Phone Camera App"</strong> launches your mobile camera directly without needing browser access.
 						</div>
 					</div>
 				</div>
@@ -8392,27 +8387,6 @@
 						"
 					>
 						📸 Click to Capture
-					</button>
-					<button
-						type="button"
-						class="btn btn-sm"
-						id="cameraPhoneAppBtn"
-						onclick="fallbackToDeviceCamera()"
-						style="
-							background: #f8fafc;
-							border: 1.5px dashed #64748b;
-							color: #1e293b;
-							font-weight: 700;
-							padding: 9px 14px;
-							border-radius: 8px;
-							display: inline-flex;
-							align-items: center;
-							gap: 6px;
-							cursor: pointer;
-						"
-						title="Open Phone's default Camera App"
-					>
-						📱 Phone Camera App
 					</button>
 
 				</div>
@@ -24542,10 +24516,17 @@ Thank you! Your payment has been received successfully.`;
 
 					liveCameraStream = stream;
 					if (video) {
-						video.srcObject = stream;
+						video.muted = true;
+						video.setAttribute("muted", "true");
 						video.setAttribute("playsinline", "true");
+						video.setAttribute("webkit-playsinline", "true");
 						video.setAttribute("autoplay", "true");
-						await video.play();
+						video.srcObject = stream;
+						try {
+							await video.play();
+						} catch (pe) {
+							console.warn("video.play error:", pe);
+						}
 					}
 					if (spinner) spinner.style.display = "none";
 					if (errorBox) errorBox.style.display = "none";
@@ -24557,7 +24538,7 @@ Thank you! Your payment has been received successfully.`;
 						if (errorText) {
 							errorText.textContent =
 								err.name === "NotAllowedError" || err.name === "PermissionDeniedError"
-									? "Camera permission denied by browser or phone system. Please check permissions or use device camera below."
+									? "Camera permission is required. Please allow camera access in App settings or tap 'Retry In-App Camera'."
 									: "Could not open camera (" + (err.message || "Device busy or not found") + ").";
 						}
 					}
@@ -24567,11 +24548,16 @@ Thank you! Your payment has been received successfully.`;
 			function captureLiveCameraPhoto() {
 				const video = document.getElementById("liveCameraVideo");
 				if (!video || !video.videoWidth) {
-					// If live camera is not running / denied, automatically fall back to phone camera!
-					if (typeof showToast === "function") {
-						showToast("Opening phone camera app...");
+					if (liveCameraStream) {
+						if (typeof showToast === "function") {
+							showToast("Camera is initializing video preview, please wait a moment... ⏳");
+						}
+						return;
 					}
-					fallbackToDeviceCamera();
+					if (typeof showToast === "function") {
+						showToast("Camera is not active. Please tap 'Retry In-App Camera'.");
+					}
+					initLiveCameraStream();
 					return;
 				}
 				const canvas = document.createElement("canvas");

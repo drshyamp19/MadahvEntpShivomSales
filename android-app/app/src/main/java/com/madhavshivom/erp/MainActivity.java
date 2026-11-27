@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private ValueCallback<Uri[]> uploadMessage;
     private Uri cameraImageUri;
     private String directCameraTarget = "col";
+    private PermissionRequest pendingPermissionRequest;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -132,6 +133,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
                 runOnUiThread(() -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                            pendingPermissionRequest = request;
+                            requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
+                            return;
+                        }
+                    }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         request.grant(request.getResources());
                     }
@@ -305,6 +313,28 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (pendingPermissionRequest != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    pendingPermissionRequest.grant(pendingPermissionRequest.getResources());
+                    pendingPermissionRequest = null;
+                }
+                if (webView != null) {
+                    webView.evaluateJavascript("if (typeof initLiveCameraStream === 'function') { initLiveCameraStream(); }", null);
+                }
+            } else {
+                if (pendingPermissionRequest != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    pendingPermissionRequest.deny();
+                    pendingPermissionRequest = null;
+                }
+                Toast.makeText(this, "Camera permission is required for in-app camera viewfinder.", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     private void deliverCapturedPhotoToWebView(Uri imageUri, String target) {
