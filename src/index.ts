@@ -417,6 +417,30 @@ export default {
 					return jsonNoStore({ ok: false, error: "Record id is required" }, 400);
 
 				if (
+					col === "collections" ||
+					col === "bankDeposits" ||
+					col === "cashHandovers" ||
+					col === "expenses"
+				) {
+					const amt = Number(item.amount);
+					if (!Number.isFinite(amt) || amt <= 0) {
+						return jsonNoStore(
+							{ ok: false, error: "Amount must be a positive number greater than 0" },
+							400,
+						);
+					}
+				}
+				if (col === "orders" || col === "purchaseBills" || col === "salesReturns") {
+					const totalVal = item.total !== undefined ? Number(item.total) : item.amount !== undefined ? Number(item.amount) : 0;
+					if (!Number.isFinite(totalVal) || totalVal < 0) {
+						return jsonNoStore(
+							{ ok: false, error: "Total amount must be a valid non-negative number" },
+							400,
+						);
+					}
+				}
+
+				if (
 					col === "collections" &&
 					item.mode === "Cash" &&
 					!session.allowCash &&
@@ -446,12 +470,29 @@ export default {
 					if (!item.createdAt) item.createdAt = new Date().toISOString();
 				}
 
-				const result = await getLedgerStub(co).upsertRecord(co, col, item, session.name);
+				const result = await getLedgerStub(co).upsertRecord(
+					co,
+					col,
+					item,
+					session.name,
+					session.isAdmin,
+					session.role,
+				);
 				if (col === "chatMessages" && item.channel === "ALL") {
 					const otherCo: CompanyKey = co === "MADHAV" ? "SHIVOM" : "MADHAV";
 					await getLedgerStub(otherCo)
-						.upsertRecord(otherCo, col, item, session.name)
-						.catch(() => {});
+						.upsertRecord(otherCo, col, item, session.name, session.isAdmin, session.role)
+						.catch((err: unknown) => {
+							console.error(
+								JSON.stringify({
+									message: "chat_cross_sync_failed",
+									action: "upsert",
+									otherCo,
+									id: item.id,
+									error: err instanceof Error ? err.message : String(err),
+								}),
+							);
+						});
 				}
 				return jsonNoStore({ ok: true, ...result });
 			}
@@ -485,7 +526,17 @@ export default {
 					const otherCo: CompanyKey = co === "MADHAV" ? "SHIVOM" : "MADHAV";
 					await getLedgerStub(otherCo)
 						.deleteRecord(otherCo, col, id, session.name)
-						.catch(() => {});
+						.catch((err: unknown) => {
+							console.error(
+								JSON.stringify({
+									message: "chat_cross_sync_failed",
+									action: "delete",
+									otherCo,
+									id,
+									error: err instanceof Error ? err.message : String(err),
+								}),
+							);
+						});
 				}
 				return jsonNoStore({ ok: true, ...result });
 			}

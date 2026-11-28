@@ -38,6 +38,8 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -228,8 +230,8 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
 
-                // Keep our ERP portal inside the WebView (both domains and subdomains supported)
-                if (("https".equals(scheme) || "http".equals(scheme))
+                // Keep our ERP portal inside the WebView over HTTPS only
+                if ("https".equals(scheme)
                         && (host.endsWith("mserp.workers.dev") || host.endsWith(ERP_HOST) || host.endsWith(ERP_HOST_ALT) || host.endsWith("madhavshivom.workers.dev"))) {
                     return false;
                 }
@@ -303,6 +305,12 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     }
+                } else if (cameraImageUri != null) {
+                    try {
+                        getContentResolver().delete(cameraImageUri, null, null);
+                    } catch (Exception ignored) {
+                    }
+                    cameraImageUri = null;
                 }
                 uploadMessage.onReceiveValue(results);
                 uploadMessage = null;
@@ -310,6 +318,12 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == DIRECT_CAMERA_REQUEST_CODE) {
             if (resultCode == RESULT_OK && cameraImageUri != null) {
                 deliverCapturedPhotoToWebView(cameraImageUri, directCameraTarget);
+            } else if (cameraImageUri != null) {
+                try {
+                    getContentResolver().delete(cameraImageUri, null, null);
+                } catch (Exception ignored) {
+                }
+                cameraImageUri = null;
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -360,8 +374,8 @@ public class MainActivity extends AppCompatActivity {
                         String base64Image = "data:image/jpeg;base64," + Base64.encodeToString(imageBytes, Base64.NO_WRAP);
 
                         runOnUiThread(() -> {
-                            String js = String.format("if (typeof window.onAndroidCameraPhotoCaptured === 'function') { window.onAndroidCameraPhotoCaptured('%s', '%s'); }",
-                                    base64Image, target);
+                            String js = "if (typeof window.onAndroidCameraPhotoCaptured === 'function') { window.onAndroidCameraPhotoCaptured("
+                                    + JSONObject.quote(base64Image) + ", " + JSONObject.quote(target) + "); }";
                             webView.evaluateJavascript(js, null);
                         });
                     }

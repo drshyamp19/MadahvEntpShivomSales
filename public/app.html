@@ -10921,12 +10921,11 @@
 				}
 
 				const token = getAuthToken();
-				if (!token && !document.cookie.includes("erp_session")) return;
+				if (!token && !currentUser) return;
 
 				wsCompany = companyKey;
 				const wsProto = window.location.protocol === "https:" ? "wss://" : "ws://";
-				const hasSessionCookie = document.cookie.includes("erp_session");
-				const wsTokenParam = !hasSessionCookie && token ? `&token=${encodeURIComponent(token)}` : "";
+				const wsTokenParam = token ? `&token=${encodeURIComponent(token)}` : "";
 				const wsUrl = `${wsProto}${window.location.host}/api/ws?co=${encodeURIComponent(companyKey)}${wsTokenParam}`;
 				const ws = new WebSocket(wsUrl);
 				erpWebSocket = ws;

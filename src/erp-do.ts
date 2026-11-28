@@ -483,6 +483,8 @@ export class ErpLedgerDO extends DurableObject<Env> {
 		collection: CollectionName,
 		rawItem: ErpRecord,
 		actor: string,
+		actorIsAdmin = false,
+		actorRole = "",
 	): Promise<{ rev: number; item: ErpRecord }> {
 		this.ensureSeeded(company);
 		if (!rawItem || !rawItem.id) {
@@ -525,13 +527,18 @@ export class ErpLedgerDO extends DurableObject<Env> {
 				)
 				.toArray();
 			const existing =
-				existingRows.length > 0 ? (JSON.parse(existingRows[0].data) as Record<string, unknown>) : null;
+				existingRows.length > 0 ? (JSON.parse(existingRows[0].data) as ErpRecord) : null;
+			const upRole = String(actorRole || "").toUpperCase();
 			const upActor = String(actor || "").toUpperCase();
 			const isOwnerActor =
-				upActor.includes("SHYAM") ||
-				upActor.includes("ROSHAN") ||
-				upActor.includes("OWNER") ||
-				upActor.includes("ADMIN");
+				actorIsAdmin ||
+				upRole === "OWNER" ||
+				upRole === "CO-OWNER" ||
+				(!actorRole &&
+					(upActor.includes("SHYAM") ||
+						upActor.includes("ROSHAN") ||
+						upActor.includes("OWNER") ||
+						upActor.includes("ADMIN")));
 			if (!isOwnerActor) {
 				if (existing && typeof existing.creditLimit !== "undefined") {
 					item.creditLimit = existing.creditLimit;
@@ -550,15 +557,21 @@ export class ErpLedgerDO extends DurableObject<Env> {
 				)
 				.toArray();
 			const existing =
-				existingRows.length > 0 ? (JSON.parse(existingRows[0].data) as Record<string, unknown>) : null;
+				existingRows.length > 0 ? (JSON.parse(existingRows[0].data) as ErpRecord) : null;
+			const upRole = String(actorRole || "").toUpperCase();
 			const upActor = String(actor || "").toUpperCase();
 			const isOwnerOrAccountant =
-				upActor.includes("SHYAM") ||
-				upActor.includes("ROSHAN") ||
-				upActor.includes("DHANSHYAM") ||
-				upActor.includes("ACCOUNTANT") ||
-				upActor.includes("OWNER") ||
-				upActor.includes("ADMIN");
+				actorIsAdmin ||
+				upRole === "OWNER" ||
+				upRole === "CO-OWNER" ||
+				upRole === "ACCOUNTANT" ||
+				(!actorRole &&
+					(upActor.includes("SHYAM") ||
+						upActor.includes("ROSHAN") ||
+						upActor.includes("DHANSHYAM") ||
+						upActor.includes("ACCOUNTANT") ||
+						upActor.includes("OWNER") ||
+						upActor.includes("ADMIN")));
 			if (existing && !isOwnerOrAccountant) {
 				if (item.chequeStatus === "Cleared" && existing.chequeStatus !== "Cleared") {
 					item.chequeStatus = existing.chequeStatus;
@@ -608,6 +621,31 @@ export class ErpLedgerDO extends DurableObject<Env> {
 		actor: string,
 	): Promise<{ rev: number }> {
 		this.ensureSeeded(company);
+		const existingRows = this.ctx.storage.sql
+			.exec<RecordRow>("SELECT data FROM records WHERE collection = ? AND id = ?", collection, id)
+			.toArray();
+		if (existingRows.length > 0) {
+			try {
+				const parsed = JSON.parse(existingRows[0].data) as Record<string, unknown>;
+				const mediaIds = new Set<string>();
+				for (const key of ["proofMediaId", "chequePhotoMediaId", "photoMediaId", "mediaId"]) {
+					const val = parsed[key];
+					if (typeof val === "string" && val.trim()) mediaIds.add(val.trim());
+				}
+				for (const key of ["proofPhoto", "chequePhoto", "photoUrl", "mediaUrl", "proofUrl"]) {
+					const val = parsed[key];
+					if (typeof val === "string") {
+						const match = val.match(/\/api\/media\/([^?&#]+)/);
+						if (match && match[1]) mediaIds.add(decodeURIComponent(match[1]));
+					}
+				}
+				for (const mId of mediaIds) {
+					this.ctx.storage.sql.exec("DELETE FROM media WHERE id = ?", mId);
+				}
+			} catch {
+				// ignore malformed JSON
+			}
+		}
 		this.ctx.storage.sql.exec(
 			"DELETE FROM records WHERE collection = ? AND id = ?",
 			collection,
@@ -721,6 +759,7 @@ export class ErpLedgerDO extends DurableObject<Env> {
 						"purchaseBills",
 						"salesReturns",
 						"expenses",
+						"chatMessages",
 					]
 				: [
 						"orders",
@@ -737,6 +776,9 @@ export class ErpLedgerDO extends DurableObject<Env> {
 		this.ctx.storage.transactionSync(() => {
 			for (const col of colsToClear) {
 				this.ctx.storage.sql.exec("DELETE FROM records WHERE collection = ?", col);
+			}
+			if (scope === "all") {
+				this.ctx.storage.sql.exec("DELETE FROM media");
 			}
 			if (scope === "transactions" && resetPartyOpening) {
 				const parties = this.readCollection("parties");
