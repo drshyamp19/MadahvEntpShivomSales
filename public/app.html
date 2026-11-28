@@ -2988,14 +2988,6 @@
 								<button
 									type="button"
 									class="btn btn-sm"
-									style="background: #0284c7; color: #fff; font-weight: 700"
-									onclick="handleExportClick(true)"
-								>
-									☁️ Sync to Google Drive / Sheets
-								</button>
-								<button
-									type="button"
-									class="btn btn-sm"
 									style="background: #7c3aed; color: #fff; font-weight: 700"
 									onclick="openDailySummaryReportModal()"
 								>
@@ -5056,15 +5048,15 @@
 							<div class="kpi-sub" id="expKpiBankDep">Bank Deposited: ₹0</div>
 						</div>
 						<div class="kpi-card teal" id="expKpiCashInHandCard">
-							<div class="kpi-label">Real Cash-in-Hand</div>
+							<div class="kpi-label">Office Cash-in-Hand (Live)</div>
 							<div class="kpi-val" id="expKpiCashInHand">₹0</div>
-							<div class="kpi-sub">Cash Col. − Cash Exp. − Bank Dep.</div>
+							<div class="kpi-sub" id="expKpiCashInHandSub">Cumulative Cash Box (Net of Exp &amp; Dep)</div>
 						</div>
 						<div class="kpi-card" id="expKpiProfitCard">
-							<div class="kpi-label">Net Surplus (Sales − Pur. − Exp.)</div>
+							<div class="kpi-label">Net Profit (Taxable Sales − COGS − Exp.)</div>
 							<div class="kpi-val" id="expKpiNetProfit">₹0</div>
 							<div class="kpi-sub" id="expKpiProfitSub">
-								Dispatched Sales − Purchases − Expenses
+								Net Taxable Sales − COGS − Expenses
 							</div>
 						</div>
 						<div class="kpi-card" id="expKpiPendingReimbCard" style="background: #fff1f2; border: 1px solid #fecdd3;">
@@ -5866,14 +5858,6 @@
 								>
 									➕ Add New Member / Staff
 								</button>
-								<button
-									type="button"
-									class="btn btn-outline btn-sm"
-									style="color: var(--primary); border-color: var(--border)"
-									onclick="openModal('firebaseModal')"
-								>
-									Cloud Sync Config
-								</button>
 							</div>
 						</div>
 						<div class="table-wrap">
@@ -6616,7 +6600,7 @@
 								align-items: center;
 								gap: 6px;
 							"
-							onclick="window.print()"
+							onclick="triggerDocumentPrint('Payment_Receipt')"
 						>
 							🖨️ Print
 						</button>
@@ -7984,7 +7968,7 @@
 								align-items: center;
 								gap: 6px;
 							"
-							onclick="window.print()"
+							onclick="triggerDocumentPrint('Payment_Receipt')"
 						>
 							🖨️ Print
 						</button>
@@ -9259,7 +9243,7 @@
             <tr>
               <td class="text-center" style="padding:6px;border:1px solid #cbd5e1;">${idx + 1}</td>
               <td style="padding:6px;border:1px solid #cbd5e1;">
-                <strong>${it.productName}</strong>
+                <strong>${escapeHtml(it.productName)}</strong>
                 ${isFoc ? ' <span style="background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:3px;font-size:9.5px;font-weight:700;">🎁 FOC (Free)</span>' : ""}
               </td>
               <td class="text-center" style="padding:6px;border:1px solid #cbd5e1;">${q} Units</td>
@@ -9277,7 +9261,7 @@
           <tr>
             <td class="text-center" style="padding:6px;border:1px solid #cbd5e1;">1</td>
             <td style="padding:6px;border:1px solid #cbd5e1;">
-              <strong>${ord.productName}</strong>
+              <strong>${escapeHtml(ord.productName)}</strong>
               ${isFoc ? ' <span style="background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:3px;font-size:9.5px;font-weight:700;">🎁 FOC</span>' : ""}
             </td>
             <td class="text-center" style="padding:6px;border:1px solid #cbd5e1;">${totalQty} Units</td>
@@ -9316,16 +9300,16 @@
         <div class="inv-meta-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;font-size:11.5px;">
           <div class="inv-meta-box" style="border:1px solid #cbd5e1;padding:8px;border-radius:6px;background:#f8fafc;">
             <strong>Dealer / Party Details:</strong><br/>
-            <span style="font-size:13px;font-weight:700;color:${themeColor};">${party.name}</span><br/>
-            Area / Town: ${party.area || "Nagpur"}<br/>
-            Contact No: ${party.mobile || "-"}<br/>
-            ${isShivom ? "Dealer Category: <strong>Commercial Trade</strong>" : `GSTIN: <strong>${party.gstin || "Unregistered (B2C)"}</strong>`}
+            <span style="font-size:13px;font-weight:700;color:${themeColor};">${escapeHtml(party.name)}</span><br/>
+            Area / Town: ${escapeHtml(party.area || "Nagpur")}<br/>
+            Contact No: ${escapeHtml(party.mobile || "-")}<br/>
+            ${isShivom ? "Dealer Category: <strong>Commercial Trade</strong>" : `GSTIN: <strong>${escapeHtml(party.gstin || "Unregistered (B2C)")}</strong>`}
           </div>
           <div class="inv-meta-box" style="border:1px solid #cbd5e1;padding:8px;border-radius:6px;background:#f8fafc;">
             <strong>Memo Information:</strong><br/>
-            Memo No: <strong>#${memoDisplayNo}</strong><br/>
+            Memo No: <strong>#${escapeHtml(memoDisplayNo)}</strong><br/>
             Date: <strong>${fmtDate(ord.date)}</strong><br/>
-            Booked By: <strong>${staffBookedBy}</strong><br/>
+            Booked By: <strong>${escapeHtml(staffBookedBy)}</strong><br/>
             Status: <span class="pill pill-yellow">${isCorrection ? "Order Updated" : "Order Booked (Pending Dispatch)"}</span>
           </div>
         </div>
@@ -9942,19 +9926,6 @@
       `;
 			}
 
-			// Immediate Redirect Handler for WhatsApp / Shared Document Links (?doc=FILE_ID)
-			(function handleExternalDocParam() {
-				try {
-					const urlParams = new URLSearchParams(window.location.search);
-					const docId = urlParams.get("doc");
-					if (docId && /^[a-zA-Z0-9_-]+$/.test(docId)) {
-						window.location.replace(`https://drive.google.com/file/d/${docId}/view`);
-					}
-				} catch (e) {
-					console.warn("External doc link redirect handler:", e);
-				}
-			})();
-
 			async function initApp() {
 				if (typeof initCustomAutocompletes === "function") initCustomAutocompletes();
 				const bCfg = getBrandConfig();
@@ -10183,7 +10154,12 @@
 				purgeTrialCashRecords();
 			}
 
-			function persistLocal() {
+			let _persistTimer = null;
+			function persistLocalNow() {
+				if (_persistTimer) {
+					clearTimeout(_persistTimer);
+					_persistTimer = null;
+				}
 				const key = getStorageKey();
 				try {
 					localStorage.setItem(key, JSON.stringify(state));
@@ -10204,6 +10180,17 @@
 						console.error("Critical: LocalStorage write failure after pruning:", innerErr);
 					}
 				}
+			}
+
+			function persistLocal() {
+				if (_persistTimer) clearTimeout(_persistTimer);
+				_persistTimer = setTimeout(persistLocalNow, 400);
+			}
+
+			if (typeof window !== "undefined") {
+				window.addEventListener("beforeunload", () => {
+					if (_persistTimer) persistLocalNow();
+				});
 			}
 
 			function showToast(msg) {
@@ -10954,7 +10941,9 @@
 
 				wsCompany = companyKey;
 				const wsProto = window.location.protocol === "https:" ? "wss://" : "ws://";
-				const wsUrl = `${wsProto}${window.location.host}/api/ws?co=${encodeURIComponent(companyKey)}&token=${encodeURIComponent(token)}`;
+				const hasSessionCookie = document.cookie.includes("erp_session");
+				const wsTokenParam = !hasSessionCookie && token ? `&token=${encodeURIComponent(token)}` : "";
+				const wsUrl = `${wsProto}${window.location.host}/api/ws?co=${encodeURIComponent(companyKey)}${wsTokenParam}`;
 				const ws = new WebSocket(wsUrl);
 				erpWebSocket = ws;
 
@@ -11021,6 +11010,7 @@
 			async function saveRecord(col, item) {
 				if (!Array.isArray(state[col])) state[col] = [];
 				const idx = state[col].findIndex((x) => x && x.id === item.id);
+				const prevItem = idx >= 0 ? { ...state[col][idx] } : null;
 				if (idx >= 0) state[col][idx] = item;
 				else state[col].unshift(item);
 				if (col === "orders") {
@@ -11043,13 +11033,34 @@
 							const si = state.salespersons.findIndex((x) => x && x.id === data.item.id);
 							if (si >= 0) state.salespersons[si] = data.item;
 						}
+						persistLocalNow();
+						return true;
 					}
+					const errData = await res.json().catch(() => null);
+					// Rollback optimistic change on server rejection
+					if (prevItem) {
+						const curIdx = state[col].findIndex((x) => x && x.id === item.id);
+						if (curIdx >= 0) state[col][curIdx] = prevItem;
+					} else {
+						state[col] = state[col].filter((x) => x && x.id !== item.id);
+					}
+					if (col === "orders") {
+						state.orders.sort((a, b) => Number(b.orderNo || 0) - Number(a.orderNo || 0));
+					}
+					persistLocalNow();
+					refreshAll();
+					showToast(`❌ ${errData?.error || `Save failed (${res.status})`}`);
+					if (res.status === 401) returnToGateway();
+					return false;
 				} catch (err) {
 					console.error("saveRecord sync error:", err);
+					showToast("⚠️ Network error: could not sync save to server.");
+					return false;
 				}
 			}
 
 			async function deleteRecord(col, id) {
+				const prevList = Array.isArray(state[col]) ? [...state[col]] : null;
 				if (Array.isArray(state[col])) {
 					state[col] = state[col].filter((x) => x && x.id !== id);
 					persistLocal();
@@ -11065,9 +11076,27 @@
 					if (res.ok) {
 						const data = await res.json().catch(() => null);
 						if (data && data.rev) state.rev = data.rev;
+						persistLocalNow();
+						return true;
 					}
+					const errData = await res.json().catch(() => null);
+					if (prevList) {
+						state[col] = prevList;
+						persistLocalNow();
+						refreshAll();
+					}
+					showToast(`❌ ${errData?.error || `Delete failed (${res.status})`}`);
+					if (res.status === 401) returnToGateway();
+					return false;
 				} catch (err) {
 					console.error("deleteRecord sync error:", err);
+					if (prevList) {
+						state[col] = prevList;
+						persistLocalNow();
+						refreshAll();
+					}
+					showToast("⚠️ Network error: delete could not be synced.");
+					return false;
 				}
 			}
 
@@ -11239,7 +11268,7 @@
 						.filter((c) => c.mode === "Cash")
 						.reduce((s, c) => s + Number(c.amount || 0), 0);
 					const bankPaid = partyCols
-						.filter((c) => c.mode === "Bank")
+						.filter((c) => c.mode === "Bank" || c.mode === "Online" || c.mode === "UPI")
 						.reduce((s, c) => s + Number(c.amount || 0), 0);
 					const chequeCleared = partyCols
 						.filter((c) => c.mode === "Cheque" && c.chequeStatus === "Cleared")
@@ -11253,8 +11282,8 @@
 					);
 					const totalReturns = partyReturns.reduce((s, r) => s + Number(r.totalCreditAmt || 0), 0);
 
-					const netBalance =
-						Number(party.openingBalance || 0) + dispatchedSales - totalPaid - totalReturns;
+					const openingBal = Number(party.openingBalance || 0);
+					const netBalance = openingBal + dispatchedSales - totalPaid - totalReturns;
 					const creditLimit = Number(party.creditLimit || 0);
 					const isOverCreditLimit = creditLimit > 0 && netBalance > creditLimit;
 
@@ -11268,9 +11297,38 @@
 						});
 					}
 
+					// FIFO Unpaid-Invoice Aging: find the oldest unpaid dispatched invoice date
+					let oldestUnpaidDateStr = "";
+					if (netBalance > 0) {
+						let remainingCredits = totalPaid + totalReturns;
+						if (openingBal > 0) {
+							if (remainingCredits >= openingBal) {
+								remainingCredits -= openingBal;
+							} else {
+								remainingCredits = 0;
+								oldestUnpaidDateStr = party.lastPaymentDate || "";
+							}
+						}
+						if (!oldestUnpaidDateStr) {
+							const dispatchedOrdersChrono = partyOrders
+								.map((o) => ({ date: o.date || "", dispAmt: getOrderDispatchedAmount(o) }))
+								.filter((x) => x.dispAmt > 0)
+								.sort((a, b) => (a.date > b.date ? 1 : a.date < b.date ? -1 : 0));
+							for (const ordEntry of dispatchedOrdersChrono) {
+								if (remainingCredits >= ordEntry.dispAmt - 0.01) {
+									remainingCredits -= ordEntry.dispAmt;
+								} else {
+									oldestUnpaidDateStr = ordEntry.date;
+									break;
+								}
+							}
+						}
+					}
+
+					const agingDateStr = oldestUnpaidDateStr || lastDateStr;
 					let pendingDays = 0;
-					if (netBalance > 0 && lastDateStr) {
-						const d1 = new Date(lastDateStr + "T00:00:00");
+					if (netBalance > 0 && agingDateStr) {
+						const d1 = new Date(agingDateStr + "T00:00:00");
 						if (!isNaN(d1.getTime())) {
 							pendingDays = Math.max(0, Math.floor((refDate - d1) / (1000 * 60 * 60 * 24)));
 						}
@@ -12281,28 +12339,48 @@
 					computed.partyOrders.length === 0
 						? '<div style="color:var(--muted);font-size:0.8rem;padding:6px 0;">No prior bills found.</div>'
 						: computed.partyOrders
-								.map(
-									(o) => `
+								.map((o) => {
+									const dispAmt = getOrderDispatchedAmount(o);
+									const bookedAmt = getOrderTotalAmount(o);
+									const itemSummary =
+										Array.isArray(o.items) && o.items.length > 0
+											? o.items
+													.map((it) => `${it.productName} (${it.dispatchedQty || 0}/${it.qty || 0})`)
+													.join(", ")
+											: `${o.productName || "Item"} (${o.dispatchedQty || 0}/${o.orderQty || 0} Units)`;
+									const isPending = dispAmt <= 0;
+									const isPartial = dispAmt > 0 && Math.abs(dispAmt - bookedAmt) > 0.5;
+									return `
             <div class="ledger-row">
-              <div><strong>Bill #${o.orderNo}</strong> (${fmtDate(o.date)})<br/><span style="color:var(--muted);">${o.productName} (${o.orderQty} Units)</span></div>
-              <div class="text-right font-bold" style="color:var(--primary);">+${fmtINR(getOrderTotalAmount(o))}</div>
+              <div><strong>Bill #${o.orderNo}</strong> (${fmtDate(o.date)}) ${isPending ? '<span class="pill pill-yellow" style="font-size:0.65rem;">Pending Dispatch</span>' : isPartial ? '<span class="pill pill-yellow" style="font-size:0.65rem;">Partial</span>' : ""}<br/><span style="color:var(--muted);">${itemSummary}</span></div>
+              <div class="text-right font-bold" style="color:${isPending ? "var(--muted)" : "var(--primary)"};">
+                +${fmtINR(dispAmt)}
+                ${isPending || isPartial ? `<div style="font-size:0.7rem;color:var(--muted);font-weight:500;">Booked: ${fmtINR(bookedAmt)}</div>` : ""}
+              </div>
             </div>
-          `,
-								)
+          `;
+								})
 								.join("");
 
 				let paysHtml =
 					computed.partyCols.length === 0
 						? '<div style="color:var(--muted);font-size:0.8rem;padding:6px 0;">No prior payment receipts found.</div>'
 						: computed.partyCols
-								.map(
-									(c) => `
+								.map((c) => {
+									const isUnclearedCheque = c.mode === "Cheque" && c.chequeStatus !== "Cleared";
+									const chqBadge = isUnclearedCheque
+										? ` <span class="pill ${c.chequeStatus === "Bounced" ? "pill-red" : "pill-yellow"}" style="font-size:0.65rem;">${c.chequeStatus || "Pending"}</span>`
+										: "";
+									return `
             <div class="ledger-row">
-              <div><strong>${c.receiptNo}</strong> (${fmtDate(c.date)})<br/><span style="color:var(--muted);">${c.bankRef || c.mode} (${c.salespersonName})</span></div>
-              <div class="text-right font-bold" style="color:#15803d;">-${fmtINR(c.amount)}</div>
+              <div><strong>${c.receiptNo}</strong> (${fmtDate(c.date)})${chqBadge}<br/><span style="color:var(--muted);">${c.bankRef || c.mode} (${c.salespersonName})</span></div>
+              <div class="text-right font-bold" style="color:${isUnclearedCheque ? "var(--muted)" : "#15803d"};">
+                ${isUnclearedCheque ? fmtINR(0) : `-${fmtINR(c.amount)}`}
+                ${isUnclearedCheque ? `<div style="font-size:0.7rem;color:var(--muted);font-weight:500;">Chq Amt: ${fmtINR(c.amount)}</div>` : ""}
+              </div>
             </div>
-          `,
-								)
+          `;
+								})
 								.join("");
 
 				let returnsHtml = "";
@@ -14011,7 +14089,7 @@ Thank you!`;
           <tr>
             <td class="text-center">1</td>
             <td>
-              <strong>${ord.productName}</strong>
+              <strong>${escapeHtml(ord.productName)}</strong>
               ${isFoc ? '<span class="pill pill-yellow" style="font-size:0.72rem;margin-left:6px;">🎁 FOC (Free Scheme)</span>' : ""}
             </td>
             <td class="text-right font-bold">${ord.orderQty}</td>
@@ -16280,14 +16358,23 @@ Thank you!`;
 				// 4. Filter by Date
 				list = list.filter((c) => isColInSelectedDateRange(c.date, dateFilterType));
 
-				// 5. Update KPI Summary Strip
-				const periodTotal = list.reduce((s, c) => s + Number(c.amount || 0), 0);
+				// 5. Update KPI Summary Strip (Realized = Cash + Bank/UPI + Cleared Cheques)
 				const cashTotal = list
 					.filter((c) => c.mode === "Cash")
 					.reduce((s, c) => s + Number(c.amount || 0), 0);
 				const bankTotal = list
-					.filter((c) => c.mode === "Bank" || (c.mode === "Cheque" && c.chequeStatus === "Cleared"))
+					.filter(
+						(c) =>
+							c.mode === "Bank" ||
+							c.mode === "Online" ||
+							c.mode === "UPI" ||
+							(c.mode === "Cheque" && c.chequeStatus === "Cleared"),
+					)
 					.reduce((s, c) => s + Number(c.amount || 0), 0);
+				const pendingChqTotal = list
+					.filter((c) => c.mode === "Cheque" && (c.chequeStatus || "Pending") === "Pending")
+					.reduce((s, c) => s + Number(c.amount || 0), 0);
+				const periodTotal = cashTotal + bankTotal;
 
 				const totEl = document.getElementById("colKpiTotal");
 				if (totEl) totEl.textContent = fmtINR(periodTotal);
@@ -16322,7 +16409,7 @@ Thank you!`;
 
 				const summarySubEl = document.getElementById("colSummarySub");
 				if (summarySubEl) {
-					summarySubEl.textContent = `${list.length} receipts (${isSalesperson ? "Personal" : selectedSp !== "ALL" ? selectedSp : "All Staff"})`;
+					summarySubEl.textContent = `${list.length} receipts (${isSalesperson ? "Personal" : selectedSp !== "ALL" ? selectedSp : "All Staff"})${pendingChqTotal > 0 ? ` | Pending Chq: ${fmtINR(pendingChqTotal)}` : ""}`;
 				}
 
 				// 6. Filter by search query
@@ -16649,6 +16736,23 @@ Thank you!`;
 				col.salespersonName = newSp;
 				col.bankRef = document.getElementById("editColRef").value;
 
+				if (newMode !== "Cheque") {
+					col.chequeNo = null;
+					col.chequeBank = null;
+					col.chequeDate = null;
+					col.chequeStatus = null;
+					col.chequeLocation = null;
+					col.chequeHandedToPrashik = false;
+					col.chequeHandoverRequested = false;
+					col.chequeHandoverDate = null;
+					col.chequeDepositedDate = null;
+					col.clearedDate = null;
+					col.bouncedDate = null;
+				} else if (!col.chequeStatus) {
+					col.chequeStatus = "Pending";
+					col.chequeLocation = col.chequeLocation || "AT_OFFICE";
+				}
+
 				await saveRecord("collections", col);
 
 				closeModal("editCollectionModal");
@@ -16862,20 +16966,23 @@ Thank you!`;
 					"VIKARAM SING THAKUR": [],
 				};
 
+				let otherCash = 0;
 				(state.collections || []).forEach((c) => {
 					const amt = Number(c.amount || 0);
 					const spName = (c.salespersonName || "").trim().toUpperCase();
-					let target = "PRASHIK HAJARE";
+					let target = "";
 					if (spName.includes("GOPAL")) target = "GOPAL AMBAGADE";
 					else if (spName.includes("VIKARAM") || spName.includes("VIKRAM"))
 						target = "VIKARAM SING THAKUR";
+					else if (spName.includes("PRASHIK")) target = "PRASHIK HAJARE";
 
 					if (c.mode === "Cash") {
-						spCash[target] += amt;
+						if (target) spCash[target] += amt;
+						else otherCash += amt;
 					} else if (c.mode === "Bank" || c.mode === "Online" || c.mode === "UPI") {
-						spOnline[target] += amt;
+						spOnline[target || "PRASHIK HAJARE"] += amt;
 					} else if (c.mode === "Cheque") {
-						spCheques[target].push(c);
+						spCheques[target || "PRASHIK HAJARE"].push(c);
 					}
 				});
 
@@ -16957,8 +17064,14 @@ Thank you!`;
 					(s, b) => s + Number(b.amount || 0),
 					0,
 				);
+				const totalCashExpenses = (state.expenses || [])
+					.filter((e) => e.mode === "Cash")
+					.reduce((s, e) => s + Number(e.amount || 0), 0);
 				const prashikTotalReceived = spCash["PRASHIK HAJARE"] + totalHandedToPrashikAccepted;
-				const prashikInHand = Math.max(0, prashikTotalReceived - totalBankDeposits);
+				const prashikInHand = Math.max(
+					0,
+					prashikTotalReceived - totalBankDeposits - totalCashExpenses,
+				);
 
 				return {
 					spCash,
@@ -16970,6 +17083,7 @@ Thank you!`;
 					totalHandedToPrashikAccepted,
 					gopalPocket,
 					vikramPocket,
+					otherCash,
 					gopalChequesInHand,
 					gopalChequesHanded,
 					vikramChequesInHand,
@@ -16978,7 +17092,8 @@ Thank you!`;
 					chequesInBank,
 					prashikInHand,
 					totalBankDeposits,
-					totalMarketCash: spCash["PRASHIK HAJARE"] + spCash["GOPAL AMBAGADE"],
+					totalCashExpenses,
+					totalMarketCash: spCash["PRASHIK HAJARE"] + spCash["GOPAL AMBAGADE"] + otherCash,
 				};
 			}
 
@@ -16988,28 +17103,42 @@ Thank you!`;
 
 				const accTotals = {};
 				COMPANY_BANK_ACCOUNTS.forEach((a) => {
-					accTotals[a.id] = { directBank: 0, cashDeposited: 0, total: 0 };
+					accTotals[a.id] = { directBank: 0, clearedCheques: 0, cashDeposited: 0, total: 0 };
 				});
 
+				const defaultAccId = activeCompany === "SHIVOM" ? "ROSHAN" : "IOB";
 				(state.collections || []).forEach((c) => {
-					if (c.mode === "Bank") {
-						const aid = c.depositAccount || "IOB";
+					if (c.mode === "Bank" || c.mode === "Online" || c.mode === "UPI") {
+						const aid = c.depositAccount || defaultAccId;
 						if (accTotals[aid]) {
 							accTotals[aid].directBank += Number(c.amount || 0);
+							accTotals[aid].total += Number(c.amount || 0);
+						}
+					} else if (c.mode === "Cheque" && c.chequeStatus === "Cleared") {
+						const aid = c.depositAccount || defaultAccId;
+						if (accTotals[aid]) {
+							accTotals[aid].clearedCheques += Number(c.amount || 0);
 							accTotals[aid].total += Number(c.amount || 0);
 						}
 					}
 				});
 
 				(state.bankDeposits || []).forEach((b) => {
-					const aid = b.depositAccount || "IOB";
+					const aid = b.depositAccount || defaultAccId;
 					if (accTotals[aid]) {
 						accTotals[aid].cashDeposited += Number(b.amount || 0);
 						accTotals[aid].total += Number(b.amount || 0);
 					}
 				});
 
-				const grandTotal = Object.values(accTotals).reduce((sum, v) => sum + v.total, 0);
+				const coBankAccs = COMPANY_BANK_ACCOUNTS.filter((a) => a.company === activeCompany);
+				const grandTotal = coBankAccs.reduce(
+					(sum, a) => sum + ((accTotals[a.id] && accTotals[a.id].total) || 0),
+					0,
+				);
+				const totalBankExpenses = (state.expenses || [])
+					.filter((e) => e.mode !== "Cash")
+					.reduce((s, e) => s + Number(e.amount || 0), 0);
 
 				const colors = {
 					IOB: "#0f766e",
@@ -17018,19 +17147,24 @@ Thank you!`;
 					SAVITA: "#c026d3",
 				};
 
-				const coBankAccs = COMPANY_BANK_ACCOUNTS.filter((a) => a.company === activeCompany);
 				container.innerHTML =
 					coBankAccs
 						.map((a) => {
-							const t = accTotals[a.id] || { directBank: 0, cashDeposited: 0, total: 0 };
+							const t = accTotals[a.id] || {
+								directBank: 0,
+								clearedCheques: 0,
+								cashDeposited: 0,
+								total: 0,
+							};
 							const col = colors[a.id] || "#0f766e";
 							return `
           <div class="kpi-card" style="border-top:4px solid ${col};">
             <div style="font-size:0.72rem;font-weight:700;color:${col};text-transform:uppercase;margin-bottom:4px;">${a.type}</div>
             <div class="kpi-label" style="font-weight:700;color:var(--text);font-size:0.83rem;line-height:1.3;" title="${a.name}">${a.shortName}</div>
             <div class="kpi-val" style="color:${col};font-size:1.3rem;margin:6px 0;">${fmtINR(t.total)}</div>
-            <div style="font-size:0.75rem;color:var(--muted);border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">
+            <div style="font-size:0.73rem;color:var(--muted);border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">
               <span>UPI/Direct: <strong>${fmtINR(t.directBank)}</strong></span>
+              <span>Chq Clr: <strong>${fmtINR(t.clearedCheques)}</strong></span>
               <span>Cash Dep: <strong>${fmtINR(t.cashDeposited)}</strong></span>
             </div>
           </div>
@@ -17039,10 +17173,10 @@ Thank you!`;
 						.join("") +
 					`
         <div class="kpi-card teal" style="background:#f0fdf4;border-top:4px solid #16a34a;">
-          <div style="font-size:0.72rem;font-weight:700;color:#16a34a;text-transform:uppercase;margin-bottom:4px;">Grand Total (All 4 Accounts)</div>
-          <div class="kpi-label" style="font-weight:700;color:var(--text);font-size:0.83rem;">Total Deposited (All Accounts)</div>
+          <div style="font-size:0.72rem;font-weight:700;color:#16a34a;text-transform:uppercase;margin-bottom:4px;">Grand Total (${coBankAccs.length} ${activeCompany} Accounts)</div>
+          <div class="kpi-label" style="font-weight:700;color:var(--text);font-size:0.83rem;">Total Deposited (${activeCompany})</div>
           <div class="kpi-val" style="color:#16a34a;font-size:1.3rem;margin:6px 0;">${fmtINR(grandTotal)}</div>
-          <div class="kpi-sub" style="color:#15803d;">Total Direct Online + Cash Deposits</div>
+          <div class="kpi-sub" style="color:#15803d;">Direct + Cleared Chq + Cash Dep${totalBankExpenses > 0 ? ` | Bank Exp: -${fmtINR(totalBankExpenses)} (Net: ${fmtINR(grandTotal - totalBankExpenses)})` : ""}</div>
         </div>
       `;
 			}
@@ -19637,28 +19771,49 @@ Thank you! Your payment has been received successfully.`;
 				return `${prefix}/${fyLabel}/${num}`;
 			}
 
-			function computeOrderGstBreakdown(ord) {
+			function computeOrderGstBreakdown(ord, opts = {}) {
+				const useDispatchedQty = Boolean(opts && opts.useDispatchedQty);
 				const party = state.parties.find((p) => p.id === ord.partyId) ||
 					state.parties.find(
 						(p) => (p.name || "").toLowerCase() === (ord.partyName || "").toLowerCase(),
 					) || { name: ord.partyName || "Customer", area: "Nagpur", mobile: "", gstin: "" };
 				const supply = getPartySupplyInfo(party);
 				const pricingMode = ord.gstPricingMode || "inclusive";
-				const rawItems =
-					Array.isArray(ord.items) && ord.items.length > 0
-						? ord.items
-						: [
-								{
-									productId: ord.productId,
-									productName: ord.productName || "Appliances",
-									code: "",
-									hsn: ord.hsn || "85166000",
-									gst: ord.gst != null ? Number(ord.gst) : 18,
-									qty: Number(ord.orderQty || 1),
-									rate: Number(ord.rate || 0),
-									isFoc: Number(ord.rate || 0) === 0,
-								},
-							];
+				const hasItemsArr = Array.isArray(ord.items) && ord.items.length > 0;
+				const anyItemDisp = hasItemsArr && ord.items.some((it) => Number(it.dispatchedQty || 0) > 0);
+				const legacyFullDisp =
+					hasItemsArr &&
+					!anyItemDisp &&
+					Number(ord.dispatchedQty || 0) >= Number(ord.orderQty || 0) &&
+					Number(ord.orderQty || 0) > 0;
+				const legacyRatio =
+					hasItemsArr && !anyItemDisp && !legacyFullDisp && Number(ord.orderQty || 0) > 0
+						? Math.min(1, Number(ord.dispatchedQty || 0) / Number(ord.orderQty || 1))
+						: 0;
+				const rawItems = hasItemsArr
+					? ord.items.map((it) => {
+							const bookedQ = Number(it.qty || 0);
+							const dispQ = anyItemDisp
+								? Number(it.dispatchedQty || 0)
+								: legacyFullDisp
+									? bookedQ
+									: Math.round(bookedQ * legacyRatio);
+							return { ...it, qty: useDispatchedQty ? dispQ : bookedQ };
+						})
+					: [
+							{
+								productId: ord.productId,
+								productName: ord.productName || "Appliances",
+								code: "",
+								hsn: ord.hsn || "85166000",
+								gst: ord.gst != null ? Number(ord.gst) : 18,
+								qty: useDispatchedQty
+									? Number(ord.dispatchedQty || 0)
+									: Number(ord.orderQty || 1),
+								rate: Number(ord.rate || 0),
+								isFoc: Number(ord.rate || 0) === 0,
+							},
+						];
 
 				const lines = [];
 				const hsnMap = {};
@@ -19836,11 +19991,15 @@ Thank you! Your payment has been received successfully.`;
 					const autoDownload = urlParams.get("download") === "1" || urlParams.get("pdf") === "1";
 
 					const apiUrl = `/api/public/view?view=${encodeURIComponent(viewType)}&id=${encodeURIComponent(viewId)}&partyId=${encodeURIComponent(viewPartyId)}&date=${encodeURIComponent(viewDate)}&co=${encodeURIComponent(activeCompany)}`;
-					const res = await fetch(apiUrl, { cache: "no-store" });
+					const res = await apiFetch(apiUrl, { cache: "no-store" });
 					const data = await res.json().catch(() => null);
 
 					if (!res.ok || !data || !data.ok) {
-						showToast("⚠️ Document not found or expired.");
+						showToast(
+							res.status === 401
+								? "🔒 Please sign in to view Daily Summary report."
+								: "⚠️ Document not found or expired.",
+						);
 						return true;
 					}
 
@@ -19962,7 +20121,16 @@ Thank you! Your payment has been received successfully.`;
 					});
 				}
 				const cashCols = dayCols.filter((c) => c.mode === "Cash");
-				const bankCols = dayCols.filter((c) => c.mode === "Bank");
+				const bankCols = dayCols.filter(
+					(c) =>
+						c.mode === "Bank" ||
+						c.mode === "Online" ||
+						c.mode === "UPI" ||
+						(c.mode === "Cheque" && c.chequeStatus === "Cleared"),
+				);
+				const dayChqPending = dayCols
+					.filter((c) => c.mode === "Cheque" && (c.chequeStatus || "Pending") === "Pending")
+					.reduce((s, c) => s + Number(c.amount || 0), 0);
 				const totalCashAmt = cashCols.reduce((s, c) => s + Number(c.amount || 0), 0);
 				const totalBankAmt = bankCols.reduce((s, c) => s + Number(c.amount || 0), 0);
 				const totalColAmt = totalCashAmt + totalBankAmt;
@@ -20055,7 +20223,7 @@ Thank you! Your payment has been received successfully.`;
           <div style="background:#f0fdf4;border:1px solid #86efac;padding:10px;border-radius:6px;text-align:center;">
             <div style="font-size:10.5px;color:#166534;font-weight:700;">Total Collections</div>
             <div style="font-size:15px;font-weight:800;color:#15803d;margin-top:2px;">${fmtINR(totalColAmt)}</div>
-            <div style="font-size:10px;color:#166534;">Cash: ${fmtINR(totalCashAmt)} | Bank: ${fmtINR(totalBankAmt)}</div>
+            <div style="font-size:10px;color:#166534;">Cash: ${fmtINR(totalCashAmt)} | Bank/Clr: ${fmtINR(totalBankAmt)}${dayChqPending > 0 ? ` | Pend Chq: ${fmtINR(dayChqPending)}` : ""}</div>
           </div>
           <div style="background:#fef2f2;border:1px solid #fecaca;padding:10px;border-radius:6px;text-align:center;">
             <div style="font-size:10.5px;color:#991b1b;font-weight:700;">Total Market Due</div>
@@ -20139,13 +20307,53 @@ Thank you! Your payment has been received successfully.`;
       `;
 			}
 
-			function downloadDailySummaryPdf() {
+			async function saveHtmlAsPdf(element, fileName, printTitle, marginMm = 6) {
+				if (!element) return;
+				if (!window.html2pdf) {
+					triggerDocumentPrint(printTitle || fileName);
+					return;
+				}
+				const opt = {
+					margin: [marginMm, marginMm, marginMm, marginMm],
+					filename: fileName,
+					image: { type: "jpeg", quality: 0.98 },
+					html2canvas: {
+						scale: 2,
+						useCORS: true,
+						logging: false,
+						scrollY: 0,
+						scrollX: 0,
+						x: 0,
+						y: 0,
+						windowWidth: 900,
+						backgroundColor: "#ffffff",
+					},
+					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+				};
+				if (window.AndroidApp && typeof window.AndroidApp.savePdfBase64 === "function") {
+					const blob = await html2pdf().set(opt).from(element).outputPdf("blob");
+					const base64 = await new Promise((resolve, reject) => {
+						const reader = new FileReader();
+						reader.onloadend = () => {
+							const res = String(reader.result || "");
+							const idx = res.indexOf(",");
+							resolve(idx >= 0 ? res.slice(idx + 1) : res);
+						};
+						reader.onerror = reject;
+						reader.readAsDataURL(blob);
+					});
+					window.AndroidApp.savePdfBase64(fileName, base64);
+				} else {
+					await html2pdf().set(opt).from(element).save();
+				}
+			}
+
+			async function downloadDailySummaryPdf() {
 				const el = document.getElementById("dailySummaryPrintArea");
 				if (!el) return;
 				const dateInput = document.getElementById("dailySummaryDate");
 				const selectedDate =
 					(dateInput ? dateInput.value : "") || new Date().toISOString().split("T")[0];
-				const co = COMPANIES[activeCompany] || COMPANIES.MADHAV;
 				const fileName = `Daily_Closing_Summary_${activeCompany}_${selectedDate}.pdf`;
 
 				if (window.html2pdf) {
@@ -20678,10 +20886,11 @@ Thank you! Your payment has been received successfully.`;
 
 				const orders = (state.orders || [])
 					.filter((o) => {
+						if (getOrderDispatchedAmount(o) <= 0) return false;
 						if (allTime || !selectedMonth) return true;
 						return String(o.date || "").startsWith(selectedMonth);
 					})
-					.map((o) => computeOrderGstBreakdown(o));
+					.map((o) => computeOrderGstBreakdown(o, { useDispatchedQty: true }));
 
 				const purchases = (state.purchaseBills || []).filter((b) => {
 					if (allTime || !selectedMonth) return true;
@@ -20762,11 +20971,11 @@ Thank you! Your payment has been received successfully.`;
 					retGst += Number(r.totalGst || 0);
 				});
 
-				const netTaxable = Math.max(0, totalTaxable - retTaxable);
-				const netOutCgst = Math.max(0, outCgst - retCgst);
-				const netOutSgst = Math.max(0, outSgst - retSgst);
-				const netOutIgst = Math.max(0, outIgst - retIgst);
-				const netOutTotal = Math.max(0, outTotal - retGst);
+				const netTaxable = totalTaxable - retTaxable;
+				const netOutCgst = outCgst - retCgst;
+				const netOutSgst = outSgst - retSgst;
+				const netOutIgst = outIgst - retIgst;
+				const netOutTotal = outTotal - retGst;
 
 				let inTaxable = 0,
 					inCgst = 0,
@@ -21440,7 +21649,15 @@ Thank you! Your payment has been received successfully.`;
 				const mo = Number(parts[1]) || new Date().getMonth() + 1;
 				const fyStart = mo >= 4 ? yr : yr - 1;
 				const fyLabel = `${String(fyStart).slice(-2)}-${String(fyStart + 1).slice(-2)}`;
-				const seq = String((state.salesReturns || []).length + 1).padStart(3, "0");
+				let maxCnSeq = 0;
+				(state.salesReturns || []).forEach((r) => {
+					const m = String(r.cnNo || "").match(new RegExp(`^CN/${fyLabel}/(\\d+)$`));
+					if (m) {
+						const n = parseInt(m[1], 10);
+						if (!isNaN(n) && n > maxCnSeq) maxCnSeq = n;
+					}
+				});
+				const seq = String(maxCnSeq + 1).padStart(3, "0");
 				const cnNo = `CN/${fyLabel}/${seq}`;
 
 				const rec = {
@@ -21955,18 +22172,74 @@ Thank you! Your payment has been received successfully.`;
 				const bankDep = (state.bankDeposits || [])
 					.filter((d) => inPeriod(d.date))
 					.reduce((s, d) => s + Number(d.amount || 0), 0);
-				const realCashInHand = cashCol - cashExp - bankDep;
 
-				const dispatchedSales = (state.orders || [])
-					.filter((o) => inPeriod(o.date))
-					.reduce((s, o) => s + getOrderDispatchedAmount(o), 0);
-				const returnTotal = (state.salesReturns || [])
+				// Live cumulative office cash-in-hand from getCashSummary()
+				const cs = typeof getCashSummary === "function" ? getCashSummary() : null;
+				const realCashInHand = cs ? cs.prashikInHand : Math.max(0, cashCol - cashExp - bankDep);
+
+				// Build Average Purchase Cost (Taxable per unit) by Product from Purchase Bills
+				const purStats = {};
+				(state.purchaseBills || []).forEach((b) => {
+					const q = Number(b.qty || 0);
+					if (q <= 0) return;
+					const pid = b.productId || b.productName || "";
+					if (!pid) return;
+					if (!purStats[pid]) purStats[pid] = { qty: 0, taxableCost: 0 };
+					purStats[pid].qty += q;
+					purStats[pid].taxableCost +=
+						b.taxableAmt != null ? Number(b.taxableAmt) : q * Number(b.rate || 0);
+				});
+				const avgCostByProd = {};
+				Object.keys(purStats).forEach((pid) => {
+					if (purStats[pid].qty > 0) {
+						avgCostByProd[pid] = purStats[pid].taxableCost / purStats[pid].qty;
+					}
+				});
+
+				// Taxable Dispatched Sales & COGS in Period
+				let taxableDispatchedSales = 0;
+				let cogsTotal = 0;
+				(state.orders || [])
+					.filter((o) => inPeriod(o.date) && getOrderDispatchedAmount(o) > 0)
+					.forEach((o) => {
+						const gstBreak = computeOrderGstBreakdown(o, { useDispatchedQty: true });
+						taxableDispatchedSales += gstBreak.totalTaxable;
+						if (Array.isArray(o.items) && o.items.length > 0) {
+							const anyItemDisp = o.items.some((it) => Number(it.dispatchedQty || 0) > 0);
+							const legacyFullDisp =
+								!anyItemDisp &&
+								Number(o.dispatchedQty || 0) >= Number(o.orderQty || 0) &&
+								Number(o.orderQty || 0) > 0;
+							const legacyRatio =
+								!anyItemDisp && !legacyFullDisp && Number(o.orderQty || 0) > 0
+									? Math.min(1, Number(o.dispatchedQty || 0) / Number(o.orderQty || 1))
+									: 0;
+							o.items.forEach((it) => {
+								const q = Number(it.qty || 0);
+								const dq = anyItemDisp
+									? Number(it.dispatchedQty || 0)
+									: legacyFullDisp
+										? q
+										: Math.round(q * legacyRatio);
+								const unitCost =
+									avgCostByProd[it.productId] || avgCostByProd[it.productName] || 0;
+								cogsTotal += dq * unitCost;
+							});
+						} else {
+							const dq = Number(o.dispatchedQty || 0);
+							const unitCost = avgCostByProd[o.productId] || avgCostByProd[o.productName] || 0;
+							cogsTotal += dq * unitCost;
+						}
+					});
+
+				const returnTaxableTotal = (state.salesReturns || [])
 					.filter((r) => inPeriod(r.date))
-					.reduce((s, r) => s + Number(r.totalCreditAmt || 0), 0);
+					.reduce((s, r) => s + Number(r.taxableAmt || r.totalCreditAmt || 0), 0);
 				const purchaseTotal = (state.purchaseBills || [])
 					.filter((b) => inPeriod(b.date))
 					.reduce((s, b) => s + Number(b.totalAmt || 0), 0);
-				const netSurplus = dispatchedSales - returnTotal - purchaseTotal - totalExp;
+				const netTaxableSales = taxableDispatchedSales - returnTaxableTotal;
+				const netSurplus = netTaxableSales - cogsTotal - totalExp;
 
 				const pendingClaimsTotal = periodExpenses
 					.filter((x) => x.status === "Pending")
@@ -21985,10 +22258,16 @@ Thank you! Your payment has been received successfully.`;
 				setTxt("expKpiCashCol", fmtINR(cashCol));
 				setTxt("expKpiBankDep", `Bank Deposited: ${fmtINR(bankDep)}`);
 				setTxt("expKpiCashInHand", fmtINR(realCashInHand));
+				if (cs) {
+					setTxt(
+						"expKpiCashInHandSub",
+						`Office Box: ${fmtINR(cs.prashikInHand)} | Field Pocket: ${fmtINR(cs.gopalPocket)}`,
+					);
+				}
 				setTxt("expKpiNetProfit", fmtINR(netSurplus));
 				setTxt(
 					"expKpiProfitSub",
-					`Net Sales ${fmtINR(dispatchedSales - returnTotal)} − Pur. ${fmtINR(purchaseTotal)} − Exp. ${fmtINR(totalExp)}`,
+					`Net Taxable ${fmtINR(netTaxableSales)} − COGS ${fmtINR(cogsTotal)} − Exp. ${fmtINR(totalExp)} (Pur. ${fmtINR(purchaseTotal)})`,
 				);
 				setTxt("expKpiPendingReimbVal", fmtINR(pendingClaimsTotal));
 				setTxt(
@@ -22468,7 +22747,7 @@ Thank you! Your payment has been received successfully.`;
 				return coState;
 			}
 
-			async function exportToExcel(customFilename, targetCo = "ALL", syncToDrive = false) {
+			async function exportToExcel(customFilename, targetCo = "ALL") {
 				if (!isAdminLoggedIn) {
 					alert("Only Owner Admin can export Excel data.");
 					return;
@@ -22893,10 +23172,10 @@ Thank you! Your payment has been received successfully.`;
 				saveWorkbookAsXlsx(wb, baseName, `✅ Exported Multi-Tab Workbook (${coLabel})!`);
 			}
 
-			function handleExportClick(syncToDrive) {
+			function handleExportClick() {
 				const sel = document.querySelector('input[name="excelExportCo"]:checked');
 				const co = sel ? sel.value : "ALL";
-				exportToExcel(null, co, syncToDrive);
+				exportToExcel(null, co);
 			}
 
 			function downloadExcelTemplate() {
@@ -24176,119 +24455,9 @@ Thank you! Your payment has been received successfully.`;
 				}
 				openOrderBookingMemo(orderId);
 			}
-			async function _legacyViewOrderDrivePdf_unused(orderId, isTaxInvoice = false) {
-				if (typeof closeAllOrderMenus === "function") closeAllOrderMenus();
-				const targetId =
-					orderId ||
-					currentPreviewInvoiceOrderId ||
-					lastActiveMemoOrderId ||
-					(lastActiveOrd && lastActiveOrd.id);
-				if (!targetId) {
-					showToast("⚠️ Order reference not found.");
-					return;
-				}
-				const ord = state.orders.find(
-					(o) => o.id === targetId || o.orderNo === String(targetId) || o.memoNo === targetId,
-				);
-				if (!ord) {
-					showToast("⚠️ Order details not found.");
-					return;
-				}
-
-				const existingDriveUrl = isTaxInvoice ? ord.invoiceDriveUrl || ord.driveUrl : ord.driveUrl;
-
-				// 1. If Google Drive link is already ready, open immediately in new tab!
-				if (existingDriveUrl) {
-					showToast("🚀 Opening Google Drive PDF...");
-					window.open(existingDriveUrl, "_blank");
-					return;
-				}
-
-				// 2. Otherwise inform user and wait up to 20 seconds
-				showToast("⏳ Uploading PDF to Google Drive, please wait (up to 20s)...");
-
-				let timeoutExpired = false;
-				const timeoutPromise = new Promise((resolve) => {
-					setTimeout(() => {
-						timeoutExpired = true;
-						resolve(null);
-					}, 20000);
-				});
-
-				let uploadPromise = null;
-				if (isTaxInvoice) {
-					uploadPromise = autoBackupTaxInvoiceToDrive(ord);
-				} else {
-					uploadPromise = autoBackupOrderMemoToDrive(ord, false, true);
-				}
-
-				try {
-					const newDriveUrl = await Promise.race([uploadPromise, timeoutPromise]);
-					if (newDriveUrl && !timeoutExpired) {
-						showToast("✅ Google Drive PDF ready! Opening...");
-						window.open(newDriveUrl, "_blank");
-						return;
-					}
-				} catch (err) {
-					console.warn("Drive PDF auto-wait error:", err);
-				}
-
-				// 3. Safety Fallback: after 20 seconds, open in-app preview so user is never blocked
-				showToast("⚠️ Google Drive took >20s. Opening in-app preview...");
-				if (isTaxInvoice) {
-					openTaxInvoice(ord.id);
-				} else {
-					openOrderBookingMemo(ord.id);
-				}
-			}
 
 			async function viewReceiptDrivePdf(colId) {
 				openPaymentReceipt(colId);
-			}
-			async function _legacyViewReceiptDrivePdf_unused(colId) {
-				const targetId = colId || lastActiveColId;
-				if (!targetId) {
-					showToast("⚠️ Receipt reference not found.");
-					return;
-				}
-				const col = state.collections.find((c) => c.id === targetId || c.receiptNo === targetId);
-				if (!col) {
-					showToast("⚠️ Receipt details not found.");
-					return;
-				}
-
-				const existingDriveUrl = col.receiptDriveUrl || col.driveUrl;
-				if (existingDriveUrl) {
-					showToast("🚀 Opening Google Drive Receipt PDF...");
-					window.open(existingDriveUrl, "_blank");
-					return;
-				}
-
-				showToast("⏳ Preparing Receipt PDF for Google Drive (up to 20s)...");
-				let timeoutExpired = false;
-				const timeoutPromise = new Promise((resolve) => {
-					setTimeout(() => {
-						timeoutExpired = true;
-						resolve(null);
-					}, 20000);
-				});
-
-				try {
-					const newDriveUrl = await Promise.race([
-						autoBackupPaymentReceiptToDrive(col),
-						timeoutPromise,
-					]);
-					if (newDriveUrl && !timeoutExpired) {
-						showToast("✅ Google Drive Receipt ready! Opening...");
-						window.open(newDriveUrl, "_blank");
-						return;
-					}
-				} catch (err) {
-					console.warn("Drive Receipt error:", err);
-				}
-
-				showToast("⚠️ Google Drive took >20s. Opening in-app receipt...");
-				openPaymentReceipt(col.id);
 			}
 
 			// ==================== OFFICIAL PDF DOWNLOAD SYSTEM (100% RELIABLE ACROSS ALL DEVICES) ====================
@@ -24314,7 +24483,9 @@ Thank you! Your payment has been received successfully.`;
 				const party = state.parties.find(
 					(p) => p.id === ord.partyId || p.name === ord.partyName,
 				) || { name: ord.partyName, area: "Nagpur", mobile: "" };
-				const isDispatched = Number(ord.dispatchedQty || 0) > 0;
+				const isDispatched =
+					Number(ord.dispatchedQty || 0) > 0 ||
+					(typeof getOrderDispatchedAmount === "function" && getOrderDispatchedAmount(ord) > 0);
 				const memoDisplayNo = ord.memoNo ? ord.memoNo : `OB-${ord.orderNo}`;
 				const docType = isDispatched ? "Tax_Invoice" : "Order_Memo";
 				const fileName = `${docType}_${memoDisplayNo}.pdf`;
@@ -24343,7 +24514,7 @@ Thank you! Your payment has been received successfully.`;
 				} catch (err) {
 					console.error("PDF download error:", err);
 					showToast("⚠️ PDF generation issue. Opening print preview...");
-					window.print();
+					triggerDocumentPrint(fileName);
 				}
 			}
 
@@ -24375,71 +24546,6 @@ Thank you! Your payment has been received successfully.`;
 					if (targetId) shareDeliveryChallanWhatsApp(targetId);
 				} else {
 					shareCurrentInvoiceWhatsApp();
-				}
-			}
-
-			async function resyncCurrentModalDocToDrive(btnEl) {
-				showToast("✅ Documents load live from Cloudflare database.");
-				return;
-			}
-			async function _legacyResync_unused(btnEl) {
-				const targetId =
-					lastActiveMemoOrderId ||
-					currentPreviewInvoiceOrderId ||
-					(lastActiveOrd && lastActiveOrd.id);
-				if (!targetId) {
-					showToast("⚠️ Order not selected.");
-					return;
-				}
-				const ord = (state.orders || []).find(
-					(o) => o.id === targetId || o.orderNo === String(targetId) || o.memoNo === targetId,
-				);
-				if (!ord) {
-					showToast("⚠️ Order details not found.");
-					return;
-				}
-
-				if (btnEl) {
-					btnEl.disabled = true;
-					btnEl.innerHTML = "⏳ Uploading clean PDF...";
-				}
-				showToast("⏳ Re-generating clean PDF & uploading to Google Drive...");
-
-				try {
-					let newUrl = null;
-					if (currentPreviewDocType === "MEMO") {
-						newUrl = await autoBackupOrderMemoToDrive(ord, false, true);
-					} else if (currentPreviewDocType === "INVOICE") {
-						newUrl = await autoBackupTaxInvoiceToDrive(ord);
-					} else {
-						newUrl = await autoBackupOrderMemoToDrive(ord, false, true);
-					}
-
-					if (newUrl) {
-						showToast("✅ Fresh PDF uploaded to Google Drive!");
-						if (btnEl) {
-							btnEl.innerHTML = "✅ PDF Ready in Drive";
-							setTimeout(() => {
-								if (btnEl) {
-									btnEl.disabled = false;
-									btnEl.innerHTML = "☁️ Re-sync Drive PDF";
-								}
-							}, 3000);
-						}
-					} else {
-						showToast("⚠️ Drive upload failed. Check connection.");
-						if (btnEl) {
-							btnEl.disabled = false;
-							btnEl.innerHTML = "☁️ Re-sync Drive PDF";
-						}
-					}
-				} catch (err) {
-					console.error("Resync drive doc error:", err);
-					showToast("⚠️ Error while re-syncing to Google Drive.");
-					if (btnEl) {
-						btnEl.disabled = false;
-						btnEl.innerHTML = "☁️ Re-sync Drive PDF";
-					}
 				}
 			}
 
@@ -24548,7 +24654,7 @@ Thank you! Your payment has been received successfully.`;
 				} catch (err) {
 					console.error("Col PDF download error:", err);
 					showToast("⚠️ Receipt PDF issue. Opening print preview...");
-					window.print();
+					triggerDocumentPrint(fileName);
 				}
 			}
 
@@ -24596,7 +24702,7 @@ Thank you! Your payment has been received successfully.`;
 				} catch (err) {
 					console.error("Statement PDF download error:", err);
 					showToast("⚠️ Statement PDF generation issue. Opening print preview...");
-					window.print();
+					triggerDocumentPrint(fileName);
 				}
 			}
 
@@ -24770,25 +24876,36 @@ Thank you! Your payment has been received successfully.`;
 				let runningBal = Number(p.openingBalance || 0);
 
 				(p.partyOrders || []).forEach((o) => {
-					const amt = getOrderTotalAmount(o);
+					const dispAmt = getOrderDispatchedAmount(o);
+					if (dispAmt <= 0) return;
+					const itemDesc =
+						Array.isArray(o.items) && o.items.length > 0
+							? o.items
+									.filter((it) => Number(it.dispatchedQty || 0) > 0)
+									.map((it) => `${it.productName} (${it.dispatchedQty})`)
+									.join(", ") || o.productName || "Goods Dispatched"
+							: o.productName || "Goods Dispatched";
 					txns.push({
 						date: o.date || todayStr,
 						docType: "Tax Invoice",
 						docNo: formatOfficialGstInvoiceNo(o, activeCompany),
-						desc: o.productName || "Goods Dispatched",
-						debit: amt,
+						desc: itemDesc,
+						debit: dispAmt,
 						credit: 0,
 					});
 				});
 
 				(p.partyCols || []).forEach((c) => {
+					const isUnclearedCheque = c.mode === "Cheque" && c.chequeStatus !== "Cleared";
 					txns.push({
 						date: c.date || todayStr,
-						docType: "Payment Receipt",
+						docType: isUnclearedCheque
+							? `Cheque (${c.chequeStatus || "Pending"})`
+							: "Payment Receipt",
 						docNo: c.receiptNo || "REC",
-						desc: `${c.mode}${c.bankRef ? ` (${c.bankRef})` : ""} - Recd by ${c.salespersonName}`,
+						desc: `${c.mode}${c.bankRef ? ` (${c.bankRef})` : ""} - Recd by ${c.salespersonName}${isUnclearedCheque ? ` [Not Cleared: ${fmtINR(c.amount)}]` : ""}`,
 						debit: 0,
-						credit: Number(c.amount || 0),
+						credit: isUnclearedCheque ? 0 : Number(c.amount || 0),
 					});
 				});
 
