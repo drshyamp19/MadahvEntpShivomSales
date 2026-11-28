@@ -518,7 +518,7 @@ export class ErpLedgerDO extends DurableObject<Env> {
 			}
 		}
 
-		// For parties, strictly protect creditLimit so only Owner / Admin can set or change it
+		// For parties, strictly protect creditLimit and existing openingBalance so only Owner / Admin can set or change them
 		if (collection === "parties") {
 			const existingRows = this.ctx.storage.sql
 				.exec<RecordRow>(
@@ -545,7 +545,23 @@ export class ErpLedgerDO extends DurableObject<Env> {
 				} else {
 					delete item.creditLimit;
 				}
+				if (existing && typeof existing.openingBalance !== "undefined") {
+					item.openingBalance = existing.openingBalance;
+				}
 			}
+		}
+
+		// For expenses, prevent non-admin staff from self-approving or changing an existing status
+		if (collection === "expenses" && !actorIsAdmin) {
+			const existingRows = this.ctx.storage.sql
+				.exec<RecordRow>(
+					"SELECT data FROM records WHERE collection = 'expenses' AND id = ?",
+					id,
+				)
+				.toArray();
+			const existing =
+				existingRows.length > 0 ? (JSON.parse(existingRows[0].data) as ErpRecord) : null;
+			item.status = existing && existing.status ? existing.status : "Pending";
 		}
 
 		// For collections, protect cheque clearance & bank deposit so only Owner or Accountant can verify
@@ -619,7 +635,9 @@ export class ErpLedgerDO extends DurableObject<Env> {
 		collection: CollectionName,
 		id: string,
 		actor: string,
-	): Promise<{ rev: number }> {
+		actorId?: string,
+		actorIsAdmin = true,
+	): Promise<{ rev: number; deleted: boolean; forbidden?: boolean }> {
 		this.ensureSeeded(company);
 		const existingRows = this.ctx.storage.sql
 			.exec<RecordRow>("SELECT data FROM records WHERE collection = ? AND id = ?", collection, id)
@@ -627,6 +645,12 @@ export class ErpLedgerDO extends DurableObject<Env> {
 		if (existingRows.length > 0) {
 			try {
 				const parsed = JSON.parse(existingRows[0].data) as Record<string, unknown>;
+				if (collection === "chatMessages" && !actorIsAdmin) {
+					const senderId = String(parsed.senderId || "");
+					if (!actorId || senderId !== actorId) {
+						return { rev: this.getRev(), deleted: false, forbidden: true };
+					}
+				}
 				const mediaIds = new Set<string>();
 				for (const key of ["proofMediaId", "chequePhotoMediaId", "photoMediaId", "mediaId"]) {
 					const val = parsed[key];
@@ -661,7 +685,7 @@ export class ErpLedgerDO extends DurableObject<Env> {
 			actor,
 			ts: Date.now(),
 		});
-		return { rev };
+		return { rev, deleted: existingRows.length > 0 };
 	}
 
 	async updateSettings(

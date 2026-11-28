@@ -132,7 +132,7 @@ export async function verifyMasterPin(
 
 	// Keep lint happy if OWNER_FALLBACK_SHA256 is referenced
 	for (const h of OWNER_FALLBACK_SHA256) {
-		if (enteredHex === h && clean.length >= 4) return true;
+		if (clean.length >= 4 && (await timingSafeStringEqual(enteredHex, h))) return true;
 	}
 
 	return false;

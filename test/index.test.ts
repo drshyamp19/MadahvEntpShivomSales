@@ -209,6 +209,59 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 			},
 		);
 		expect(clearRes.status).toBe(403);
+
+		// Non-admin staff cannot self-approve expenses
+		const expRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/records/expenses?co=SHIVOM`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${staffLogin.data.token}`,
+			},
+			body: JSON.stringify({
+				id: "EXP_SELF_APPROVE_TEST",
+				amount: 250,
+				category: "Fuel",
+				status: "Approved",
+			}),
+		});
+		expect(expRes.status).toBe(200);
+		const expJson = (await expRes.json()) as { ok: boolean; item: { status: string } };
+		expect(expJson.item.status).toBe("Pending");
+
+		// Salesperson cannot post bankDeposits or salesReturns
+		const bankDepRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/records/bankDeposits?co=SHIVOM`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${staffLogin.data.token}`,
+			},
+			body: JSON.stringify({ id: "DEP_TEST_DENIED", amount: 1000 }),
+		});
+		expect(bankDepRes.status).toBe(403);
+
+		// Non-admin staff cannot delete another user's chat message
+		const ownerChatRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/records/chatMessages?co=SHIVOM`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${ownerLogin.data.token}`,
+			},
+			body: JSON.stringify({
+				id: "MSG_OWNER_PROTECTED",
+				channel: "SHIVOM",
+				text: "Owner announcement",
+			}),
+		});
+		expect(ownerChatRes.status).toBe(200);
+
+		const delOtherChatRes = await SELF.fetch(
+			`${MADHAV_ORIGIN}/api/records/chatMessages/MSG_OWNER_PROTECTED?co=SHIVOM`,
+			{
+				method: "DELETE",
+				headers: { Authorization: `Bearer ${staffLogin.data.token}` },
+			},
+		);
+		expect(delOtherChatRes.status).toBe(403);
 	});
 
 	it("auto-seeds MADHAV and SHIVOM into separate SQLite Durable Objects without leaking secrets", async () => {
@@ -310,7 +363,37 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		});
 		expect(fetchedMedia.status).toBe(200);
 		expect(fetchedMedia.headers.get("Content-Type")).toBe("image/png");
+		expect(fetchedMedia.headers.get("Cache-Control")).toContain("private");
 		await fetchedMedia.arrayBuffer();
+
+		// Unsupported media types (e.g. SVG/HTML) and invalid base64 must be rejected with 400
+		const badMimeRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/media?co=SHIVOM`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify({
+				id: "bad_svg",
+				dataUrl: "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=",
+				mimeType: "image/svg+xml",
+			}),
+		});
+		expect(badMimeRes.status).toBe(400);
+
+		const badB64Res = await SELF.fetch(`${MADHAV_ORIGIN}/api/media?co=SHIVOM`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify({
+				id: "bad_b64",
+				dataUrl: "data:image/png;base64,!!!not-valid-base64!!!",
+				mimeType: "image/png",
+			}),
+		});
+		expect(badB64Res.status).toBe(400);
 
 		// 3. WebSocket Hibernation real-time sync broadcast
 		const wsRes = await SELF.fetch(

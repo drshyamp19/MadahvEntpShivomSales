@@ -319,7 +319,7 @@ export default {
 					status: 200,
 					headers: {
 						"Content-Type": media.mimeType,
-						"Cache-Control": "public, max-age=31536000, immutable",
+						"Cache-Control": "private, max-age=31536000, immutable",
 					},
 				});
 			}
@@ -343,11 +343,21 @@ export default {
 				if (!match) {
 					return jsonNoStore({ ok: false, error: "Invalid data URL format" }, 400);
 				}
-				const mimeType = body.mimeType || match[1] || "image/jpeg";
-				const binStr = atob(match[2]);
-				const bytes = new Uint8Array(binStr.length);
-				for (let i = 0; i < binStr.length; i++) {
-					bytes[i] = binStr.charCodeAt(i);
+				const rawMime = (body.mimeType || match[1] || "image/jpeg").toLowerCase().trim();
+				const allowedMimes = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
+				if (!allowedMimes.has(rawMime)) {
+					return jsonNoStore({ ok: false, error: "Unsupported media type. Only JPEG, PNG, and WebP images are allowed." }, 400);
+				}
+				const mimeType = rawMime === "image/jpg" ? "image/jpeg" : rawMime;
+				let bytes: Uint8Array;
+				try {
+					const binStr = atob(match[2]);
+					bytes = new Uint8Array(binStr.length);
+					for (let i = 0; i < binStr.length; i++) {
+						bytes[i] = binStr.charCodeAt(i);
+					}
+				} catch {
+					return jsonNoStore({ ok: false, error: "Invalid base64 image payload" }, 400);
 				}
 
 				const mediaId = (
@@ -400,6 +410,17 @@ export default {
 				}
 				if (col === "purchaseBills" && !session.isAdmin && session.role !== "Accountant") {
 					return jsonNoStore({ ok: false, error: "Admin or Accountant permission required" }, 403);
+				}
+				if (
+					(col === "bankDeposits" || col === "salesReturns") &&
+					!session.isAdmin &&
+					session.role !== "Accountant" &&
+					session.role !== "Manager"
+				) {
+					return jsonNoStore(
+						{ ok: false, error: "Admin, Manager, or Accountant permission required" },
+						403,
+					);
 				}
 
 				if (col === "expenses" && !session.isAdmin) {
@@ -465,7 +486,7 @@ export default {
 				if (col === "expenses") {
 					if (!session.isAdmin) {
 						if (!item.staff) item.staff = session.name;
-						if (!item.status) item.status = "Pending";
+						item.status = "Pending";
 						item.submittedBy = session.name;
 						item.submittedRole = session.role;
 					}
@@ -523,11 +544,24 @@ export default {
 				}
 
 				const co = normalizeCompanyKey(url.searchParams.get("co"), defaultBrandKey);
-				const result = await getLedgerStub(co).deleteRecord(co, col, id, session.name);
+				const result = await getLedgerStub(co).deleteRecord(
+					co,
+					col,
+					id,
+					session.name,
+					session.id,
+					session.isAdmin,
+				);
+				if (result.forbidden) {
+					return jsonNoStore(
+						{ ok: false, error: "You can only delete your own chat messages" },
+						403,
+					);
+				}
 				if (col === "chatMessages") {
 					const otherCo: CompanyKey = co === "MADHAV" ? "SHIVOM" : "MADHAV";
 					await getLedgerStub(otherCo)
-						.deleteRecord(otherCo, col, id, session.name)
+						.deleteRecord(otherCo, col, id, session.name, session.id, session.isAdmin)
 						.catch((err: unknown) => {
 							console.error(
 								JSON.stringify({
