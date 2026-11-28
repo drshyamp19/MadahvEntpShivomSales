@@ -16757,8 +16757,13 @@ Thank you!`;
 					return;
 				}
 
+				const editAmt = Number(document.getElementById("editColAmount").value);
+				if (isNaN(editAmt) || editAmt <= 0) {
+					alert("Please enter a valid collection amount (> 0).");
+					return;
+				}
 				col.date = document.getElementById("editColDate").value;
-				col.amount = Number(document.getElementById("editColAmount").value);
+				col.amount = editAmt;
 				col.mode = newMode;
 				col.depositAccount = depositAccountVal;
 				col.salespersonName = newSp;
@@ -18427,6 +18432,10 @@ Thank you!`;
 			async function submitBankDeposit(e) {
 				e.preventDefault();
 				const amt = Number(document.getElementById("bankDepAmt").value);
+				if (isNaN(amt) || amt <= 0) {
+					alert("Please enter a valid bank deposit amount (> 0).");
+					return;
+				}
 				const challan = document.getElementById("bankDepChallan").value.trim();
 				const date = document.getElementById("bankDepDate").value;
 				const accId = document.getElementById("bankDepAccount").value;
@@ -19269,6 +19278,11 @@ Thank you! Your payment has been received successfully.`;
 
 				const colModeVal = document.getElementById("colMode").value;
 				const spVal = document.getElementById("colSalesperson").value;
+				const colAmt = Number(document.getElementById("colAmount").value);
+				if (isNaN(colAmt) || colAmt <= 0) {
+					alert("Please enter a valid collection amount (> 0).");
+					return;
+				}
 
 				// Vikram Cash Prohibition Check
 				const isSpRestricted = isCashCollectionRestricted(spVal, currentStaff);
@@ -23250,13 +23264,21 @@ Thank you! Your payment has been received successfully.`;
 					// 6. DAILY EXPENSES
 					(coState.expenses || []).forEach((x) => {
 						const xAmt = Number(x.amount || 0);
-						totalExpenses += xAmt;
+						const xStatus = x.status || "Paid";
+						if (
+							xStatus !== "Pending" &&
+							xStatus !== "Salary Advance" &&
+							x.category !== "Staff Salary / Advance"
+						) {
+							totalExpenses += xAmt;
+						}
 						expenseRows.push({
 							Company: coCode,
 							Date: x.date || "",
 							"Expense ID": x.id || "",
 							Category: x.category || "Other",
 							"Payment Mode": x.mode || "Cash",
+							Status: xStatus,
 							"Amount (₹)": Number(xAmt.toFixed(2)),
 							"Logged By": x.staff || "Owner",
 							"Note / Remarks": x.note || "",
@@ -23307,7 +23329,7 @@ Thank you! Your payment has been received successfully.`;
 							Order_Bill_Amt: 0,
 							Collection_Paid_Amt: Number(Number(b.amount || 0).toFixed(2)),
 							Outstanding_Due: "",
-							Mode_or_Account: b.depositAccount || "IOB",
+							Mode_or_Account: b.depositAccount || (coCode === "SHIVOM" ? "ROSHAN" : "IOB"),
 							Salesperson_Staff: b.depositedBy || "PRASHIK HAJARE",
 							Status: "Deposited",
 							Remark_Details: b.bankName || getAccShortName(b.depositAccount),
