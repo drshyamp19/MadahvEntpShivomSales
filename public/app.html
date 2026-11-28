@@ -29,9 +29,9 @@
 			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
 			rel="stylesheet"
 		/>
-		<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+		<script src="/vendor/xlsx.full.min.js"></script>
+		<script src="/vendor/qrcode.min.js"></script>
+		<script src="/vendor/html2pdf.bundle.min.js"></script>
 		<style>
 			:root {
 				--primary: #1e3a5f;
@@ -10175,6 +10175,16 @@
 				t.classList.add("show");
 				setTimeout(() => t.classList.remove("show"), 3200);
 			}
+
+			const _nativeAlert = window.alert.bind(window);
+			window.alert = function (msg) {
+				const t = document.getElementById("toast");
+				if (t) {
+					showToast(String(msg || ""));
+				} else {
+					_nativeAlert(msg);
+				}
+			};
 
 			// ==================== UNIVERSAL CLEAN PDF EXPORT ENGINE ====================
 			async function exportCleanPdf(

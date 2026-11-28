@@ -63,7 +63,7 @@ function escapeHtmlAttr(s: string): string {
 }
 
 function buildServiceWorkerJs(brandKey: CompanyKey): string {
-	const cacheName = `madhav-shivom-cf-erp-${brandKey.toLowerCase()}-v4-cardview`;
+	const cacheName = `madhav-shivom-cf-erp-${brandKey.toLowerCase()}-v5-vendor-local`;
 	return `const CACHE_NAME = '${cacheName}';
 const APP_SHELL = [
   '/',
@@ -76,9 +76,9 @@ const APP_SHELL = [
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/apple-touch-icon.png',
-  'https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js',
-  'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+  '/vendor/xlsx.full.min.js',
+  '/vendor/qrcode.min.js',
+  '/vendor/html2pdf.bundle.min.js'
 ];
 
 self.addEventListener('install', (event) => {
