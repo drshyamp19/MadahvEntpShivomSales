@@ -3135,17 +3135,23 @@
 							</div>
 						</div>
 						<form class="form-grid" onsubmit="handleInwardStock(event)">
-							<div class="form-group" style="grid-column: span 2">
+							<div class="form-group custom-autocomplete-wrap" style="grid-column: span 2">
 								<label>Select Product *</label>
 								<input
 									type="text"
 									id="inwardProductInput"
 									class="form-control"
 									placeholder="Type product name or code..."
+									autocomplete="off"
 									oninput="handleInwardProdSelected()"
 									onchange="handleInwardProdSelected()"
 									required
 								/>
+								<div
+									id="inwardProductSuggestions"
+									class="custom-autocomplete-dropdown"
+									style="display: none"
+								></div>
 							</div>
 							<div class="form-group">
 								<label>Inward Quantity Received (+) *</label>
@@ -9739,6 +9745,19 @@
 						handleProductSelected(false);
 					});
 				}
+
+				// 5. Inward Stock Product Autocomplete
+				setupAutocomplete({
+					inputId: "inwardProductInput",
+					dropdownId: "inwardProductSuggestions",
+					getItems: () => getComputedStock(),
+					renderItem: (prod, q) => renderProductAutocompleteItem(prod, q),
+					onEmpty: (q) =>
+						`<div style="padding:12px;text-align:center;color:#64748b;font-size:0.85rem;background:#ffffff;">No product found matching "<strong>${escapeHtml(q)}</strong>"</div>`,
+					onSelect: () => {
+						handleInwardProdSelected();
+					},
+				});
 			}
 
 			function setupAutocomplete({ inputId, dropdownId, getItems, renderItem, onEmpty, onSelect }) {
@@ -9754,18 +9773,21 @@
 					if (!query) {
 						matches = allItems.slice(0, 15);
 					} else {
+						const tokens = query.split(/\s+/).filter(Boolean);
 						matches = allItems
 							.filter((item) => {
-								const name = (item.name || "").toLowerCase();
-								const code = (item.code || "").toLowerCase();
-								const area = (item.area || "").toLowerCase();
-								const mob = (item.mobile || "").toLowerCase();
-								return (
-									name.includes(query) ||
-									code.includes(query) ||
-									area.includes(query) ||
-									mob.includes(query)
-								);
+								const hay = [
+									item.name,
+									item.code,
+									item.group,
+									item.hsn,
+									item.area,
+									item.mobile,
+								]
+									.filter(Boolean)
+									.join(" ")
+									.toLowerCase();
+								return tokens.every((t) => hay.includes(t));
 							})
 							.slice(0, 20);
 					}
