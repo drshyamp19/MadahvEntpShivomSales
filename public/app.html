@@ -13392,14 +13392,6 @@
 				}
 			}
 
-			function setEditItemFoc(idx) {
-				const rateEl = document.getElementById(`editRate_${idx}`);
-				if (rateEl) {
-					rateEl.value = 0;
-					recalcEditTotal();
-				}
-			}
-
 			function addItemToMemoCart() {
 				const prodInput = document.getElementById("ordProductInput");
 				const qtyInput = document.getElementById("ordQty");
@@ -16090,13 +16082,25 @@ Thank you!`;
 			}
 
 			function recalcEditTotal() {
+				const ord = state.orders.find((o) => o.id === currentEditingOrderId);
+				const isExcl = ord && ord.gstPricingMode === "exclusive";
 				let totalUnits = 0;
 				let totalAmount = 0;
 
 				editingOrderItems.forEach((it, idx) => {
 					const q = Math.max(1, Number(it.qty) || 1);
 					const r = Math.max(0, Number(it.rate) || 0);
-					const lineTotal = q * r;
+					const prodMatch = state.products.find(
+						(p) => p.id === it.productId || (it.code && p.code === it.code),
+					);
+					const gstPct = Number(
+						it.gst != null ? it.gst : prodMatch && prodMatch.gst != null ? prodMatch.gst : 18,
+					);
+					const base = q * r;
+					const lineTotal =
+						r === 0 || !isExcl
+							? Number(base.toFixed(2))
+							: Number((base * (1 + gstPct / 100)).toFixed(2));
 					it.totalAmt = lineTotal;
 					totalUnits += q;
 					totalAmount += lineTotal;
@@ -16859,6 +16863,16 @@ Thank you!`;
 				return inWords(num).trim() + " Rupees Only";
 			}
 
+			function formatCollectionModeLabel(col) {
+				if (!col || col.mode === "Cash") return "Cash";
+				if (col.mode === "Cheque") {
+					const st = col.chequeStatus || "Pending";
+					const no = col.chequeNo ? ` #${col.chequeNo}` : "";
+					return `Cheque${no} (${st})`;
+				}
+				return `Bank / UPI (${getAccShortName(col.depositAccount)})`;
+			}
+
 			function openPaymentReceipt(colId) {
 				const col = state.collections.find((c) => c.id === colId || c.receiptNo === colId);
 				if (!col) return;
@@ -16918,7 +16932,7 @@ Thank you!`;
             </div>
             <div style="border-left:1px solid #cbd5e1;padding-left:12px;">
               <div style="font-size:0.72rem;color:#64748b;text-transform:uppercase;font-weight:700;">Payment &amp; Staff Information:</div>
-              <div style="font-size:0.82rem;color:#0f172a;margin-top:4px;">Payment Mode: <strong style="color:${themeColor};">${col.mode === "Bank" ? "Bank / UPI (" + getAccShortName(col.depositAccount) + ")" : "Cash"}</strong></div>
+              <div style="font-size:0.82rem;color:#0f172a;margin-top:4px;">Payment Mode: <strong style="color:${themeColor};">${formatCollectionModeLabel(col)}</strong></div>
               <div style="font-size:0.82rem;color:#0f172a;">Payment Received By: <strong>${staffName}</strong></div>
               <div style="font-size:0.82rem;color:#475569;">Ref / Remark: <strong>${col.bankRef || "N/A"}</strong></div>
             </div>
@@ -18007,7 +18021,7 @@ Thank you!`;
 								myNameUpper.includes(sp) ||
 								(myNameUpper.includes("VIKRAM") && sp.includes("VIKARAM")) ||
 								(myNameUpper.includes("VIKARAM") && sp.includes("VIKRAM")));
-						return matches && (c.mode === "Bank" || c.mode === "Cheque");
+						return matches && (c.mode === "Bank" || c.mode === "Online" || c.mode === "UPI" || c.mode === "Cheque");
 					});
 
 					if (myOcList.length === 0) {
@@ -18015,7 +18029,7 @@ Thank you!`;
 					} else {
 						spOcTbody.innerHTML = myOcList
 							.map((c) => {
-								const isBank = c.mode === "Bank";
+								const isBank = c.mode === "Bank" || c.mode === "Online" || c.mode === "UPI";
 								const isCheque = c.mode === "Cheque";
 
 								const modeBadge = isBank
@@ -18475,7 +18489,7 @@ Thank you!`;
 *Receipt No:* #${col.receiptNo}
 *Date:* ${fmtDate(col.date)}
 *Received From:* ${col.partyName}
-*Amount Received:* ${fmtINR(paidAmt)} (${col.mode === "Bank" ? "Bank - " + getAccShortName(col.depositAccount) : "Cash"})
+*Amount Received:* ${fmtINR(paidAmt)} (${formatCollectionModeLabel(col)})
 *Received By:* ${col.salespersonName || "-"}
 -----------------------------
 💰 *BALANCE DETAILS:*
@@ -18570,7 +18584,7 @@ Thank you! Your payment has been received successfully.`;
 				document.getElementById("succColNo").textContent = "#" + newCol.receiptNo;
 				document.getElementById("succColDetails").innerHTML = `
         <div><strong>Dealer:</strong> ${newCol.partyName}</div>
-        <div><strong>Amount Received:</strong> <span style="font-size:1.05rem;color:#15803d;font-weight:800;">${fmtINR(newCol.amount)}</span> (${newCol.mode === "Bank" ? "Bank - " + getAccShortName(newCol.depositAccount) : "Cash"})</div>
+        <div><strong>Amount Received:</strong> <span style="font-size:1.05rem;color:#15803d;font-weight:800;">${fmtINR(newCol.amount)}</span> (${formatCollectionModeLabel(newCol)})</div>
         <div><strong>Collected By:</strong> ${newCol.salespersonName}</div>
         <div style="margin-top:6px;padding-top:6px;border-top:1px dashed #cbd5e1;">
           <div style="font-size:0.78rem;color:var(--muted);">Previous Balance: <strong>${fmtINR(prevBal)}</strong></div>
@@ -20406,7 +20420,13 @@ Thank you! Your payment has been received successfully.`;
 					.filter((c) => c.mode === "Cash")
 					.reduce((s, c) => s + Number(c.amount || 0), 0);
 				const totalBank = dayCols
-					.filter((c) => c.mode === "Bank")
+					.filter(
+						(c) =>
+							c.mode === "Bank" ||
+							c.mode === "Online" ||
+							c.mode === "UPI" ||
+							(c.mode === "Cheque" && c.chequeStatus === "Cleared"),
+					)
 					.reduce((s, c) => s + Number(c.amount || 0), 0);
 				const totalCols = totalCash + totalBank;
 
