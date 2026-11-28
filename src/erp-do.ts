@@ -931,7 +931,8 @@ export class ErpLedgerDO extends DurableObject<Env> {
 		}
 
 		if (viewType === "summary") {
-			const targetDate = String(date || id || new Date().toISOString().split("T")[0]).slice(0, 10);
+			const istToday = new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
+			const targetDate = String(date || id || istToday).slice(0, 10);
 			const expenses = this.readCollection("expenses");
 			return {
 				found: true,

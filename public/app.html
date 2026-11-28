@@ -9946,7 +9946,7 @@
 					if (remChk) remChk.checked = true;
 				}
 
-				const today = new Date().toISOString().split("T")[0];
+				const today = getLocalTodayStr();
 				if (document.getElementById("ordDate")) document.getElementById("ordDate").value = today;
 				if (document.getElementById("colDate")) document.getElementById("colDate").value = today;
 
@@ -10315,6 +10315,13 @@
 						maximumFractionDigits: 2,
 					})
 				);
+			}
+
+			function getLocalTodayStr(d = new Date()) {
+				const yyyy = d.getFullYear();
+				const mm = String(d.getMonth() + 1).padStart(2, "0");
+				const dd = String(d.getDate()).padStart(2, "0");
+				return `${yyyy}-${mm}-${dd}`;
 			}
 
 			function fmtDate(isoStr) {
@@ -11413,7 +11420,7 @@
 				const newHo = {
 					id: "HO_" + Date.now(),
 					receiptNo: receiptNo,
-					date: new Date().toISOString().split("T")[0],
+					date: getLocalTodayStr(),
 					time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
 					fromStaffName: staffName,
 					toStaffName: "PRASHIK HAJARE",
@@ -11547,7 +11554,7 @@
 				}
 				c.chequeLocation = "AT_OFFICE";
 				c.chequeHandedToPrashik = true;
-				c.chequeHandedDate = new Date().toISOString().split("T")[0];
+				c.chequeHandedDate = getLocalTodayStr();
 				c.chequeReceivedBy = currentStaff
 					? currentStaff.name
 					: isAdminLoggedIn
@@ -11601,7 +11608,7 @@
 					return;
 				}
 
-				const today = new Date().toISOString().split("T")[0];
+				const today = getLocalTodayStr();
 				const receivedBy = currentStaff
 					? currentStaff.name
 					: isAdminLoggedIn
@@ -11733,7 +11740,7 @@
 
 				// 4. Default fields
 				const dateInp = document.getElementById("rcChequeDate");
-				if (dateInp) dateInp.value = new Date().toISOString().split("T")[0];
+				if (dateInp) dateInp.value = getLocalTodayStr();
 
 				const amtInp = document.getElementById("rcAmount");
 				if (amtInp) amtInp.value = "";
@@ -11806,7 +11813,7 @@
 					"CHQ-" + Date.now().toString().slice(-6);
 				const chqBank = document.getElementById("rcChequeBank").value.trim() || "Bank";
 				const chqDate =
-					document.getElementById("rcChequeDate").value || new Date().toISOString().split("T")[0];
+					document.getElementById("rcChequeDate").value || getLocalTodayStr();
 				const depositAcc =
 					document.getElementById("rcDepositAccount").value ||
 					(activeCompany === "MADHAV" ? "IOB" : "ROSHAN");
@@ -11829,7 +11836,7 @@
 					return;
 				}
 
-				const today = new Date().toISOString().split("T")[0];
+				const today = getLocalTodayStr();
 				const receivedBy = currentStaff
 					? currentStaff.name
 					: isAdminLoggedIn
@@ -11904,7 +11911,7 @@
 					return;
 				}
 				c.chequeLocation = "DEPOSITED_BANK";
-				c.chequeDepositedDate = new Date().toISOString().split("T")[0];
+				c.chequeDepositedDate = getLocalTodayStr();
 				c.chequeDepositedBy = currentStaff
 					? currentStaff.name
 					: isAdminLoggedIn
@@ -11930,7 +11937,7 @@
 					return;
 				}
 				c.chequeHandoverRequested = true;
-				c.chequeHandoverDate = new Date().toISOString().split("T")[0];
+				c.chequeHandoverDate = getLocalTodayStr();
 				await saveRecord("collections", c);
 				showToast(
 					`🤝 Cheque #${c.chequeNo} handed over to Manager Prashik Hajare for receipt verification.`,
@@ -11957,7 +11964,7 @@
 						return;
 					c.chequeStatus = "Cleared";
 					c.chequeLocation = "CLEARED";
-					c.clearedDate = new Date().toISOString().split("T")[0];
+					c.clearedDate = getLocalTodayStr();
 					c.bankRef = `Chq #${c.chequeNo || ""} (${c.chequeBank || "Bank"}) - Cleared on ${fmtDate(c.clearedDate)}`;
 					showToast(
 						`✓ Cheque #${c.chequeNo} (${fmtINR(c.amount)}) cleared! Party balance updated.`,
@@ -11970,7 +11977,7 @@
 					if (reason === null) return;
 					c.chequeStatus = "Bounced";
 					c.chequeLocation = "BOUNCED";
-					c.bouncedDate = new Date().toISOString().split("T")[0];
+					c.bouncedDate = getLocalTodayStr();
 					c.bankRef = `Chq #${c.chequeNo || ""} (${c.chequeBank || "Bank"}) - BOUNCED (${reason})`;
 					showToast(`⚠️ Cheque #${c.chequeNo} marked as Bounced.`);
 				}
@@ -12489,7 +12496,7 @@
 					`*ACCOUNT STATEMENT — ${co.name}*`,
 					`Party: *${p.name}* (${p.area || "Nagpur"})`,
 					p.gstin ? `GSTIN: ${p.gstin}` : "",
-					`Date: ${fmtDate(new Date().toISOString().split("T")[0])}`,
+					`Date: ${fmtDate(getLocalTodayStr())}`,
 					`--------------------------------`,
 					`Opening Balance: ${fmtINR(p.openingBalance || 0)}`,
 					`Dispatched Sales: +${fmtINR(p.dispatchedSales)}`,
@@ -14828,18 +14835,17 @@ Thank you!`;
       visibleOrdersForStats.forEach(o => {
         const ordQ = Number(o.orderQty || 0);
         const dispQ = Number(o.dispatchedQty || 0);
-        const lineTotal = Number(o.totalAmt || (ordQ * Number(o.rate || 0)) || 0);
+        const lineTotal = getOrderTotalAmount(o);
+        const dispAmt = getOrderDispatchedAmount(o);
         totalBookedVal += lineTotal;
+        dispatchedVal += dispAmt;
 
         const remQ = ordQ - dispQ;
         if (remQ > 0) {
           totalPendingCount++;
-          pendingVal += (ordQ > 0 ? (remQ / ordQ) * lineTotal : 0);
+          pendingVal += Math.max(0, lineTotal - dispAmt);
         } else {
           totalCompletedCount++;
-        }
-        if (dispQ > 0) {
-          dispatchedVal += (ordQ > 0 ? (dispQ / ordQ) * lineTotal : 0);
         }
       });
 
@@ -15511,7 +15517,7 @@ Thank you!`;
 				}
 
 				const dateInp = document.getElementById("combineDispatchDate");
-				if (dateInp) dateInp.value = new Date().toISOString().split("T")[0];
+				if (dateInp) dateInp.value = getLocalTodayStr();
 
 				const bodyEl = document.getElementById("combineDispatchModalBody");
 				if (!bodyEl) return;
@@ -15613,7 +15619,7 @@ Thank you!`;
 
 				const dispDate =
 					document.getElementById("combineDispatchDate").value ||
-					new Date().toISOString().split("T")[0];
+					getLocalTodayStr();
 				const vehicleNo = (document.getElementById("combineDispatchVehicle").value || "").trim();
 				const remarks = (document.getElementById("combineDispatchRemarks").value || "").trim();
 
@@ -15739,7 +15745,7 @@ Thank you!`;
 				const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
 				const url = URL.createObjectURL(blob);
 				const link = document.createElement("a");
-				const today = new Date().toISOString().split("T")[0];
+				const today = getLocalTodayStr();
 				link.setAttribute("href", url);
 				link.setAttribute("download", `Orders_Register_${activeCompany}_${today}.csv`);
 				document.body.appendChild(link);
@@ -16669,7 +16675,7 @@ Thank you!`;
 				document.getElementById("editColReceiptNo").textContent = "#" + col.receiptNo;
 				document.getElementById("editColPartyName").textContent = col.partyName;
 				document.getElementById("editColDate").value =
-					col.date || new Date().toISOString().split("T")[0];
+					col.date || getLocalTodayStr();
 				document.getElementById("editColAmount").value = col.amount;
 				document.getElementById("editColMode").value = col.mode || "Cash";
 				document.getElementById("editColRef").value = col.bankRef || "";
@@ -18233,7 +18239,7 @@ Thank you!`;
 
 				const record = {
 					id: "HO_" + Date.now(),
-					date: new Date().toISOString().split("T")[0],
+					date: getLocalTodayStr(),
 					time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
 					fromStaffName: currentStaff.name,
 					toStaffName: "PRASHIK HAJARE",
@@ -18334,7 +18340,7 @@ Thank you!`;
 			}
 
 			function openDayEndSummaryModal() {
-				const today = new Date().toISOString().split("T")[0];
+				const today = getLocalTodayStr();
 				const allOrders = state.orders || [];
 				const todayOrders = allOrders.filter((o) => (o.date || "").split("T")[0] === today);
 				const todayOrdersCount = todayOrders.length;
@@ -18392,7 +18398,7 @@ Thank you!`;
 			}
 
 			function shareDayEndSummaryWhatsApp() {
-				const today = new Date().toISOString().split("T")[0];
+				const today = getLocalTodayStr();
 				const coName = currentCompany === "SHIVOM" ? "Shivom Sales & Services" : "Madhav Enterprises";
 				const oCount = document.getElementById("dayEndOrdersCount")?.textContent || "0 Orders";
 				const oVal = document.getElementById("dayEndOrdersVal")?.textContent || "₹0.00";
@@ -18411,7 +18417,7 @@ Thank you!`;
 			}
 
 			function openBankDepositModal(suggestedAmt) {
-				document.getElementById("bankDepDate").value = new Date().toISOString().split("T")[0];
+				document.getElementById("bankDepDate").value = getLocalTodayStr();
 				document.getElementById("bankDepAmt").value = Number(suggestedAmt || 0);
 				document.getElementById("bankDepChallan").value = "";
 				updateBankDepAccountHint();
@@ -18934,7 +18940,7 @@ Thank you! Your payment has been received successfully.`;
 				const rateInp = document.getElementById("inwardPurchaseRate");
 				if (!prodInp) return;
 				if (dateInp && !dateInp.value) {
-					dateInp.value = new Date().toISOString().split("T")[0];
+					dateInp.value = getLocalTodayStr();
 				}
 				const prod = findProductByName(prodInp.value);
 				if (prod) {
@@ -18995,7 +19001,7 @@ Thank you! Your payment has been received successfully.`;
 
 				const billDate =
 					(document.getElementById("inwardBillDate")?.value || "").trim() ||
-					new Date().toISOString().split("T")[0];
+					getLocalTodayStr();
 				const supplierName = (document.getElementById("inwardSupplierName")?.value || "").trim();
 				const supplierGstin = (document.getElementById("inwardSupplierGstin")?.value || "")
 					.trim()
@@ -19229,7 +19235,7 @@ Thank you! Your payment has been received successfully.`;
 
 				// Record actual Dispatch Date
 				if (!ord.dispatchDate) {
-					ord.dispatchDate = new Date().toISOString().split("T")[0];
+					ord.dispatchDate = getLocalTodayStr();
 				}
 				// Generate Official GST Tax Invoice Bill Number upon Dispatch
 				if (!ord.gstInvoiceNo) {
@@ -19489,7 +19495,7 @@ Thank you! Your payment has been received successfully.`;
 					gstin: gstin,
 					openingBalance: Number(document.getElementById("mPartyOpen").value),
 					creditLimit: Number(document.getElementById("mPartyCreditLimit")?.value || 0),
-					lastPaymentDate: new Date().toISOString().split("T")[0],
+					lastPaymentDate: getLocalTodayStr(),
 				};
 				await saveRecord("parties", newParty);
 				e.target.reset();
@@ -19754,7 +19760,7 @@ Thank you! Your payment has been received successfully.`;
 			function generateNextGstInvoiceNo(companyKey, dispatchDate) {
 				const co = COMPANIES[companyKey || activeCompany] || COMPANIES.MADHAV;
 				const prefix = co.invPrefix || "ME";
-				const d = dispatchDate || new Date().toISOString().split("T")[0];
+				const d = dispatchDate || getLocalTodayStr();
 				const parts = d.split("-");
 				const yr = Number(parts[0]) || new Date().getFullYear();
 				const mo = Number(parts[1]) || new Date().getMonth() + 1;
@@ -19792,7 +19798,7 @@ Thank you! Your payment has been received successfully.`;
 						? ord.dispatchDate
 						: ord && ord.date && /^\d{4}-\d{2}/.test(ord.date)
 							? ord.date
-							: new Date().toISOString().split("T")[0];
+							: getLocalTodayStr();
 				const parts = d.split("-");
 				const yr = Number(parts[0]) || new Date().getFullYear();
 				const mo = Number(parts[1]) || new Date().getMonth() + 1;
@@ -20093,7 +20099,7 @@ Thank you! Your payment has been received successfully.`;
 
 			// ==================== DAILY BUSINESS CLOSING SUMMARY REPORT ====================
 			function openDailySummaryReportModal(targetDate) {
-				const todayStr = new Date().toISOString().split("T")[0];
+				const todayStr = getLocalTodayStr();
 				const selDate = targetDate || todayStr;
 				const dateEl = document.getElementById("dailySummaryDate");
 				if (dateEl) dateEl.value = selDate;
@@ -20107,7 +20113,7 @@ Thank you! Your payment has been received successfully.`;
 					(document.getElementById("dailySummaryDate")
 						? document.getElementById("dailySummaryDate").value
 						: "") ||
-					new Date().toISOString().split("T")[0];
+					getLocalTodayStr();
 				const co = COMPANIES[activeCompany] || COMPANIES.MADHAV;
 				const logoSrc = getCompanyLogo(activeCompany);
 				const isShivom = activeCompany === "SHIVOM";
@@ -20388,7 +20394,7 @@ Thank you! Your payment has been received successfully.`;
 				if (!el) return;
 				const dateInput = document.getElementById("dailySummaryDate");
 				const selectedDate =
-					(dateInput ? dateInput.value : "") || new Date().toISOString().split("T")[0];
+					(dateInput ? dateInput.value : "") || getLocalTodayStr();
 				const fileName = `Daily_Closing_Summary_${activeCompany}_${selectedDate}.pdf`;
 
 				if (window.html2pdf) {
@@ -20409,7 +20415,7 @@ Thank you! Your payment has been received successfully.`;
 			function shareDailySummaryWhatsApp() {
 				const dateInput = document.getElementById("dailySummaryDate");
 				const selectedDate =
-					(dateInput ? dateInput.value : "") || new Date().toISOString().split("T")[0];
+					(dateInput ? dateInput.value : "") || getLocalTodayStr();
 				const co = COMPANIES[activeCompany] || COMPANIES.MADHAV;
 
 				const dayOrders = (state.orders || []).filter((o) => o.date === selectedDate);
@@ -20986,7 +20992,7 @@ Thank you! Your payment has been received successfully.`;
 
 				// Default sales return date input to today if blank
 				const srDateEl = document.getElementById("srDate");
-				if (srDateEl && !srDateEl.value) srDateEl.value = new Date().toISOString().split("T")[0];
+				if (srDateEl && !srDateEl.value) srDateEl.value = getLocalTodayStr();
 
 				let totalTaxable = 0,
 					outCgst = 0,
@@ -21737,7 +21743,7 @@ Thank you! Your payment has been received successfully.`;
 				}
 				const dateVal =
 					(document.getElementById("srDate")?.value || "").trim() ||
-					new Date().toISOString().split("T")[0];
+					getLocalTodayStr();
 				const party = findPartyByName(document.getElementById("srPartyInput")?.value || "");
 				if (!party) {
 					alert("Please select a valid registered Party from the dropdown list.");
@@ -21815,7 +21821,7 @@ Thank you! Your payment has been received successfully.`;
 				await saveRecord("salesReturns", rec);
 				e.target.reset();
 				const srDateEl = document.getElementById("srDate");
-				if (srDateEl) srDateEl.value = new Date().toISOString().split("T")[0];
+				if (srDateEl) srDateEl.value = getLocalTodayStr();
 				showToast(
 					`✅ Credit Note ${cnNo} (${fmtINR(totalCreditAmt)}) issued${condition === "Good" ? " & stock re-added" : " (Damaged)"}!`,
 				);
@@ -21980,7 +21986,7 @@ Thank you! Your payment has been received successfully.`;
 				}
 				const dateVal =
 					(document.getElementById("expDate")?.value || "").trim() ||
-					new Date().toISOString().split("T")[0];
+					getLocalTodayStr();
 				const category = document.getElementById("expCategory")?.value || "Other";
 				const mode = document.getElementById("expMode")?.value || "Cash";
 				const amount = Number(document.getElementById("expAmount")?.value || 0);
@@ -22021,7 +22027,7 @@ Thank you! Your payment has been received successfully.`;
 				await saveRecord("expenses", expRec);
 				e.target.reset();
 				const dEl = document.getElementById("expDate");
-				if (dEl) dEl.value = new Date().toISOString().split("T")[0];
+				if (dEl) dEl.value = getLocalTodayStr();
 				const sEl = document.getElementById("expStaff");
 				if (sEl) sEl.value = !isAdminLoggedIn && currentStaff ? currentStaff.name : "Roshan Thakre";
 				const statEl = document.getElementById("expStatus");
@@ -22079,7 +22085,7 @@ Thank you! Your payment has been received successfully.`;
 					staffSel.value = preselectedStaff;
 				}
 				const advDate = document.getElementById("advDate");
-				if (advDate) advDate.value = new Date().toISOString().split("T")[0];
+				if (advDate) advDate.value = getLocalTodayStr();
 				const advAmt = document.getElementById("advAmount");
 				if (advAmt) advAmt.value = "";
 				const advNote = document.getElementById("advNote");
@@ -22099,7 +22105,7 @@ Thank you! Your payment has been received successfully.`;
 					return;
 				}
 				const staff = (document.getElementById("advStaffSelect")?.value || "").trim();
-				const dateVal = (document.getElementById("advDate")?.value || "").trim() || new Date().toISOString().split("T")[0];
+				const dateVal = (document.getElementById("advDate")?.value || "").trim() || getLocalTodayStr();
 				const amount = Number(document.getElementById("advAmount")?.value || 0);
 				const mode = document.getElementById("advMode")?.value || "Cash";
 				const note = (document.getElementById("advNote")?.value || "").trim() || "Salary Advance (उचल)";
@@ -22274,7 +22280,7 @@ Thank you! Your payment has been received successfully.`;
 				}
 
 				const dateInp = document.getElementById("expDate");
-				if (dateInp && !dateInp.value) dateInp.value = new Date().toISOString().split("T")[0];
+				if (dateInp && !dateInp.value) dateInp.value = getLocalTodayStr();
 
 				const monthInp = document.getElementById("expReportMonth");
 				const allTime = Boolean(document.getElementById("expAllTimeChk")?.checked);
@@ -22952,7 +22958,7 @@ Thank you! Your payment has been received successfully.`;
 					alert("Excel library (SheetJS) is still loading. Please check your internet connection.");
 					return;
 				}
-				const todayStr = new Date().toISOString().split("T")[0];
+				const todayStr = getLocalTodayStr();
 				const coScope = targetCo || "ALL";
 				const coLabel = coScope === "ALL" ? "MADHAV + SHIVOM" : coScope;
 				showToast(`⏳ Preparing Multi-Tab Excel Workbook (${coLabel})...`);
@@ -23390,7 +23396,7 @@ Thank you! Your payment has been received successfully.`;
 					alert("Only Owner Admin can download the data entry template.");
 					return;
 				}
-				const todayStr = new Date().toISOString().split("T")[0];
+				const todayStr = getLocalTodayStr();
 
 				// ONE SINGLE SHEET with 5 clear [SAMPLE] example rows (one per Record_Type)
 				const templateRows = [
@@ -23587,7 +23593,7 @@ Thank you! Your payment has been received successfully.`;
 			}
 
 			function normalizeExcelDate(val) {
-				const fallback = new Date().toISOString().split("T")[0];
+				const fallback = getLocalTodayStr();
 				if (val === undefined || val === null || val === "") return fallback;
 				if (typeof val === "number" && val > 20000 && val < 90000) {
 					const utcDays = Math.floor(val - 25569);
@@ -24195,7 +24201,7 @@ Thank you! Your payment has been received successfully.`;
 				try {
 					// Step 1: Safety Backup Excel
 					if (autoBackup) {
-						const ts = new Date().toISOString().split("T")[0];
+						const ts = getLocalTodayStr();
 						await exportToExcel(`${activeCompany}_PRE_CLEAR_BACKUP_${ts}.xlsx`);
 					}
 
@@ -25089,7 +25095,7 @@ Thank you! Your payment has been received successfully.`;
 				if (!p) return;
 				currentStatementPartyId = partyId;
 				const co = COMPANIES[activeCompany] || COMPANIES.MADHAV;
-				const todayStr = new Date().toISOString().split("T")[0];
+				const todayStr = getLocalTodayStr();
 				const upiId = getCompanyUpiId();
 
 				const txns = [];
@@ -25787,7 +25793,7 @@ Thank you! Your payment has been received successfully.`;
 
 				const jsonStr = JSON.stringify(backupData, null, 2);
 				const blob = new Blob([jsonStr], { type: "application/json" });
-				const ts = new Date().toISOString().split("T")[0];
+				const ts = getLocalTodayStr();
 				const filename = `MADHAV_SHIVOM_ERP_FULL_BACKUP_${ts}.json`;
 
 				const url = URL.createObjectURL(blob);
@@ -25924,7 +25930,7 @@ Thank you! Your payment has been received successfully.`;
 			}
 
 			function shareDailyClosingWhatsApp() {
-				const todayStr = new Date().toISOString().split("T")[0];
+				const todayStr = getLocalTodayStr();
 				const co = COMPANIES[activeCompany] || COMPANIES.MADHAV;
 
 				const todayOrders = state.orders.filter((o) => o.date === todayStr);
