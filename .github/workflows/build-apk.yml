@@ -78,3 +78,15 @@ jobs:
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync APK to public/downloads and push for Cloudflare
+        run: |
+          cp MadhavShivomERP.apk public/downloads/MadhavShivomERP.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/downloads/MadhavShivomERP.apk
+          if ! git diff --cached --quiet; then
+            git commit -m "Auto-update bundled MadhavShivomERP.apk from latest build"
+            git pull --rebase origin main
+            git push origin main
+          fi
