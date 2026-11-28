@@ -393,11 +393,11 @@ export default {
 				if (!isValidCollection(col))
 					return jsonNoStore({ ok: false, error: "Invalid collection" }, 400);
 
-				if (
-					(col === "salespersons" || col === "purchaseBills") &&
-					!session.isAdmin
-				) {
+				if (col === "salespersons" && !session.isAdmin) {
 					return jsonNoStore({ ok: false, error: "Admin permission required" }, 403);
+				}
+				if (col === "purchaseBills" && !session.isAdmin && session.role !== "Accountant") {
+					return jsonNoStore({ ok: false, error: "Admin or Accountant permission required" }, 403);
 				}
 
 				if (col === "expenses" && !session.isAdmin) {
@@ -469,7 +469,10 @@ export default {
 				if (!isValidCollection(col) || !id)
 					return jsonNoStore({ ok: false, error: "Invalid collection or id" }, 400);
 
-				if (ADMIN_DELETE_COLLECTIONS.has(col) && !session.isAdmin) {
+				const canAccountantDelete =
+					session.role === "Accountant" &&
+					(col === "expenses" || col === "bankDeposits" || col === "purchaseBills");
+				if (ADMIN_DELETE_COLLECTIONS.has(col) && !session.isAdmin && !canAccountantDelete) {
 					return jsonNoStore(
 						{ ok: false, error: "Admin permission required to delete records" },
 						403,

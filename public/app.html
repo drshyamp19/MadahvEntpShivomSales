@@ -20421,7 +20421,8 @@ Thank you! Your payment has been received successfully.`;
 				if (!ord) return;
 				const co = COMPANIES[activeCompany] || COMPANIES.MADHAV;
 				const isShivom = activeCompany === "SHIVOM";
-				const gst = computeOrderGstBreakdown(ord);
+				const hasDispatch = getOrderDispatchedAmount(ord) > 0;
+				const gst = computeOrderGstBreakdown(ord, { useDispatchedQty: hasDispatch });
 				const { party, supply, lines, hsnSummary } = gst;
 
 				const logoSrc = getCompanyLogo(activeCompany);
@@ -20437,18 +20438,40 @@ Thank you! Your payment has been received successfully.`;
 					// ==========================================
 					// SHIVOM SALES & SERVICES: 100% NON-GST BILL
 					// ==========================================
-					const rawItems =
-						ord.items && ord.items.length > 0
-							? ord.items
-							: [
-									{
-										productName: ord.productName || "Appliances",
-										qty: ord.orderQty || 1,
-										rate: ord.rate || 0,
-										totalAmt: ord.totalAmt || (ord.orderQty || 1) * (ord.rate || 0),
-										isFoc: false,
-									},
-								];
+					const hasItemsArr = Array.isArray(ord.items) && ord.items.length > 0;
+					const anyItemDisp =
+						hasItemsArr && ord.items.some((it) => Number(it.dispatchedQty || 0) > 0);
+					const legacyFullDisp =
+						hasItemsArr &&
+						!anyItemDisp &&
+						Number(ord.dispatchedQty || 0) >= Number(ord.orderQty || 0) &&
+						Number(ord.orderQty || 0) > 0;
+					const legacyRatio =
+						hasItemsArr && !anyItemDisp && !legacyFullDisp && Number(ord.orderQty || 0) > 0
+							? Math.min(1, Number(ord.dispatchedQty || 0) / Number(ord.orderQty || 1))
+							: 0;
+					const rawItems = hasItemsArr
+						? ord.items
+								.map((it) => {
+									const bookedQ = Number(it.qty || 0);
+									const dispQ = hasDispatch
+										? anyItemDisp
+											? Number(it.dispatchedQty || 0)
+											: legacyFullDisp
+												? bookedQ
+												: Math.round(bookedQ * legacyRatio)
+										: bookedQ;
+									return { ...it, qty: dispQ };
+								})
+								.filter((it) => !hasDispatch || it.qty > 0)
+						: [
+								{
+									productName: ord.productName || "Appliances",
+									qty: hasDispatch ? Number(ord.dispatchedQty || 0) : Number(ord.orderQty || 1),
+									rate: ord.rate || 0,
+									isFoc: false,
+								},
+							];
 
 					let totalQty = 0;
 					let totalVal = 0;
@@ -20456,7 +20479,7 @@ Thank you! Your payment has been received successfully.`;
 						.map((ln, idx) => {
 							const q = Number(ln.qty || 0);
 							const r = Number(ln.rate || 0);
-							const amt = Number(ln.totalAmt || q * r);
+							const amt = ln.isFoc ? 0 : q * r;
 							totalQty += q;
 							totalVal += amt;
 							return `
@@ -21405,7 +21428,9 @@ Thank you! Your payment has been received successfully.`;
 					retIgst = 0,
 					retTotalGst = 0,
 					retGrand = 0;
-				const cdnrRows = (returns || []).map((r) => {
+				const cdnrRows = [];
+				const cdnurRows = [];
+				(returns || []).forEach((r) => {
 					const p = state.parties.find((x) => x.id === r.partyId) || { gstin: "" };
 					const sup = getPartySupplyInfo(p);
 					retTaxable += Number(r.taxableAmt || 0);
@@ -21414,8 +21439,8 @@ Thank you! Your payment has been received successfully.`;
 					retIgst += Number(r.igstAmt || 0);
 					retTotalGst += Number(r.totalGst || 0);
 					retGrand += Number(r.totalCreditAmt || 0);
-					return {
-						"GSTIN/UIN of Recipient": sup.gstin || "B2C Unregistered",
+					const rowObj = {
+						"GSTIN/UIN of Recipient": sup.isB2B ? sup.gstin : "Unregistered (B2C)",
 						"Receiver Name": r.partyName || "",
 						"Note Number": r.cnNo || "",
 						"Note Date": r.date || "",
@@ -21434,9 +21459,11 @@ Thank you! Your payment has been received successfully.`;
 						"Credit Note Value": r2(r.totalCreditAmt),
 						Reason: r.reason || "",
 					};
+					if (sup.isB2B) cdnrRows.push(rowObj);
+					else cdnurRows.push(rowObj);
 				});
 
-				const netOutGst = Math.max(0, outTotalTax - retTotalGst);
+				const netOutGst = outTotalTax - retTotalGst;
 
 				const summaryRows = [
 					{ Particular: "Company Name", Value: co.name },
@@ -21447,11 +21474,11 @@ Thank you! Your payment has been received successfully.`;
 					{ Particular: "Less: Credit Notes / Sales Returns Taxable (₹)", Value: r2(retTaxable) },
 					{
 						Particular: "Net Taxable Outward Sales (₹)",
-						Value: r2(Math.max(0, outTaxable - retTaxable)),
+						Value: r2(outTaxable - retTaxable),
 					},
-					{ Particular: "Net Output CGST (₹)", Value: r2(Math.max(0, outCgst - retCgst)) },
-					{ Particular: "Net Output SGST (₹)", Value: r2(Math.max(0, outSgst - retSgst)) },
-					{ Particular: "Net Output IGST (₹)", Value: r2(Math.max(0, outIgst - retIgst)) },
+					{ Particular: "Net Output CGST (₹)", Value: r2(outCgst - retCgst) },
+					{ Particular: "Net Output SGST (₹)", Value: r2(outSgst - retSgst) },
+					{ Particular: "Net Output IGST (₹)", Value: r2(outIgst - retIgst) },
 					{ Particular: "Net Output GST Liability after Credit Notes (₹)", Value: r2(netOutGst) },
 					{ Particular: "Total Outward Invoice Value (₹)", Value: r2(outGrand) },
 					{ Particular: "Total Credit Notes Issued (₹)", Value: r2(retGrand) },
@@ -21584,8 +21611,15 @@ Thank you! Your payment has been received successfully.`;
 				XLSX.utils.book_append_sheet(
 					wb,
 					XLSX.utils.json_to_sheet(cdnrRows.length ? cdnrRows : emptyCdnr),
-					"CDNR_Credit_Notes",
+					"CDNR_B2B_Credit_Notes",
 				);
+				if (cdnurRows.length > 0) {
+					XLSX.utils.book_append_sheet(
+						wb,
+						XLSX.utils.json_to_sheet(cdnurRows),
+						"CDNUR_B2C_Credit_Notes",
+					);
+				}
 
 				const filename = `${activeCompany}_GSTR1_CA_REPORT_${periodLabel}.xlsx`;
 				saveWorkbookAsXlsx(wb, filename, `✅ CA GSTR-1 Excel exported: ${filename}`);
@@ -21904,8 +21938,11 @@ Thank you! Your payment has been received successfully.`;
 			}
 
 			async function markExpensePaid(expId) {
-				if (!isAdminLoggedIn && (!currentStaff || currentStaff.role !== "Manager")) {
-					alert("Only Admin or Manager can mark expenses as Reimbursed / Paid.");
+				if (
+					!isAdminLoggedIn &&
+					(!currentStaff || (currentStaff.role !== "Manager" && currentStaff.role !== "Accountant"))
+				) {
+					alert("Only Admin, Manager, or Accountant can mark expenses as Reimbursed / Paid.");
 					return;
 				}
 				const ex = (state.expenses || []).find((x) => x.id === expId);
@@ -21923,8 +21960,9 @@ Thank you! Your payment has been received successfully.`;
 			}
 
 			async function deleteExpense(expId) {
-				if (!isAdminLoggedIn) {
-					alert("Only Owner Admin can delete expenses.");
+				const isAccountant = currentStaff && currentStaff.role === "Accountant";
+				if (!isAdminLoggedIn && !isAccountant) {
+					alert("Only Owner Admin or Accountant can delete expenses.");
 					return;
 				}
 				const ex = (state.expenses || []).find((x) => x.id === expId);
@@ -22890,8 +22928,16 @@ Thank you! Your payment has been received successfully.`;
 
 					// 3. SALES ORDERS & INVOICES
 					(coState.orders || []).forEach((o) => {
-						const qty = Number(o.orderQty || 0);
-						const disp = Number(o.dispatchedQty || 0);
+						const hasItems = Array.isArray(o.items) && o.items.length > 0;
+						const qty = hasItems
+							? o.items.reduce((s, it) => s + Number(it.qty || 0), 0)
+							: Number(o.orderQty || 0);
+						const anyItemDisp = hasItems && o.items.some((it) => Number(it.dispatchedQty || 0) > 0);
+						const disp = hasItems
+							? anyItemDisp
+								? o.items.reduce((s, it) => s + Number(it.dispatchedQty || 0), 0)
+								: Number(o.dispatchedQty || 0)
+							: Number(o.dispatchedQty || 0);
 						const pending = Math.max(0, qty - disp);
 						const amt = getOrderTotalAmount(o);
 						const dispAmt = getOrderDispatchedAmount(o);
@@ -22955,7 +23001,9 @@ Thank you! Your payment has been received successfully.`;
 					// 4. PAYMENT COLLECTIONS
 					(coState.collections || []).forEach((c) => {
 						const colAmt = Number(c.amount || 0);
-						totalCollections += colAmt;
+						if (c.mode !== "Cheque" || c.chequeStatus === "Cleared") {
+							totalCollections += colAmt;
+						}
 						const modeAcc =
 							c.mode === "Bank"
 								? "Bank - " + (c.depositAccount || "IOB")
@@ -23027,9 +23075,9 @@ Thank you! Your payment has been received successfully.`;
 							Quantity: Number(b.qty || 0),
 							"Taxable Value (₹)": Number(Number(b.taxableAmt || 0).toFixed(2)),
 							"GST %": Number(b.gstPct || 18),
-							"CGST (₹)": Number(Number(b.cgst || 0).toFixed(2)),
-							"SGST (₹)": Number(Number(b.sgst || 0).toFixed(2)),
-							"IGST (₹)": Number(Number(b.igst || 0).toFixed(2)),
+							"CGST (₹)": Number(Number(b.cgstAmt != null ? b.cgstAmt : b.cgst || 0).toFixed(2)),
+							"SGST (₹)": Number(Number(b.sgstAmt != null ? b.sgstAmt : b.sgst || 0).toFixed(2)),
+							"IGST (₹)": Number(Number(b.igstAmt != null ? b.igstAmt : b.igst || 0).toFixed(2)),
 							"Total Bill Amt (₹)": Number(bAmt.toFixed(2)),
 						});
 					});
