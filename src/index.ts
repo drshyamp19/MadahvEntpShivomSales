@@ -307,6 +307,8 @@ export default {
 
 			// 6. Media (Cheque / Payment Proof photos stored inside Durable Object SQLite)
 			if (pathname.startsWith("/api/media/") && request.method === "GET") {
+				const session = await requireSession(request);
+				if (!session) return jsonNoStore({ ok: false, error: "Unauthorized" }, 401);
 				const mediaId = decodeURIComponent(pathname.slice("/api/media/".length));
 				const co = normalizeCompanyKey(url.searchParams.get("co"), defaultBrandKey);
 				const media = await getLedgerStub(co).getMedia(co, mediaId);

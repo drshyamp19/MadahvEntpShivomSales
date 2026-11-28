@@ -73,7 +73,6 @@ export const BASE_STAFF_CREDENTIALS: StaffMember[] = [
 		role: "Accountant",
 		area: "Accounts & Audit H.O.",
 		allowCash: false,
-		pin: "6719",
 		sha: "56e459e337593dfd3c40c9f5b21b2a45be9b8c2933de9a26d896c7f746637bc9",
 		simple: 1663145,
 		active: true,
@@ -115,11 +114,6 @@ export async function verifyMasterPin(
 	const enteredHex = (await sha256Hex(clean)).toLowerCase();
 	if (await timingSafeStringEqual(enteredHex, MASTER_PIN_SHA256)) return true;
 	if (simpleHash(clean) === MASTER_PIN_SIMPLE) return true;
-
-	// Legacy fallback PINs from original app ("7499", "1753594", "9850")
-	for (const fallback of ["7499", "1753594", "9850"]) {
-		if (await timingSafeStringEqual(clean, fallback)) return true;
-	}
 
 	if (dynamicOwner) {
 		if (

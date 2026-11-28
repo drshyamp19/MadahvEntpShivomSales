@@ -976,17 +976,40 @@ export class ErpLedgerDO extends DurableObject<Env> {
 			const istToday = new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
 			const targetDate = String(date || id || istToday).slice(0, 10);
 			const expenses = this.readCollection("expenses");
+			const summaryOrders = orders.filter((o) => String(o.date || "").slice(0, 10) === targetDate);
+			const summaryCollections = collections.filter(
+				(c) => String(c.date || "").slice(0, 10) === targetDate,
+			);
+			const summaryExpenses = expenses.filter(
+				(e) => String(e.date || "").slice(0, 10) === targetDate,
+			);
+			const referencedIds = new Set<string>();
+			const referencedNames = new Set<string>();
+			for (const rec of [...summaryOrders, ...summaryCollections]) {
+				if (rec.partyId) referencedIds.add(String(rec.partyId));
+				if (rec.partyName) referencedNames.add(String(rec.partyName).trim().toUpperCase());
+			}
+			const summaryParties = parties
+				.filter(
+					(p) =>
+						referencedIds.has(String(p.id)) ||
+						referencedNames.has(String(p.name || "").trim().toUpperCase()),
+				)
+				.map((p) => ({
+					id: p.id,
+					name: p.name,
+					city: p.city,
+					area: p.area,
+				}));
 			return {
 				found: true,
 				company,
 				viewType,
 				settings,
-				summaryOrders: orders.filter((o) => String(o.date || "").slice(0, 10) === targetDate),
-				summaryCollections: collections.filter(
-					(c) => String(c.date || "").slice(0, 10) === targetDate,
-				),
-				summaryExpenses: expenses.filter((e) => String(e.date || "").slice(0, 10) === targetDate),
-				summaryParties: parties,
+				summaryOrders,
+				summaryCollections,
+				summaryExpenses,
+				summaryParties,
 			};
 		}
 
