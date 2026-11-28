@@ -20156,7 +20156,9 @@ Thank you! Your payment has been received successfully.`;
 
 				// 3. Filter Expenses (Salespersons do not manage company expenses)
 				const dayExps = isSalesperson ? [] : (state.expenses || []).filter((e) => e.date === selDate);
-				const cashExps = dayExps.filter((e) => e.mode === "Cash");
+				const cashExps = dayExps.filter(
+					(e) => e.mode === "Cash" && (e.status === "Paid" || e.status === "Salary Advance" || !e.status),
+				);
 				const totalCashExpAmt = cashExps.reduce((s, e) => s + Number(e.amount || 0), 0);
 				const totalExpAmt = dayExps.reduce((s, e) => s + Number(e.amount || 0), 0);
 
@@ -20930,7 +20932,8 @@ Thank you! Your payment has been received successfully.`;
 					.filter((o) => {
 						if (getOrderDispatchedAmount(o) <= 0) return false;
 						if (allTime || !selectedMonth) return true;
-						return String(o.date || "").startsWith(selectedMonth);
+						const invDate = String(o.dispatchDate || o.date || "");
+						return invDate.startsWith(selectedMonth);
 					})
 					.map((o) => computeOrderGstBreakdown(o, { useDispatchedQty: true }));
 
@@ -21011,6 +21014,31 @@ Thank you! Your payment has been received successfully.`;
 					retSgst += Number(r.sgstAmt || 0);
 					retIgst += Number(r.igstAmt || 0);
 					retGst += Number(r.totalGst || 0);
+
+					const hsn = String(r.hsn || "85166000").trim();
+					const gstPct = Number(r.gstPct || 0);
+					const key = `${hsn}|${gstPct}`;
+					if (!hsnAgg[key]) {
+						hsnAgg[key] = {
+							hsn,
+							gstPct,
+							description: r.productName || "Appliances",
+							qty: 0,
+							taxable: 0,
+							cgst: 0,
+							sgst: 0,
+							igst: 0,
+							totalTax: 0,
+							totalValue: 0,
+						};
+					}
+					hsnAgg[key].qty -= Number(r.qty || 0);
+					hsnAgg[key].taxable -= Number(r.taxableAmt || 0);
+					hsnAgg[key].cgst -= Number(r.cgstAmt || 0);
+					hsnAgg[key].sgst -= Number(r.sgstAmt || 0);
+					hsnAgg[key].igst -= Number(r.igstAmt || 0);
+					hsnAgg[key].totalTax -= Number(r.totalGst || 0);
+					hsnAgg[key].totalValue -= Number(r.totalCreditAmt || 0);
 				});
 
 				const netTaxable = totalTaxable - retTaxable;
@@ -21331,7 +21359,7 @@ Thank you! Your payment has been received successfully.`;
 								"GSTIN/UIN of Recipient": g.supply.gstin,
 								"Receiver Name": g.party.name,
 								"Invoice Number": g.officialInvNo,
-								"Invoice Date": g.ord.date || "",
+								"Invoice Date": g.ord.dispatchDate || g.ord.date || "",
 								"Invoice Value": r2(g.roundedGrandTotal),
 								"Place Of Supply": g.supply.placeOfSupply,
 								"Reverse Charge": "N",
@@ -21480,6 +21508,32 @@ Thank you! Your payment has been received successfully.`;
 					};
 					if (sup.isB2B) cdnrRows.push(rowObj);
 					else cdnurRows.push(rowObj);
+
+					// Deduct Credit Note from HSN_Summary so GSTR-1 HSN matches GSTR-3B Net Summary
+					const rHsn = String(r.hsn || "85166000").trim();
+					const rRate = Number(r.gstPct || 0);
+					const hk = `${rHsn}|${rRate}`;
+					if (!hsnMap[hk]) {
+						hsnMap[hk] = {
+							HSN: rHsn,
+							Description: r.productName || "Appliances",
+							UQC: "NOS-NUMBERS",
+							"Total Quantity": 0,
+							"Total Value": 0,
+							"Rate (%)": rRate,
+							"Taxable Value": 0,
+							"Integrated Tax Amount": 0,
+							"Central Tax Amount": 0,
+							"State/UT Tax Amount": 0,
+							"Cess Amount": 0,
+						};
+					}
+					hsnMap[hk]["Total Quantity"] -= Number(r.qty || 0);
+					hsnMap[hk]["Total Value"] -= Number(r.totalCreditAmt || 0);
+					hsnMap[hk]["Taxable Value"] -= Number(r.taxableAmt || 0);
+					hsnMap[hk]["Integrated Tax Amount"] -= Number(r.igstAmt || 0);
+					hsnMap[hk]["Central Tax Amount"] -= Number(r.cgstAmt || 0);
+					hsnMap[hk]["State/UT Tax Amount"] -= Number(r.sgstAmt || 0);
 				});
 
 				const netOutGst = outTotalTax - retTotalGst;
@@ -23088,12 +23142,13 @@ Thank you! Your payment has been received successfully.`;
 						if (c.mode !== "Cheque" || c.chequeStatus === "Cleared") {
 							totalCollections += colAmt;
 						}
-						const modeAcc =
-							c.mode === "Bank"
-								? "Bank - " + (c.depositAccount || "IOB")
-								: c.mode === "Cheque"
-									? "Cheque - " + (c.depositAccount || "IOB")
-									: "Cash";
+						const defaultAcc = coCode === "SHIVOM" ? "ROSHAN" : "IOB";
+						const isBankMode = c.mode === "Bank" || c.mode === "Online" || c.mode === "UPI";
+						const modeAcc = isBankMode
+							? "Bank - " + (c.depositAccount || defaultAcc)
+							: c.mode === "Cheque"
+								? "Cheque - " + (c.depositAccount || defaultAcc)
+								: "Cash";
 						const st = c.mode === "Cheque" ? c.chequeStatus || "Pending" : "Received";
 						const partyObj = computedParties.find(
 							(p) =>
@@ -23111,7 +23166,7 @@ Thank you! Your payment has been received successfully.`;
 							Mobile: partyObj ? partyObj.mobile || "" : "",
 							"Amount (₹)": Number(colAmt.toFixed(2)),
 							"Payment Mode": c.mode || "Cash",
-							"Account / Bank": c.depositAccount || (c.mode === "Cash" ? "Cash" : "IOB"),
+							"Account / Bank": c.depositAccount || (c.mode === "Cash" ? "Cash" : defaultAcc),
 							"Cheque No": c.chequeNo || "-",
 							"Cheque Bank": c.chequeBank || "-",
 							"Cheque Date": c.chequeDate || "-",
@@ -23539,12 +23594,14 @@ Thank you! Your payment has been received successfully.`;
 				return activeCompany || "MADHAV";
 			}
 
-			function parseAccountCode(str) {
+			function parseAccountCode(str, coCode = "MADHAV") {
 				const s = String(str || "").toUpperCase();
 				if (s.includes("ROSHAN")) return "ROSHAN";
 				if (s.includes("PRASHIK")) return "PRASHIK";
 				if (s.includes("SAVITA")) return "SAVITA";
-				return "IOB";
+				if (s.includes("MADHAV_QR") || s.includes("QR")) return coCode === "SHIVOM" ? "ROSHAN" : "MADHAV_QR";
+				if (s.includes("IOB") && coCode !== "SHIVOM") return "IOB";
+				return coCode === "SHIVOM" ? "ROSHAN" : "IOB";
 			}
 
 			function handleExcelImportFileSelect(e) {
@@ -23730,7 +23787,7 @@ Thank you! Your payment has been received successfully.`;
 									if (/cheq|chq/i.test(modeRaw)) mode = "Cheque";
 									else if (/bank|upi|online|iob|roshan|prashik|savita/i.test(modeRaw))
 										mode = "Bank";
-									const depAcc = mode === "Cash" ? null : parseAccountCode(modeRaw);
+									const depAcc = mode === "Cash" ? null : parseAccountCode(modeRaw, co);
 									const statusRaw = String(pickExcelVal(r, ["Status"], "")).trim();
 									const chqStatus =
 										mode === "Cheque"
@@ -23739,6 +23796,14 @@ Thank you! Your payment has been received successfully.`;
 												: /bounc/i.test(statusRaw)
 													? "Bounced"
 													: "Pending"
+											: null;
+									const chqLoc =
+										mode === "Cheque"
+											? chqStatus === "Cleared"
+												? "CLEARED"
+												: chqStatus === "Bounced"
+													? "BOUNCED"
+													: "AT_OFFICE"
 											: null;
 									const remark = String(pickExcelVal(r, ["Remark_Details", "Remark"], "")).trim();
 									const chqNoMatch = remark.match(/Chq\s*#([A-Za-z0-9-]+)/i);
@@ -23764,13 +23829,16 @@ Thank you! Your payment has been received successfully.`;
 										chequeDate:
 											mode === "Cheque" ? normalizeExcelDate(pickExcelVal(r, ["Date"])) : null,
 										chequeStatus: chqStatus,
+										chequeLocation: chqLoc,
+										chequeHandedToPrashik: mode === "Cheque",
 										bankRef: remark,
 									});
 								} else if (rType.includes("DEPOSIT")) {
 									const amount = Number(pickExcelVal(r, ["Collection_Paid_Amt", "Amount"], 0)) || 0;
 									if (amount <= 0) return;
 									const acc = parseAccountCode(
-										pickExcelVal(r, ["Mode_or_Account", "DepositAccount"], "IOB"),
+										pickExcelVal(r, ["Mode_or_Account", "DepositAccount"], co === "SHIVOM" ? "ROSHAN" : "IOB"),
+										co,
 									);
 									bucket.bankDeposits.push({
 										id: "DEP_IMP_" + nowBase + "_" + rowIdx,
