@@ -8665,7 +8665,7 @@
 							gap: 6px;
 						"
 					>
-						<span>📤</span> Upload / Import Single-Sheet Excel (<span id="importModalCompanyLabel"
+						<span>📤</span> Upload / Import Excel (<span id="importModalCompanyLabel"
 							>MADHAV &amp; SHIVOM</span
 						>)
 					</h3>
@@ -8702,8 +8702,9 @@
 					"
 				>
 					<span
-						>Enter <strong>MADHAV</strong> &amp; <strong>SHIVOM</strong> Parties, Stock, Orders,
-						Collections &amp; Deposits in ONE sheet and upload!</span
+						>Supports both <strong>Single-Sheet Template</strong> and
+						<strong>Multi-Tab Excel Backup / Export</strong> (.xlsx / .xls) for
+						<strong>MADHAV</strong> &amp; <strong>SHIVOM</strong>!</span
 					>
 					<button
 						type="button"
@@ -23687,39 +23688,290 @@ Thank you! Your payment has been received successfully.`;
 						const data = new Uint8Array(evt.target.result);
 						const wb = XLSX.read(data, { type: "array" });
 
+						const emptyBucket = () => ({
+							products: [],
+							parties: [],
+							orders: [],
+							collections: [],
+							bankDeposits: [],
+							cashHandovers: [],
+							purchaseBills: [],
+							expenses: [],
+						});
 						const buckets = {
-							MADHAV: {
-								products: [],
-								parties: [],
-								orders: [],
-								collections: [],
-								bankDeposits: [],
-								cashHandovers: [],
-							},
-							SHIVOM: {
-								products: [],
-								parties: [],
-								orders: [],
-								collections: [],
-								bankDeposits: [],
-								cashHandovers: [],
-							},
+							MADHAV: emptyBucket(),
+							SHIVOM: emptyBucket(),
 						};
 
 						const nowBase = Date.now();
 						let rowIdx = 0;
 
-						const firstSheetName = wb.SheetNames[0];
-						const firstRows = XLSX.utils
-							.sheet_to_json(wb.Sheets[firstSheetName], { defval: "" })
-							.filter((r) => !isSampleOrBlankRow(r));
-						const hasRecordTypeCol = firstRows.some(
-							(r) =>
-								String(pickExcelVal(r, ["Record_Type", "RecordType", "Type"], "")).trim() !== "",
+						const readSheetRows = (sheetName) => {
+							if (!sheetName || !wb.Sheets[sheetName]) return [];
+							return XLSX.utils
+								.sheet_to_json(wb.Sheets[sheetName], { defval: "" })
+								.filter((r) => !isSampleOrBlankRow(r));
+						};
+
+						const findSheetIgnoreCase = (targetName) =>
+							wb.SheetNames.find((n) => n.trim().toLowerCase() === targetName.toLowerCase());
+
+						const partiesSheet = findSheetIgnoreCase("Parties_Due");
+						const stockSheet = findSheetIgnoreCase("Stock_Inventory");
+						const ordersSheet = findSheetIgnoreCase("Sales_Invoices");
+						const collectionsSheet = findSheetIgnoreCase("Collections");
+						const purchasesSheet = findSheetIgnoreCase("Purchases_ITC");
+						const expensesSheet = findSheetIgnoreCase("Daily_Expenses");
+						const masterSheet = findSheetIgnoreCase("All_In_One_Master");
+
+						const isMultiTabWorkbook = Boolean(
+							partiesSheet ||
+								stockSheet ||
+								ordersSheet ||
+								collectionsSheet ||
+								purchasesSheet ||
+								expensesSheet,
 						);
 
-						if (hasRecordTypeCol) {
-							firstRows.forEach((r) => {
+						if (isMultiTabWorkbook) {
+							if (partiesSheet) {
+								readSheetRows(partiesSheet).forEach((r) => {
+									rowIdx++;
+									const name = String(pickExcelVal(r, ["Party Name", "Party_Name", "Name"], ""))
+										.trim()
+										.toUpperCase();
+									if (!name) return;
+									const co = parseCompanyBucket(pickExcelVal(r, ["Company", "Firm", "Unit"], activeCompany));
+									const gstin = String(pickExcelVal(r, ["GSTIN"], "")).trim().toUpperCase();
+									buckets[co].parties.push({
+										id: "P_IMP_" + nowBase + "_" + rowIdx,
+										name: name,
+										mobile: String(pickExcelVal(r, ["Mobile", "Phone"], ""))
+											.replace(/\D/g, "")
+											.slice(-10),
+										area: String(pickExcelVal(r, ["Area / City", "Area", "Market"], "NAGPUR"))
+											.trim()
+											.toUpperCase(),
+										gstin: gstin === "-" ? "" : gstin,
+										openingBalance: Number(pickExcelVal(r, ["Opening Bal (₹)", "OpeningBalance"], 0)) || 0,
+										creditLimit: Number(pickExcelVal(r, ["Credit Limit (₹)", "CreditLimit"], 0)) || 0,
+									});
+								});
+							}
+
+							if (stockSheet) {
+								readSheetRows(stockSheet).forEach((r) => {
+									rowIdx++;
+									const name = String(pickExcelVal(r, ["Product Name", "Product_Name", "Name"], "")).trim();
+									if (!name) return;
+									const co = parseCompanyBucket(pickExcelVal(r, ["Company", "Firm", "Unit"], activeCompany));
+									buckets[co].products.push({
+										id: "PR_IMP_" + nowBase + "_" + rowIdx,
+										code: String(pickExcelVal(r, ["Product Code", "Code"], "PR" + rowIdx)).trim(),
+										name: name,
+										group: String(pickExcelVal(r, ["Category", "Group"], "General")).trim() || "General",
+										hsn: String(pickExcelVal(r, ["HSN"], "85166000")).trim() || "85166000",
+										gst: Number(pickExcelVal(r, ["GST %", "GST"], 18)),
+										openingStock: Number(pickExcelVal(r, ["Opening Stock", "OpeningStock"], 0)) || 0,
+										inwardStock: Number(pickExcelVal(r, ["Inward Stock", "InwardStock"], 0)) || 0,
+										rate: Number(pickExcelVal(r, ["Rate (₹)", "Rate"], 0)) || 0,
+										mrp: Number(pickExcelVal(r, ["MRP"], 0)) || 0,
+										lowStockLimit: 3,
+									});
+								});
+							}
+
+							if (ordersSheet) {
+								readSheetRows(ordersSheet).forEach((r) => {
+									rowIdx++;
+									const partyName = String(pickExcelVal(r, ["Party Name", "Party_Name"], ""))
+										.trim()
+										.toUpperCase();
+									const productName = String(
+										pickExcelVal(r, ["Product Description", "Product Name", "Product_Name"], ""),
+									).trim();
+									const qty = Number(pickExcelVal(r, ["Total Qty", "OrderQty", "Qty"], 0)) || 0;
+									if (!partyName || !productName || qty <= 0) return;
+									const co = parseCompanyBucket(pickExcelVal(r, ["Company", "Firm", "Unit"], activeCompany));
+									const disp = Math.min(
+										qty,
+										Math.max(0, Number(pickExcelVal(r, ["Dispatched Qty", "DispatchedQty"], 0)) || 0),
+									);
+									const amt = Number(pickExcelVal(r, ["Total Amount (₹)", "TotalAmount"], 0)) || 0;
+									const rate = qty > 0 && amt > 0 ? Number((amt / qty).toFixed(2)) : 0;
+									const rawRef = String(
+										pickExcelVal(r, ["Memo / Order No", "OrderNo", "Ref_Bill_Receipt_Code"], String(1000 + rowIdx)),
+									).trim();
+									const gstInv = String(pickExcelVal(r, ["GST Invoice No"], "")).trim();
+									const dcNo = String(pickExcelVal(r, ["Delivery Challan"], "")).trim();
+									const pricingMode = String(pickExcelVal(r, ["Pricing Mode"], "inclusive")).trim().toLowerCase();
+									buckets[co].orders.push({
+										id: "ORD_IMP_" + nowBase + "_" + rowIdx,
+										orderNo: rawRef.replace(/^#/, ""),
+										memoNo: rawRef.startsWith("#") ? "" : rawRef,
+										gstInvoiceNo: gstInv && gstInv !== "-" ? gstInv : "",
+										dcNo: dcNo && dcNo !== "-" ? dcNo : "",
+										gstPricingMode: pricingMode === "exclusive" ? "exclusive" : "inclusive",
+										date: normalizeExcelDate(pickExcelVal(r, ["Date"])),
+										partyId: "",
+										partyName: partyName,
+										salespersonName: String(pickExcelVal(r, ["Salesperson", "Salesperson_Staff"], "PRASHIK HAJARE"))
+											.trim()
+											.toUpperCase(),
+										productId: "",
+										productName: productName,
+										orderQty: qty,
+										dispatchedQty: disp,
+										rate: rate,
+										totalAmt: amt,
+									});
+								});
+							}
+
+							if (collectionsSheet) {
+								readSheetRows(collectionsSheet).forEach((r) => {
+									rowIdx++;
+									const partyName = String(pickExcelVal(r, ["Party Name", "Party_Name"], ""))
+										.trim()
+										.toUpperCase();
+									const amount = Number(pickExcelVal(r, ["Amount (₹)", "Amount"], 0)) || 0;
+									if (!partyName || amount <= 0) return;
+									const co = parseCompanyBucket(pickExcelVal(r, ["Company", "Firm", "Unit"], activeCompany));
+									const modeRaw = String(pickExcelVal(r, ["Payment Mode", "Mode"], "Cash")).trim();
+									let mode = "Cash";
+									if (/cheq|chq/i.test(modeRaw)) mode = "Cheque";
+									else if (/bank|upi|online|iob|roshan|prashik|savita/i.test(modeRaw)) mode = "Bank";
+									const accRaw = String(pickExcelVal(r, ["Account / Bank", "DepositAccount"], "")).trim();
+									const depAcc = mode === "Cash" ? null : parseAccountCode(accRaw || modeRaw, co);
+									const statusRaw = String(pickExcelVal(r, ["Cheque Status", "Status"], "")).trim();
+									const chqStatus =
+										mode === "Cheque"
+											? /clear|pass/i.test(statusRaw)
+												? "Cleared"
+												: /bounc/i.test(statusRaw)
+													? "Bounced"
+													: "Pending"
+											: null;
+									const locRaw = String(pickExcelVal(r, ["Cheque Location"], "")).trim();
+									const chqLoc =
+										mode === "Cheque"
+											? locRaw && locRaw !== "-"
+												? locRaw
+												: chqStatus === "Cleared"
+													? "CLEARED"
+													: chqStatus === "Bounced"
+														? "BOUNCED"
+														: "AT_OFFICE"
+											: null;
+									const chqNoRaw = String(pickExcelVal(r, ["Cheque No"], "")).trim();
+									const chqBankRaw = String(pickExcelVal(r, ["Cheque Bank"], "")).trim();
+									const chqDateRaw = String(pickExcelVal(r, ["Cheque Date"], "")).trim();
+									const bankRef = String(pickExcelVal(r, ["Bank Ref / Note", "Remark_Details"], "")).trim();
+									buckets[co].collections.push({
+										id: "COL_IMP_" + nowBase + "_" + rowIdx,
+										receiptNo: String(
+											pickExcelVal(r, ["Receipt No", "ReceiptNo"], "RCP-IMP-" + rowIdx),
+										).trim(),
+										date: normalizeExcelDate(pickExcelVal(r, ["Date"])),
+										partyId: "",
+										partyName: partyName,
+										salespersonName: String(
+											pickExcelVal(r, ["Collected By", "Salesperson", "Salesperson_Staff"], "PRASHIK HAJARE"),
+										)
+											.trim()
+											.toUpperCase(),
+										amount: amount,
+										mode: mode,
+										depositAccount: depAcc,
+										chequeNo: mode === "Cheque" ? (chqNoRaw && chqNoRaw !== "-" ? chqNoRaw : "CHQ-" + rowIdx) : null,
+										chequeBank: mode === "Cheque" ? (chqBankRaw && chqBankRaw !== "-" ? chqBankRaw : "Bank") : null,
+										chequeDate:
+											mode === "Cheque"
+												? chqDateRaw && chqDateRaw !== "-"
+													? normalizeExcelDate(chqDateRaw)
+													: normalizeExcelDate(pickExcelVal(r, ["Date"]))
+												: null,
+										chequeStatus: chqStatus,
+										chequeLocation: chqLoc,
+										chequeHandedToPrashik: mode === "Cheque",
+										bankRef: bankRef,
+									});
+								});
+							}
+
+							if (purchasesSheet) {
+								readSheetRows(purchasesSheet).forEach((r) => {
+									rowIdx++;
+									const supplierName = String(pickExcelVal(r, ["Supplier Name", "SupplierName"], "")).trim();
+									const totalAmt = Number(pickExcelVal(r, ["Total Bill Amt (₹)", "TotalAmt"], 0)) || 0;
+									if (!supplierName && totalAmt <= 0) return;
+									const co = parseCompanyBucket(pickExcelVal(r, ["Company", "Firm", "Unit"], activeCompany));
+									buckets[co].purchaseBills.push({
+										id: "PUR_IMP_" + nowBase + "_" + rowIdx,
+										date: normalizeExcelDate(pickExcelVal(r, ["Bill Date", "Date"])),
+										billNo: String(pickExcelVal(r, ["Bill / Inv No", "BillNo"], "PUR-" + rowIdx)).trim(),
+										supplierName: supplierName,
+										supplierGstin: String(pickExcelVal(r, ["Supplier GSTIN"], "")).trim().toUpperCase(),
+										productName: String(pickExcelVal(r, ["Product / Note"], "")).trim(),
+										qty: Number(pickExcelVal(r, ["Quantity", "Qty"], 0)) || 0,
+										taxableAmt: Number(pickExcelVal(r, ["Taxable Value (₹)"], 0)) || 0,
+										gstPct: Number(pickExcelVal(r, ["GST %"], 18)) || 18,
+										cgstAmt: Number(pickExcelVal(r, ["CGST (₹)"], 0)) || 0,
+										sgstAmt: Number(pickExcelVal(r, ["SGST (₹)"], 0)) || 0,
+										igstAmt: Number(pickExcelVal(r, ["IGST (₹)"], 0)) || 0,
+										totalAmt: totalAmt,
+									});
+								});
+							}
+
+							if (expensesSheet) {
+								readSheetRows(expensesSheet).forEach((r) => {
+									rowIdx++;
+									const amount = Number(pickExcelVal(r, ["Amount (₹)", "Amount"], 0)) || 0;
+									if (amount <= 0) return;
+									const co = parseCompanyBucket(pickExcelVal(r, ["Company", "Firm", "Unit"], activeCompany));
+									buckets[co].expenses.push({
+										id: String(pickExcelVal(r, ["Expense ID"], "EXP_IMP_" + nowBase + "_" + rowIdx)).trim(),
+										date: normalizeExcelDate(pickExcelVal(r, ["Date"])),
+										category: String(pickExcelVal(r, ["Category"], "Other")).trim(),
+										mode: String(pickExcelVal(r, ["Payment Mode", "Mode"], "Cash")).trim(),
+										status: String(pickExcelVal(r, ["Status"], "Paid")).trim(),
+										amount: amount,
+										staff: String(pickExcelVal(r, ["Logged By", "Staff"], "Owner")).trim(),
+										note: String(pickExcelVal(r, ["Note / Remarks", "Note"], "")).trim(),
+									});
+								});
+							}
+						}
+
+						// Parse Single-Sheet format (or All_In_One_Master for Bank Deposits & Cash Handovers)
+						let singleSheetRows = [];
+						if (isMultiTabWorkbook) {
+							if (masterSheet) {
+								singleSheetRows = readSheetRows(masterSheet).filter((r) => {
+									const rt = String(pickExcelVal(r, ["Record_Type", "RecordType", "Type"], ""))
+										.trim()
+										.toUpperCase();
+									return rt.includes("DEPOSIT") || rt.includes("HANDOVER");
+								});
+							}
+						} else {
+							for (const sName of wb.SheetNames) {
+								const rows = readSheetRows(sName);
+								if (
+									rows.some(
+										(r) =>
+											String(pickExcelVal(r, ["Record_Type", "RecordType", "Type"], "")).trim() !== "",
+									)
+								) {
+									singleSheetRows = rows;
+									break;
+								}
+							}
+						}
+
+						if (singleSheetRows.length > 0) {
+							singleSheetRows.forEach((r) => {
 								rowIdx++;
 								const co = parseCompanyBucket(
 									pickExcelVal(r, ["Company", "Firm", "Unit"], activeCompany),
@@ -23958,7 +24210,9 @@ Thank you! Your payment has been received successfully.`;
 							b.orders.length +
 							b.collections.length +
 							b.bankDeposits.length +
-							b.cashHandovers.length;
+							b.cashHandovers.length +
+							b.purchaseBills.length +
+							b.expenses.length;
 						const mCount = countCo(buckets.MADHAV);
 						const sCount = countCo(buckets.SHIVOM);
 						const totalCount = mCount + sCount;
@@ -23966,7 +24220,7 @@ Thank you! Your payment has been received successfully.`;
 						if (totalCount === 0) {
 							pendingExcelImportData = null;
 							previewBox.style.display = "block";
-							previewBox.innerHTML = `<div style="color:#b91c1c;font-weight:700;">⚠️ No valid data rows found in this Excel file.</div><div style="color:#64748b;margin-top:4px;">Use the Single-Sheet Template, keep <code>Company</code> (<code>MADHAV</code>/<code>SHIVOM</code>) and <code>Record_Type</code> (<code>PARTY</code>, <code>STOCK</code>, <code>ORDER</code>, <code>COLLECTION</code>, <code>BANK_DEPOSIT</code>), and remove <code>[SAMPLE]</code> tags.</div>`;
+							previewBox.innerHTML = `<div style="color:#b91c1c;font-weight:700;">⚠️ No valid data rows found in this Excel file.</div><div style="color:#64748b;margin-top:4px;">Use the Single-Sheet Template (keep <code>Company</code> &amp; <code>Record_Type</code> and remove <code>[SAMPLE]</code> tags) or upload a Multi-Tab Excel Export / Backup workbook.</div>`;
 							modeWrap.style.display = "none";
 							btn.disabled = true;
 							return;
@@ -23974,20 +24228,23 @@ Thank you! Your payment has been received successfully.`;
 
 						pendingExcelImportData = buckets;
 						previewBox.style.display = "block";
+						const formatBadge = isMultiTabWorkbook ? "Multi-Tab Backup / Export" : "Single-Sheet File";
 						previewBox.innerHTML = `
-            <div style="font-weight:700;color:#0f766e;margin-bottom:8px;">✅ Single-Sheet File Parsed: ${file.name} (${totalCount} rows)</div>
+            <div style="font-weight:700;color:#0f766e;margin-bottom:8px;">✅ ${formatBadge} Parsed: ${file.name} (${totalCount} rows)</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.78rem;">
               <div style="background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;padding:8px;">
                 <div style="font-weight:800;color:var(--primary);margin-bottom:4px;">🏢 MADHAV (${mCount})</div>
                 <div>Parties: <strong>${buckets.MADHAV.parties.length}</strong> | Stock: <strong>${buckets.MADHAV.products.length}</strong></div>
                 <div>Orders: <strong>${buckets.MADHAV.orders.length}</strong> | Col.: <strong>${buckets.MADHAV.collections.length}</strong></div>
                 <div>Deposits: <strong>${buckets.MADHAV.bankDeposits.length}</strong> | Handovers: <strong>${buckets.MADHAV.cashHandovers.length}</strong></div>
+                ${buckets.MADHAV.purchaseBills.length || buckets.MADHAV.expenses.length ? `<div>Purchases: <strong>${buckets.MADHAV.purchaseBills.length}</strong> | Expenses: <strong>${buckets.MADHAV.expenses.length}</strong></div>` : ""}
               </div>
               <div style="background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;padding:8px;">
                 <div style="font-weight:800;color:#0f766e;margin-bottom:4px;">⚡ SHIVOM (${sCount})</div>
                 <div>Parties: <strong>${buckets.SHIVOM.parties.length}</strong> | Stock: <strong>${buckets.SHIVOM.products.length}</strong></div>
                 <div>Orders: <strong>${buckets.SHIVOM.orders.length}</strong> | Col.: <strong>${buckets.SHIVOM.collections.length}</strong></div>
                 <div>Deposits: <strong>${buckets.SHIVOM.bankDeposits.length}</strong> | Handovers: <strong>${buckets.SHIVOM.cashHandovers.length}</strong></div>
+                ${buckets.SHIVOM.purchaseBills.length || buckets.SHIVOM.expenses.length ? `<div>Purchases: <strong>${buckets.SHIVOM.purchaseBills.length}</strong> | Expenses: <strong>${buckets.SHIVOM.expenses.length}</strong></div>` : ""}
               </div>
             </div>
           `;
@@ -24035,7 +24292,9 @@ Thank you! Your payment has been received successfully.`;
 							d.orders.length +
 							d.collections.length +
 							d.bankDeposits.length +
-							d.cashHandovers.length;
+							d.cashHandovers.length +
+							(d.purchaseBills ? d.purchaseBills.length : 0) +
+							(d.expenses ? d.expenses.length : 0);
 						if (coTotal === 0) continue;
 
 						const isCurrent = coCode === activeCompany;
@@ -24046,6 +24305,8 @@ Thank you! Your payment has been received successfully.`;
 						if (!targetState.collections) targetState.collections = [];
 						if (!targetState.bankDeposits) targetState.bankDeposits = [];
 						if (!targetState.cashHandovers) targetState.cashHandovers = [];
+						if (!targetState.purchaseBills) targetState.purchaseBills = [];
+						if (!targetState.expenses) targetState.expenses = [];
 
 						const touchedCols = {};
 
@@ -24141,6 +24402,18 @@ Thank you! Your payment has been received successfully.`;
 							if (importMode === "replace") targetState.cashHandovers = d.cashHandovers;
 							else d.cashHandovers.forEach((nh) => targetState.cashHandovers.unshift(nh));
 							touchedCols.cashHandovers = targetState.cashHandovers;
+						}
+
+						if (d.purchaseBills && d.purchaseBills.length > 0) {
+							if (importMode === "replace") targetState.purchaseBills = d.purchaseBills;
+							else d.purchaseBills.forEach((npb) => targetState.purchaseBills.unshift(npb));
+							touchedCols.purchaseBills = targetState.purchaseBills;
+						}
+
+						if (d.expenses && d.expenses.length > 0) {
+							if (importMode === "replace") targetState.expenses = d.expenses;
+							else d.expenses.forEach((nx) => targetState.expenses.unshift(nx));
+							touchedCols.expenses = targetState.expenses;
 						}
 
 						localStorage.setItem(
