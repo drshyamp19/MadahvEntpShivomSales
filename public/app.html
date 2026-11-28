@@ -12224,10 +12224,16 @@
 				container.innerHTML = filtered
 					.map((p) => {
 						const cleanPhone = (p.mobile || "").replace(/\D/g, "");
+						const coUpi =
+							typeof getCompanyUpiId === "function"
+								? getCompanyUpiId(activeCompany)
+								: activeCompany === "MADHAV"
+									? "madhaventerprises19@iob"
+									: "savitachaudhari43@okicici";
 						const payDetailReminder =
 							activeCompany === "MADHAV"
-								? "UPI/Bank (IOB A/c: 308202000000378, IFSC: IOBA0003082 | UPI: 7499477581@ybl)"
-								: "Cash or PhonePe / UPI (7499477581@ybl - Roshan Thakre / Prashik Hajare)";
+								? `UPI/Bank (IOB A/c: 308202000000378, IFSC: IOBA0003082 | UPI: ${coUpi})`
+								: `Cash or PhonePe / UPI (${coUpi} - Savita Chaudhari / Roshan Thakre)`;
 						const statementDriveLink = p.statementDriveUrl
 							? getDirectDrivePdfUrl(p.statementDriveUrl)
 							: "";
@@ -26343,13 +26349,14 @@ Thank you! Your payment has been received successfully.`;
 
 			function handleChatOrderTagClick(orderRef) {
 				closeTeamChat();
-				const searchBox = document.getElementById("orderSearchInput");
-				if (searchBox) {
-					searchBox.value = orderRef;
-					if (typeof filterOrders === "function") filterOrders();
-				}
 				const ordersTab = document.querySelector('[data-tab="admin-orders"]');
 				if (ordersTab) switchTab("admin-orders", ordersTab);
+				const searchBox = document.getElementById("orderSearch");
+				if (searchBox) {
+					searchBox.value = orderRef;
+					if (typeof setOrderRegisterTab === "function") setOrderRegisterTab("All");
+					else if (typeof renderOrdersTable === "function") renderOrdersTable();
+				}
 				showToast(`🔍 Showing Order #${orderRef}`);
 			}
 
