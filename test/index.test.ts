@@ -1,13 +1,16 @@
 import { SELF } from "cloudflare:test";
 import { describe, expect, it } from "vite-plus/test";
 
+const MADHAV_ORIGIN = "https://madhav-enterprises.mserp.workers.dev";
+const SHIVOM_ORIGIN = "https://shivom-sales.mserp.workers.dev";
+
 async function loginAs(
 	identifier: string,
 	password: string,
 	mode: "unified" | "owner" | "staff" = "unified",
 ) {
 	const res = await SELF.fetch(
-		"https://madhav-enterprises.madhavshivom.workers.dev/api/auth/login",
+		`${MADHAV_ORIGIN}/api/auth/login`,
 		{
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -26,11 +29,11 @@ async function loginAs(
 describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 	it("serves brand-specific HTML meta and manifests for MADHAV and SHIVOM", async () => {
 		const madhavHealth = (await (
-			await SELF.fetch("https://madhav-enterprises.madhavshivom.workers.dev/api/health")
+			await SELF.fetch(`${MADHAV_ORIGIN}/api/health`)
 		).json()) as { ok: boolean; brand: string };
 		expect(madhavHealth.brand).toBe("MADHAV");
 
-		const madhavHtmlRes = await SELF.fetch("https://madhav-enterprises.madhavshivom.workers.dev/");
+		const madhavHtmlRes = await SELF.fetch(`${MADHAV_ORIGIN}/`);
 		expect(madhavHtmlRes.status).toBe(200);
 		const madhavHtml = await madhavHtmlRes.text();
 		expect(madhavHtml).toContain("<title>MADHAV ENTERPRISES - Cloud ERP Portal</title>");
@@ -39,22 +42,18 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		expect(madhavHtml).toContain("/MadhavShivomERP.apk");
 		expect(madhavHtml).not.toContain("firebase-app-compat");
 
-		const swApkBypass = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/sw.js",
-		);
+		const swApkBypass = await SELF.fetch(`${MADHAV_ORIGIN}/sw.js`);
 		expect(await swApkBypass.text()).toContain(".apk");
 
 		const shivomViewRes = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/?view=invoice&id=ORD_106_P004&co=SHIVOM",
+			`${MADHAV_ORIGIN}/?view=invoice&id=ORD_106_P004&co=SHIVOM`,
 		);
 		expect(shivomViewRes.status).toBe(200);
 		const shivomHtml = await shivomViewRes.text();
 		expect(shivomHtml).toContain("<title>SHIVOM SALES &amp; SERVICES - Cloud ERP Portal</title>");
 		expect(shivomHtml).toContain("/shivom-logo-cropped.png");
 
-		const shivomManifestRes = await SELF.fetch(
-			"https://shivom-sales.madhavshivom.workers.dev/manifest.json",
-		);
+		const shivomManifestRes = await SELF.fetch(`${SHIVOM_ORIGIN}/manifest.json`);
 		expect(shivomManifestRes.status).toBe(200);
 		const shivomManifest = (await shivomManifestRes.json()) as {
 			short_name: string;
@@ -63,25 +62,20 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		expect(shivomManifest.short_name).toBe("Shivom ERP");
 		expect(shivomManifest.theme_color).toBe("#0f766e");
 
-		const swRes = await SELF.fetch("https://madhav-enterprises.madhavshivom.workers.dev/sw.js");
+		const swRes = await SELF.fetch(`${MADHAV_ORIGIN}/sw.js`);
 		expect(swRes.status).toBe(200);
 		const swText = await swRes.text();
 		expect(swText).toContain("/api/");
 		expect(swText).not.toContain("firestore");
 
-		const apkRes = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/MadhavShivomERP.apk",
-			{ method: "HEAD" },
-		);
+		const apkRes = await SELF.fetch(`${MADHAV_ORIGIN}/MadhavShivomERP.apk`, { method: "HEAD" });
 		expect(apkRes.status).toBe(200);
 		expect(apkRes.headers.get("Content-Type")).toBe("application/vnd.android.package-archive");
 		expect(apkRes.headers.get("Content-Disposition")).toContain("MadhavShivomERP.apk");
 	});
 
 	it("enforces authentication and role permissions on API routes", async () => {
-		const unauthRes = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/api/state?co=MADHAV",
-		);
+		const unauthRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/state?co=MADHAV`);
 		expect(unauthRes.status).toBe(401);
 
 		const badLogin = await loginAs("9309543825", "wrong-pin", "unified");
@@ -144,9 +138,7 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		expect(prashikAliasProbe.data.error).toContain("PRASHIK HAJARE");
 
 		// Owner creates a restricted salesperson and verifies server-side cash restriction + admin-only routes
-		const addStaffRes = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/api/records/salespersons?co=SHIVOM",
-			{
+		const addStaffRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/records/salespersons?co=SHIVOM`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -172,28 +164,42 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		expect(staffLogin.data.user?.allowCash).toBe(false);
 
 		// Restricted staff cannot record Cash collections
-		const cashRes = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/api/records/collections?co=SHIVOM",
+		const cashRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/records/collections?co=SHIVOM`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${staffLogin.data.token}`,
+			},
+			body: JSON.stringify({
+				id: "COL_TEST_DENIED",
+				mode: "Cash",
+				amount: 500,
+				partyName: "TEST",
+			}),
+		});
+		expect(cashRes.status).toBe(403);
+
+		// Server-side positive amount validation rejects 0 or negative amounts
+		const invalidAmountRes = await SELF.fetch(
+			`${MADHAV_ORIGIN}/api/records/collections?co=SHIVOM`,
 			{
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					Authorization: `Bearer ${staffLogin.data.token}`,
+					Authorization: `Bearer ${ownerLogin.data.token}`,
 				},
 				body: JSON.stringify({
-					id: "COL_TEST_DENIED",
-					mode: "Cash",
-					amount: 500,
+					id: "COL_TEST_ZERO",
+					mode: "UPI",
+					amount: 0,
 					partyName: "TEST",
 				}),
 			},
 		);
-		expect(cashRes.status).toBe(403);
+		expect(invalidAmountRes.status).toBe(400);
 
 		// Non-admin staff cannot clear data
-		const clearRes = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/api/clear?co=SHIVOM",
-			{
+		const clearRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/clear?co=SHIVOM`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -209,12 +215,9 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		const { data: auth } = await loginAs("9309543825", "9850", "unified");
 		const token = auth.token!;
 
-		const madhavRes = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/api/state?co=MADHAV",
-			{
-				headers: { Authorization: `Bearer ${token}` },
-			},
-		);
+		const madhavRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/state?co=MADHAV`, {
+			headers: { Authorization: `Bearer ${token}` },
+		});
 		expect(madhavRes.status).toBe(200);
 		const madhav = (await madhavRes.json()) as {
 			company: string;
@@ -233,12 +236,9 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 			expect(sp.pin).toBeUndefined();
 		}
 
-		const shivomRes = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/api/state?co=SHIVOM",
-			{
-				headers: { Authorization: `Bearer ${token}` },
-			},
-		);
+		const shivomRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/state?co=SHIVOM`, {
+			headers: { Authorization: `Bearer ${token}` },
+		});
 		expect(shivomRes.status).toBe(200);
 		const shivom = (await shivomRes.json()) as {
 			company: string;
@@ -260,7 +260,7 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 
 		// 1. Public ?view= endpoints (unauthenticated)
 		const pubInv = await SELF.fetch(
-			"https://shivom-sales.madhavshivom.workers.dev/api/public/view?view=invoice&id=ORD_106_P004&co=SHIVOM",
+			`${SHIVOM_ORIGIN}/api/public/view?view=invoice&id=ORD_106_P004&co=SHIVOM`,
 		);
 		expect(pubInv.status).toBe(200);
 		const pubInvData = (await pubInv.json()) as { ok: boolean; order?: { orderNo: string } };
@@ -268,45 +268,53 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 		expect(pubInvData.order?.orderNo).toBe("106");
 
 		const pubStmt = await SELF.fetch(
-			"https://shivom-sales.madhavshivom.workers.dev/api/public/view?view=statement&partyId=P001&co=SHIVOM",
+			`${SHIVOM_ORIGIN}/api/public/view?view=statement&partyId=P001&co=SHIVOM`,
 		);
 		expect(pubStmt.status).toBe(200);
 		const pubStmtData = (await pubStmt.json()) as { ok: boolean; party?: { id: string } };
 		expect(pubStmtData.ok).toBe(true);
 		expect(pubStmtData.party?.id).toBe("P001");
 
+		const pubSummary = await SELF.fetch(
+			`${SHIVOM_ORIGIN}/api/public/view?view=summary&date=2099-01-01&co=SHIVOM`,
+		);
+		expect(pubSummary.status).toBe(200);
+		const pubSummaryData = (await pubSummary.json()) as { ok: boolean; summaryParties?: unknown[] };
+		expect(pubSummaryData.ok).toBe(true);
+		expect(pubSummaryData.summaryParties?.length).toBe(0);
+
 		// 2. Upload & retrieve compressed proof photo in DO media table
 		const tinyPngDataUrl =
 			"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
-		const mediaRes = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/api/media?co=SHIVOM",
-			{
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify({
-					id: "test_proof_1",
-					dataUrl: tinyPngDataUrl,
-					mimeType: "image/png",
-				}),
+		const mediaRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/media?co=SHIVOM`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
 			},
-		);
+			body: JSON.stringify({
+				id: "test_proof_1",
+				dataUrl: tinyPngDataUrl,
+				mimeType: "image/png",
+			}),
+		});
 		expect(mediaRes.status).toBe(200);
 		const mediaJson = (await mediaRes.json()) as { ok: boolean; url: string };
 		expect(mediaJson.ok).toBe(true);
 
-		const fetchedMedia = await SELF.fetch(
-			`https://madhav-enterprises.madhavshivom.workers.dev${mediaJson.url}`,
-		);
+		const unauthMedia = await SELF.fetch(`${MADHAV_ORIGIN}${mediaJson.url}`);
+		expect(unauthMedia.status).toBe(401);
+
+		const fetchedMedia = await SELF.fetch(`${MADHAV_ORIGIN}${mediaJson.url}`, {
+			headers: { Authorization: `Bearer ${token}` },
+		});
 		expect(fetchedMedia.status).toBe(200);
 		expect(fetchedMedia.headers.get("Content-Type")).toBe("image/png");
 		await fetchedMedia.arrayBuffer();
 
 		// 3. WebSocket Hibernation real-time sync broadcast
 		const wsRes = await SELF.fetch(
-			`https://madhav-enterprises.madhavshivom.workers.dev/api/ws?co=MADHAV&token=${encodeURIComponent(token)}`,
+			`${MADHAV_ORIGIN}/api/ws?co=MADHAV&token=${encodeURIComponent(token)}`,
 			{
 				headers: { Upgrade: "websocket" },
 			},
@@ -318,7 +326,7 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 
 		const received: string[] = [];
 		const gotUpsert = new Promise<void>((resolve) => {
-			ws!.addEventListener("message", (ev) => {
+			ws!.addEventListener("message", (ev: MessageEvent) => {
 				const text = typeof ev.data === "string" ? ev.data : "";
 				received.push(text);
 				if (text.includes("ORD_WS_TEST_1")) {
@@ -327,9 +335,7 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 			});
 		});
 
-		const saveRes = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/api/records/orders?co=MADHAV",
-			{
+		const saveRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/records/orders?co=MADHAV`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -357,35 +363,32 @@ describe("Madhav & Shivom Cloudflare-Only ERP", () => {
 
 		// 4. In-App Team Chat message creation and snapshot verification
 		const chatMsgId = `msg_test_${Date.now()}`;
-		const postChatRes = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/api/records/chatMessages?co=MADHAV",
-			{
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify({
-					id: chatMsgId,
-					channel: "MADHAV",
-					text: "Urgent order update for testing",
-					orderRef: "ORD-999",
-				}),
+		const postChatRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/records/chatMessages?co=MADHAV`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
 			},
-		);
+			body: JSON.stringify({
+				id: chatMsgId,
+				channel: "MADHAV",
+				text: "Urgent order update for testing",
+				orderRef: "ORD-999",
+			}),
+		});
 		expect(postChatRes.status).toBe(200);
-		const chatPostJson = (await postChatRes.json()) as { ok: boolean; item: { text: string; senderName: string } };
+		const chatPostJson = (await postChatRes.json()) as {
+			ok: boolean;
+			item: { text: string; senderName: string };
+		};
 		expect(chatPostJson.ok).toBe(true);
 		expect(chatPostJson.item.text).toBe("Urgent order update for testing");
 		expect(chatPostJson.item.senderName).toBeTruthy();
 
 		// Check snapshot contains chatMessages
-		const stateRes = await SELF.fetch(
-			"https://madhav-enterprises.madhavshivom.workers.dev/api/state?co=MADHAV",
-			{
-				headers: { Authorization: `Bearer ${token}` },
-			},
-		);
+		const stateRes = await SELF.fetch(`${MADHAV_ORIGIN}/api/state?co=MADHAV`, {
+			headers: { Authorization: `Bearer ${token}` },
+		});
 		expect(stateRes.status).toBe(200);
 		const stateJson = (await stateRes.json()) as { ok: boolean; chatMessages?: Array<{ id: string }> };
 		expect(stateJson.ok).toBe(true);
