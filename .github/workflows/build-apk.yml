@@ -80,6 +80,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Sync APK to public/downloads and push for Cloudflare
+        id: sync_apk
         run: |
           cp MadhavShivomERP.apk public/downloads/MadhavShivomERP.apk
           git config user.name "github-actions[bot]"
@@ -89,4 +90,32 @@ jobs:
             git commit -m "Auto-update bundled MadhavShivomERP.apk from latest build"
             git pull --rebase origin main
             git push origin main
+            echo "apk_updated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "apk_updated=false" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Set up Node.js for Cloudflare Deploy
+        if: steps.sync_apk.outputs.apk_updated == 'true' && secrets.CLOUDFLARE_API_TOKEN != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install dependencies for Cloudflare Deploy
+        if: steps.sync_apk.outputs.apk_updated == 'true' && secrets.CLOUDFLARE_API_TOKEN != ''
+        run: npm ci
+
+      - name: Deploy Madhav Enterprises Worker with Updated APK
+        if: steps.sync_apk.outputs.apk_updated == 'true' && secrets.CLOUDFLARE_API_TOKEN != ''
+        run: npm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy Shivom Sales Worker with Updated APK
+        if: steps.sync_apk.outputs.apk_updated == 'true' && secrets.CLOUDFLARE_API_TOKEN != ''
+        run: npx cf deploy --mode shivom
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
