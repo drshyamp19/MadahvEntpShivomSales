@@ -10683,9 +10683,7 @@
 					}
 				}
 
-				const activeBtn = document.querySelector(".nav-tab.active");
-				if (activeBtn) {
-					const expNavBtn = document.getElementById("accountantExpenseTabBtn");
+				const expNavBtn = document.getElementById("accountantExpenseTabBtn");
 				if (expNavBtn) {
 					if (isAdmin) {
 						expNavBtn.style.display = "none";
@@ -10704,7 +10702,10 @@
 					}
 				}
 
-				const isAllowedForStaff =
+				const activeBtn = document.querySelector(".nav-tab.active");
+				if (activeBtn) {
+					const curTab = activeBtn.getAttribute("data-tab");
+					const isAllowedForStaff =
 						isStaff &&
 						(curTab === "open-stock" ||
 							curTab === "open-dues" ||
