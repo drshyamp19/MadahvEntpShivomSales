@@ -11103,10 +11103,11 @@
 			// ==================== BUSINESS CALCULATIONS ====================
 			function getOrderDispatchedAmount(o) {
 				if (!o) return 0;
+				let rawAmt = 0;
 				if (Array.isArray(o.items) && o.items.length > 0) {
 					const hasItemDispatch = o.items.some((it) => Number(it.dispatchedQty || 0) > 0);
 					if (hasItemDispatch) {
-						return o.items.reduce((sum, it) => {
+						rawAmt = o.items.reduce((sum, it) => {
 							const q = Number(it.qty || 0);
 							const dq = Number(it.dispatchedQty || 0);
 							if (q <= 0 || dq <= 0) return sum;
@@ -11114,15 +11115,22 @@
 								it.totalAmt != null ? Number(it.totalAmt) : q * Number(it.rate || 0);
 							return sum + (dq / q) * lineTotal;
 						}, 0);
+					} else {
+						// Legacy multi-item order dispatched before v29
+						const ordQty = Number(o.orderQty || 0);
+						const ordDisp = Number(o.dispatchedQty || 0);
+						if (ordDisp <= 0 || ordQty <= 0) return 0;
+						const ordTot = o.totalAmt != null ? Number(o.totalAmt) : ordQty * Number(o.rate || 0);
+						rawAmt = (ordDisp / ordQty) * ordTot;
 					}
-					// Legacy multi-item order dispatched before v29
-					const ordQty = Number(o.orderQty || 0);
-					const ordDisp = Number(o.dispatchedQty || 0);
-					if (ordDisp <= 0 || ordQty <= 0) return 0;
-					const ordTot = o.totalAmt != null ? Number(o.totalAmt) : ordQty * Number(o.rate || 0);
-					return (ordDisp / ordQty) * ordTot;
+				} else {
+					rawAmt = Number(o.dispatchedQty || 0) * Number(o.rate || 0);
 				}
-				return Number(o.dispatchedQty || 0) * Number(o.rate || 0);
+				// Align Madhav GST Tax Invoice round-off with Party Ledger debit
+				if (rawAmt > 0 && String(o.gstInvoiceNo || "").startsWith("ME/")) {
+					return Math.round(rawAmt);
+				}
+				return rawAmt;
 			}
 
 			function getOrderTotalAmount(o) {
@@ -12914,7 +12922,13 @@
 					.filter((c) => c.mode === "Cash")
 					.reduce((s, c) => s + Number(c.amount || 0), 0);
 				const bankCol = filtCols
-					.filter((c) => c.mode === "Bank" || (c.mode === "Cheque" && c.chequeStatus === "Cleared"))
+					.filter(
+						(c) =>
+							c.mode === "Bank" ||
+							c.mode === "Online" ||
+							c.mode === "UPI" ||
+							(c.mode === "Cheque" && c.chequeStatus === "Cleared"),
+					)
 					.reduce((s, c) => s + Number(c.amount || 0), 0);
 
 				const parties = getComputedParties();
@@ -13000,7 +13014,11 @@
 								.reduce((s, c) => s + Number(c.amount || 0), 0);
 							const cBank = spCols
 								.filter(
-									(c) => c.mode === "Bank" || (c.mode === "Cheque" && c.chequeStatus === "Cleared"),
+									(c) =>
+										c.mode === "Bank" ||
+										c.mode === "Online" ||
+										c.mode === "UPI" ||
+										(c.mode === "Cheque" && c.chequeStatus === "Cleared"),
 								)
 								.reduce((s, c) => s + Number(c.amount || 0), 0);
 							const totalCol = cCash + cBank;
@@ -17065,9 +17083,9 @@ Thank you!`;
 					0,
 				);
 				const totalCashExpenses = (state.expenses || [])
-					.filter((e) => e.mode === "Cash")
+					.filter((e) => e.mode === "Cash" && (e.status === "Paid" || e.status === "Salary Advance" || !e.status))
 					.reduce((s, e) => s + Number(e.amount || 0), 0);
-				const prashikTotalReceived = spCash["PRASHIK HAJARE"] + totalHandedToPrashikAccepted;
+				const prashikTotalReceived = spCash["PRASHIK HAJARE"] + otherCash + totalHandedToPrashikAccepted;
 				const prashikInHand = Math.max(
 					0,
 					prashikTotalReceived - totalBankDeposits - totalCashExpenses,
@@ -17137,7 +17155,7 @@ Thank you!`;
 					0,
 				);
 				const totalBankExpenses = (state.expenses || [])
-					.filter((e) => e.mode !== "Cash")
+					.filter((e) => e.mode !== "Cash" && (e.status === "Paid" || e.status === "Salary Advance" || !e.status))
 					.reduce((s, e) => s + Number(e.amount || 0), 0);
 
 				const colors = {
@@ -18307,8 +18325,7 @@ Thank you!`;
 				const todayOrders = allOrders.filter((o) => (o.date || "").split("T")[0] === today);
 				const todayOrdersCount = todayOrders.length;
 				const todayOrdersVal = todayOrders.reduce((sum, o) => {
-					const amt = Number(o.totalAmount || o.orderAmount || 0);
-					return sum + amt;
+					return sum + getOrderTotalAmount(o);
 				}, 0);
 
 				const allCols = state.collections || [];
@@ -19186,12 +19203,14 @@ Thank you! Your payment has been received successfully.`;
 					ord.dispatchedQty = ord.items.reduce((s, it) => s + Number(it.dispatchedQty || 0), 0);
 				} else {
 					const qty = Number(document.getElementById("dispatchQtyInput").value || 0);
-					if (qty <= 0) {
-						alert("Please enter a valid dispatch quantity.");
+					const maxAdd = Math.max(0, Number(ord.orderQty || 0) - Number(ord.dispatchedQty || 0));
+					const safeQty = Math.min(qty, maxAdd);
+					if (safeQty <= 0) {
+						alert("Please enter a valid dispatch quantity (order may already be fully dispatched).");
 						return;
 					}
-					ord.dispatchedQty = Number(ord.dispatchedQty || 0) + qty;
-					totalDispatchedNow = qty;
+					ord.dispatchedQty = Number(ord.dispatchedQty || 0) + safeQty;
+					totalDispatchedNow = safeQty;
 				}
 
 				// Record actual Dispatch Date
@@ -22217,22 +22236,42 @@ Thank you! Your payment has been received successfully.`;
 
 				// Build Average Purchase Cost (Taxable per unit) by Product from Purchase Bills
 				const purStats = {};
+				const prodNameById = {};
+				(state.products || []).forEach((p) => {
+					if (p && p.id && p.name) prodNameById[p.id] = p.name.trim().toLowerCase();
+				});
 				(state.purchaseBills || []).forEach((b) => {
 					const q = Number(b.qty || 0);
 					if (q <= 0) return;
-					const pid = b.productId || b.productName || "";
-					if (!pid) return;
-					if (!purStats[pid]) purStats[pid] = { qty: 0, taxableCost: 0 };
-					purStats[pid].qty += q;
-					purStats[pid].taxableCost +=
-						b.taxableAmt != null ? Number(b.taxableAmt) : q * Number(b.rate || 0);
-				});
-				const avgCostByProd = {};
-				Object.keys(purStats).forEach((pid) => {
-					if (purStats[pid].qty > 0) {
-						avgCostByProd[pid] = purStats[pid].taxableCost / purStats[pid].qty;
+					const cost = b.taxableAmt != null ? Number(b.taxableAmt) : q * Number(b.rate || 0);
+					const pid = b.productId || "";
+					const pName = (b.productName || prodNameById[pid] || "").trim().toLowerCase();
+					if (pid) {
+						if (!purStats[pid]) purStats[pid] = { qty: 0, taxableCost: 0 };
+						purStats[pid].qty += q;
+						purStats[pid].taxableCost += cost;
+					}
+					if (pName) {
+						const nameKey = "name:" + pName;
+						if (!purStats[nameKey]) purStats[nameKey] = { qty: 0, taxableCost: 0 };
+						purStats[nameKey].qty += q;
+						purStats[nameKey].taxableCost += cost;
 					}
 				});
+				const avgCostByProd = {};
+				Object.keys(purStats).forEach((k) => {
+					if (purStats[k].qty > 0) {
+						avgCostByProd[k] = purStats[k].taxableCost / purStats[k].qty;
+					}
+				});
+				const getProdUnitCost = (pid, pName) => {
+					if (pid && avgCostByProd[pid] != null) return avgCostByProd[pid];
+					const cleanName = (pName || prodNameById[pid] || "").trim().toLowerCase();
+					if (cleanName && avgCostByProd["name:" + cleanName] != null) {
+						return avgCostByProd["name:" + cleanName];
+					}
+					return 0;
+				};
 
 				// Taxable Dispatched Sales & COGS in Period
 				let taxableDispatchedSales = 0;
@@ -22259,25 +22298,41 @@ Thank you! Your payment has been received successfully.`;
 									: legacyFullDisp
 										? q
 										: Math.round(q * legacyRatio);
-								const unitCost =
-									avgCostByProd[it.productId] || avgCostByProd[it.productName] || 0;
+								const unitCost = getProdUnitCost(it.productId, it.productName);
 								cogsTotal += dq * unitCost;
 							});
 						} else {
 							const dq = Number(o.dispatchedQty || 0);
-							const unitCost = avgCostByProd[o.productId] || avgCostByProd[o.productName] || 0;
+							const unitCost = getProdUnitCost(o.productId, o.productName);
 							cogsTotal += dq * unitCost;
 						}
 					});
 
-				const returnTaxableTotal = (state.salesReturns || [])
-					.filter((r) => inPeriod(r.date))
-					.reduce((s, r) => s + Number(r.taxableAmt || r.totalCreditAmt || 0), 0);
+				const periodReturns = (state.salesReturns || []).filter((r) => inPeriod(r.date));
+				const returnTaxableTotal = periodReturns.reduce(
+					(s, r) => s + Number(r.taxableAmt || r.totalCreditAmt || 0),
+					0,
+				);
+				// Credit back COGS for Good-condition sales returns that re-entered sellable stock
+				const returnedGoodCogs = periodReturns
+					.filter((r) => r.returnCondition === "Good")
+					.reduce((s, r) => s + Number(r.qty || 0) * getProdUnitCost(r.productId, r.productName), 0);
+				const netCogsTotal = Math.max(0, cogsTotal - returnedGoodCogs);
+
 				const purchaseTotal = (state.purchaseBills || [])
 					.filter((b) => inPeriod(b.date))
 					.reduce((s, b) => s + Number(b.totalAmt || 0), 0);
+				// Only actual incurred business expenses (exclude Pending claims & Staff Salary Advances)
+				const profitExp = periodExpenses
+					.filter(
+						(x) =>
+							x.status !== "Pending" &&
+							x.status !== "Salary Advance" &&
+							x.category !== "Staff Salary / Advance",
+					)
+					.reduce((s, x) => s + Number(x.amount || 0), 0);
 				const netTaxableSales = taxableDispatchedSales - returnTaxableTotal;
-				const netSurplus = netTaxableSales - cogsTotal - totalExp;
+				const netSurplus = netTaxableSales - netCogsTotal - profitExp;
 
 				const pendingClaimsTotal = periodExpenses
 					.filter((x) => x.status === "Pending")
@@ -22305,7 +22360,7 @@ Thank you! Your payment has been received successfully.`;
 				setTxt("expKpiNetProfit", fmtINR(netSurplus));
 				setTxt(
 					"expKpiProfitSub",
-					`Net Taxable ${fmtINR(netTaxableSales)} − COGS ${fmtINR(cogsTotal)} − Exp. ${fmtINR(totalExp)} (Pur. ${fmtINR(purchaseTotal)})`,
+					`Net Taxable ${fmtINR(netTaxableSales)} − COGS ${fmtINR(netCogsTotal)} − Exp. ${fmtINR(profitExp)} (Pur. ${fmtINR(purchaseTotal)})`,
 				);
 				setTxt("expKpiPendingReimbVal", fmtINR(pendingClaimsTotal));
 				setTxt(
@@ -22662,7 +22717,7 @@ Thank you! Your payment has been received successfully.`;
 						.filter((c) => c.mode === "Cash")
 						.reduce((s, c) => s + Number(c.amount || 0), 0);
 					const bankPaid = partyCols
-						.filter((c) => c.mode === "Bank")
+						.filter((c) => c.mode === "Bank" || c.mode === "Online" || c.mode === "UPI")
 						.reduce((s, c) => s + Number(c.amount || 0), 0);
 					const chequeCleared = partyCols
 						.filter((c) => c.mode === "Cheque" && c.chequeStatus === "Cleared")
@@ -22676,8 +22731,8 @@ Thank you! Your payment has been received successfully.`;
 					);
 					const totalReturns = partyReturns.reduce((s, r) => s + Number(r.totalCreditAmt || 0), 0);
 
-					const netBalance =
-						Number(party.openingBalance || 0) + dispatchedSales - totalPaid - totalReturns;
+					const openingBal = Number(party.openingBalance || 0);
+					const netBalance = openingBal + dispatchedSales - totalPaid - totalReturns;
 					const creditLimit = Number(party.creditLimit || 0);
 
 					let lastDateStr = party.lastPaymentDate || "";
@@ -22690,9 +22745,38 @@ Thank you! Your payment has been received successfully.`;
 						});
 					}
 
+					// FIFO Unpaid-Invoice Aging (matches getComputedParties)
+					let oldestUnpaidDateStr = "";
+					if (netBalance > 0) {
+						let remainingCredits = totalPaid + totalReturns;
+						if (openingBal > 0) {
+							if (remainingCredits >= openingBal) {
+								remainingCredits -= openingBal;
+							} else {
+								remainingCredits = 0;
+								oldestUnpaidDateStr = party.lastPaymentDate || "";
+							}
+						}
+						if (!oldestUnpaidDateStr) {
+							const dispatchedOrdersChrono = partyOrders
+								.map((o) => ({ date: o.date || "", dispAmt: getOrderDispatchedAmount(o) }))
+								.filter((x) => x.dispAmt > 0)
+								.sort((a, b) => (a.date > b.date ? 1 : a.date < b.date ? -1 : 0));
+							for (const ordEntry of dispatchedOrdersChrono) {
+								if (remainingCredits >= ordEntry.dispAmt - 0.01) {
+									remainingCredits -= ordEntry.dispAmt;
+								} else {
+									oldestUnpaidDateStr = ordEntry.date;
+									break;
+								}
+							}
+						}
+					}
+
+					const agingDateStr = oldestUnpaidDateStr || lastDateStr;
 					let pendingDays = 0;
-					if (netBalance > 0 && lastDateStr) {
-						const d1 = new Date(lastDateStr + "T00:00:00");
+					if (netBalance > 0 && agingDateStr) {
+						const d1 = new Date(agingDateStr + "T00:00:00");
 						if (!isNaN(d1.getTime()))
 							pendingDays = Math.max(0, Math.floor((refDate - d1) / 86400000));
 					}
@@ -25763,7 +25847,13 @@ Thank you! Your payment has been received successfully.`;
 					.filter((c) => c.mode === "Cash")
 					.reduce((s, c) => s + Number(c.amount || 0), 0);
 				const todayBankCol = todayCols
-					.filter((c) => c.mode === "Bank" || (c.mode === "Cheque" && c.chequeStatus === "Cleared"))
+					.filter(
+						(c) =>
+							c.mode === "Bank" ||
+							c.mode === "Online" ||
+							c.mode === "UPI" ||
+							(c.mode === "Cheque" && c.chequeStatus === "Cleared"),
+					)
 					.reduce((s, c) => s + Number(c.amount || 0), 0);
 
 				const todayExp = (state.expenses || [])
@@ -25773,15 +25863,8 @@ Thank you! Your payment has been received successfully.`;
 				const parties = getComputedParties();
 				const totalMarketDue = parties.reduce((s, p) => s + Math.max(0, p.netBalance || 0), 0);
 
-				const totalAllCash = state.collections
-					.filter((c) => c.mode === "Cash")
-					.reduce((s, c) => s + Number(c.amount || 0), 0);
-				const totalBankDeps = (state.bankDeposits || []).reduce(
-					(s, b) => s + Number(b.amount || 0),
-					0,
-				);
-				const totalAllExp = (state.expenses || []).reduce((s, e) => s + Number(e.amount || 0), 0);
-				const cashInHand = Math.max(0, totalAllCash - totalBankDeps - totalAllExp);
+				const cs = typeof getCashSummary === "function" ? getCashSummary() : null;
+				const cashInHand = cs ? cs.prashikInHand : 0;
 
 				const lines = [
 					`*${co.name}*`,
